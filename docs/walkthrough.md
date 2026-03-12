@@ -1,5 +1,60 @@
 # AAC Board — יומן פיתוח (Walkthrough)
 
+## 2026-03-12 23:30
+
+### שלב 3B — דף הגדרות, ערכת נושא כהה/בהיר, ו-PWA
+
+מימוש שלב 3B: דף הגדרות מרכזי, ערכת נושא כהה/בהיר עם גרדיאנטים עדינים, והפיכת האפליקציה ל-PWA.
+
+#### מה בוצע?
+
+**1. Settings Store — `src/lib/stores/settings.svelte.ts` (חדש)**
+
+- `AppSettings` interface: `ttsVoice`, `ttsRate`, `ttsPitch`, `theme` (light/dark), `tileSize` (small/medium/large)
+- שמירה ב-IndexedDB עם `idb-keyval`, שימוש ב-`$state.snapshot()` לפני כתיבה
+- `init()` — טוען הגדרות שמורות + מיגרציה אוטומטית מ-localStorage (TTS מ-3A)
+- `update(partial)` — מעדכן, שומר, ומחיל ערכת נושא
+- מירור theme ל-localStorage עבור anti-flash script
+
+**2. דף הגדרות — `src/routes/settings/+page.svelte` (חדש)**
+
+- 3 סקציות כרטיס: הגדרות קול, תצוגה, נתונים
+- קול: dropdown קולות עבריים, sliders מהירות/pitch, כפתור preview
+- תצוגה: toggle בהיר/כהה עם SVG icons, בורר גודל אריחים (קטן/בינוני/גדול)
+- נתונים: ייצוא/ייבוא לוחות, איפוס לברירת מחדל עם confirm
+
+**3. ניווט להגדרות — NavBar**
+
+- כפתור גלגל שיניים (SVG) מוביל ל-`/settings`
+- ממוקם לפני כפתור העריכה
+
+**4. ערכת נושא כהה/בהיר עם גרדיאנטים — `layout.css`**
+
+- CSS custom properties ב-`:root` ו-`:root.dark`
+- גרדיאנטים עדינים: `--bg-app` (160deg), `--bg-card` (145deg)
+- משתנים: `--bg-app`, `--bg-card`, `--bg-card-alt`, `--text-primary`, `--text-secondary`, `--border-color`, `--primary`
+- Dark mode: scrollbar styling, צבעי רקע כהים עם גרדיאנטים
+
+**5. Anti-flash script — `app.html`**
+
+- `<script>` inline שקורא theme מ-localStorage לפני שה-JS נטען
+- מונע הבהוב לבן בטעינה כשהמשתמש במצב כהה
+
+**6. PWA ידני**
+
+- `static/manifest.json` — שם בעברית, RTL, standalone, SVG icon
+- `static/icons/icon.svg` — אייקון 3×3 grid כחול עם בועת דיבור
+- `<link rel="manifest">` + `<meta name="theme-color">` ב-`app.html`
+
+#### החלטות ארכיטקטורה
+
+- **PWA ידני vs `@vite-pwa/sveltekit`**: נבחר מימוש ידני (manifest.json + meta tags) כי `@vite-pwa/sveltekit` עלול להתנגש עם `@sveltejs/adapter-cloudflare`. Service worker יתווסף בשלב עתידי.
+- **Anti-flash pattern**: localStorage mirror + inline script מבטיח שה-class `dark` מוחל לפני שה-CSS נטען. IndexedDB אסינכרוני ולכן לא מתאים לזה.
+- **מיגרציה אוטומטית TTS**: הגדרות TTS שנשמרו ב-localStorage בשלב 3A עוברות אוטומטית ל-IndexedDB בפעם הראשונה שה-settings store נטען, ואז נמחקות מ-localStorage.
+- **CSS variables עם גרדיאנטים**: שני משתנים — `--bg-app` לגרדיאנט ו-`--bg-app-solid` ל-fallback — כי gradients לא עובדים בכל הקשר CSS (למשל `background-color`).
+
+---
+
 ## 2026-03-12 22:45
 
 ### שלב 3A — חיפוש סמלים ARASAAC, העלאת תמונה, והגדרות קול TTS

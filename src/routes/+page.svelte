@@ -6,6 +6,7 @@
 	import TileEditor from '$lib/components/TileEditor.svelte';
 	import EditToolbar from '$lib/components/EditToolbar.svelte';
 	import { boardStore } from '$lib/stores/board.svelte';
+	import { settingsStore } from '$lib/stores/settings.svelte';
 	import { speak, speakAll } from '$lib/services/tts';
 	import { exportBoardsJSON } from '$lib/services/storage';
 	import { pictogramUrl } from '$lib/services/arasaac';
@@ -13,12 +14,14 @@
 	import { HOME_BOARD_ID } from '$lib/data/boards';
 
 	const store = boardStore();
+	const sStore = settingsStore();
 
 	let editingTile = $state<Tile | null>(null);
 	let showOverflow = $state(false);
 
 	onMount(() => {
 		store.init();
+		sStore.init();
 	});
 
 	function handleTilePress(tile: Tile) {
@@ -187,7 +190,7 @@
 		height: 100dvh;
 		width: 100vw;
 		overflow: hidden;
-		background: #f0f4f8;
+		background: var(--bg-app, #f0f4f8);
 	}
 
 	.hidden-input {
