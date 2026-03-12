@@ -1,1 +1,28 @@
 @import 'tailwindcss';
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+html,
+body {
+	height: 100%;
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;
+	background: #f0f4f8;
+	overflow: hidden;
+	-webkit-font-smoothing: antialiased;
+}
+
+/* Hide scrollbars in output bar */
+::-webkit-scrollbar {
+	height: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #bdbdbd;
+	border-radius: 4px;
+}

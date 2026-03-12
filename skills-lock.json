@@ -1,20 +1,20 @@
 {
-  "version": 1,
-  "skills": {
-    "commit": {
-      "source": "D:\\UserProjects\\AI\\my-skills\\commit",
-      "sourceType": "local",
-      "computedHash": "39c0c3a0504553f9aa689f022f920594bdff28a8297d431f4ede7fe861e10a2b"
-    },
-    "playwright-cli": {
-      "source": "microsoft/playwright-cli",
-      "sourceType": "github",
-      "computedHash": "d0c9769e2df40ba1f51660294e6833566cec8a0f8c6a6ef5eb922afe3f573ef6"
-    },
-    "update-walkthrough": {
-      "source": "D:\\UserProjects\\AI\\my-skills\\update-walkthrough",
-      "sourceType": "local",
-      "computedHash": "00bf58c97ef278073847df5edd7ba262b0d5d81baea25b4a133c9b24aa14fe5e"
-    }
-  }
+	"version": 1,
+	"skills": {
+		"commit": {
+			"source": "D:\\UserProjects\\AI\\my-skills\\commit",
+			"sourceType": "local",
+			"computedHash": "39c0c3a0504553f9aa689f022f920594bdff28a8297d431f4ede7fe861e10a2b"
+		},
+		"playwright-cli": {
+			"source": "microsoft/playwright-cli",
+			"sourceType": "github",
+			"computedHash": "d0c9769e2df40ba1f51660294e6833566cec8a0f8c6a6ef5eb922afe3f573ef6"
+		},
+		"update-walkthrough": {
+			"source": "D:\\UserProjects\\AI\\my-skills\\update-walkthrough",
+			"sourceType": "local",
+			"computedHash": "00bf58c97ef278073847df5edd7ba262b0d5d81baea25b4a133c9b24aa14fe5e"
+		}
+	}
 }
