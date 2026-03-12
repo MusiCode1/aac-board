@@ -1,5 +1,5 @@
-
 # כותרת Issue
+
 > Board rendering + TTS — שלב 1 ליבה
 
 **גוף:**
@@ -16,6 +16,7 @@
 8. **Layout** — `dir="rtl"`, `lang="he"`, home board ב-`+page.svelte`
 
 **קריטריונים להצלחה:**
+
 - `bun dev` → לוח עם אריחים בעברית
 - לחיצה = דיבור
 - תיקייה = ניווט
@@ -23,4 +24,3 @@
 - עיצוב מודרני, RTL, טאבלט
 
 **מחוץ לסקופ** ברור: לא auth, לא API, לא settings, לא Grid Sets, לא DnD, לא ElevenLabs, לא i18n, לא PWA, לא edit mode.
-
