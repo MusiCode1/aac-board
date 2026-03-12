@@ -2,7 +2,7 @@ import type { Board } from '$lib/types/board';
 
 /**
  * ARASAAC pictogram base URL.
- * Usage: `${ARASAAC_BASE}/<id>/300` for a 300px pictogram.
+ * IDs verified against https://api.arasaac.org/api/pictograms/all/he
  */
 const A = 'https://static.arasaac.org/pictograms';
 
@@ -23,7 +23,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'h1',
 				label: 'אני',
-				image: pic(6332),
+				image: pic(2617),
 				backgroundColor: '#FFF176',
 				borderColor: '#F9A825',
 				type: 'button'
@@ -31,7 +31,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'h2',
 				label: 'רוצה',
-				image: pic(7942),
+				image: pic(5441),
 				backgroundColor: '#A5D6A7',
 				borderColor: '#388E3C',
 				type: 'button'
@@ -39,7 +39,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'h3',
 				label: 'לא',
-				image: pic(5765),
+				image: pic(5525),
 				backgroundColor: '#EF9A9A',
 				borderColor: '#C62828',
 				type: 'button'
@@ -47,7 +47,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'h4',
 				label: 'כן',
-				image: pic(4994),
+				image: pic(5584),
 				backgroundColor: '#A5D6A7',
 				borderColor: '#388E3C',
 				type: 'button'
@@ -55,7 +55,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'h5',
 				label: 'עוד',
-				image: pic(7061),
+				image: pic(26913),
 				backgroundColor: '#FFF176',
 				borderColor: '#F9A825',
 				type: 'button'
@@ -64,7 +64,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'h6',
 				label: 'שלום',
-				image: pic(6808),
+				image: pic(6009),
 				backgroundColor: '#CE93D8',
 				borderColor: '#7B1FA2',
 				type: 'button'
@@ -72,7 +72,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'h7',
 				label: 'תודה',
-				image: pic(7637),
+				image: pic(8128),
 				backgroundColor: '#CE93D8',
 				borderColor: '#7B1FA2',
 				type: 'button'
@@ -80,7 +80,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'h8',
 				label: 'עזרה',
-				image: pic(3025),
+				image: pic(12252),
 				backgroundColor: '#EF9A9A',
 				borderColor: '#C62828',
 				type: 'button'
@@ -88,7 +88,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'h9',
 				label: 'אוכל',
-				image: pic(2572),
+				image: pic(4610),
 				backgroundColor: '#90CAF9',
 				borderColor: '#1565C0',
 				type: 'folder',
@@ -97,7 +97,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'h10',
 				label: 'משחקים',
-				image: pic(3432),
+				image: pic(32574),
 				backgroundColor: '#90CAF9',
 				borderColor: '#1565C0',
 				type: 'folder',
@@ -106,8 +106,8 @@ export const boards: Record<string, Board> = {
 			// Row 3
 			{
 				id: 'h11',
-				label: 'אני אוהב',
-				image: pic(6345),
+				label: 'אוהב',
+				image: pic(6600),
 				backgroundColor: '#F48FB1',
 				borderColor: '#C2185B',
 				type: 'button'
@@ -115,7 +115,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'h12',
 				label: 'הולך',
-				image: pic(6674),
+				image: pic(2432),
 				backgroundColor: '#A5D6A7',
 				borderColor: '#388E3C',
 				type: 'button'
@@ -123,7 +123,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'h13',
 				label: 'בבקשה',
-				image: pic(6815),
+				image: pic(8194),
 				backgroundColor: '#CE93D8',
 				borderColor: '#7B1FA2',
 				type: 'button'
@@ -131,7 +131,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'h14',
 				label: 'רגשות',
-				image: pic(2416),
+				image: pic(11476),
 				backgroundColor: '#FFCC80',
 				borderColor: '#E65100',
 				type: 'folder',
@@ -140,7 +140,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'h15',
 				label: 'מקומות',
-				image: pic(2736),
+				image: pic(32178),
 				backgroundColor: '#90CAF9',
 				borderColor: '#1565C0',
 				type: 'folder',
@@ -150,7 +150,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'h16',
 				label: 'גדול',
-				image: pic(2251),
+				image: pic(4658),
 				backgroundColor: '#FFF176',
 				borderColor: '#F9A825',
 				type: 'button'
@@ -158,7 +158,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'h17',
 				label: 'קטן',
-				image: pic(6613),
+				image: pic(4716),
 				backgroundColor: '#FFF176',
 				borderColor: '#F9A825',
 				type: 'button'
@@ -166,7 +166,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'h18',
 				label: 'לשתות',
-				image: pic(2382),
+				image: pic(2276),
 				backgroundColor: '#A5D6A7',
 				borderColor: '#388E3C',
 				type: 'button'
@@ -174,7 +174,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'h19',
 				label: 'להתלבש',
-				image: pic(2387),
+				image: pic(2781),
 				backgroundColor: '#A5D6A7',
 				borderColor: '#388E3C',
 				type: 'button'
@@ -182,7 +182,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'h20',
 				label: 'שירותים',
-				image: pic(7704),
+				image: pic(2430),
 				backgroundColor: '#FFCC80',
 				borderColor: '#E65100',
 				type: 'button'
@@ -197,7 +197,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'f1',
 				label: 'לחם',
-				image: pic(2334),
+				image: pic(2494),
 				backgroundColor: '#FFCC80',
 				borderColor: '#E65100',
 				type: 'button'
@@ -205,7 +205,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'f2',
 				label: 'תפוח',
-				image: pic(2210),
+				image: pic(2462),
 				backgroundColor: '#EF9A9A',
 				borderColor: '#C62828',
 				type: 'button'
@@ -213,7 +213,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'f3',
 				label: 'בננה',
-				image: pic(2247),
+				image: pic(2530),
 				backgroundColor: '#FFF176',
 				borderColor: '#F9A825',
 				type: 'button'
@@ -221,7 +221,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'f4',
 				label: 'חלב',
-				image: pic(2602),
+				image: pic(2445),
 				backgroundColor: '#E0E0E0',
 				borderColor: '#616161',
 				type: 'button'
@@ -229,7 +229,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'f5',
 				label: 'מים',
-				image: pic(2813),
+				image: pic(2248),
 				backgroundColor: '#90CAF9',
 				borderColor: '#1565C0',
 				type: 'button'
@@ -237,7 +237,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'f6',
 				label: 'עוגה',
-				image: pic(2279),
+				image: pic(2502),
 				backgroundColor: '#F48FB1',
 				borderColor: '#C2185B',
 				type: 'button'
@@ -245,7 +245,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'f7',
 				label: 'גלידה',
-				image: pic(2577),
+				image: pic(34092),
 				backgroundColor: '#CE93D8',
 				borderColor: '#7B1FA2',
 				type: 'button'
@@ -253,7 +253,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'f8',
 				label: 'פיצה',
-				image: pic(2693),
+				image: pic(2527),
 				backgroundColor: '#FFCC80',
 				borderColor: '#E65100',
 				type: 'button'
@@ -261,7 +261,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'f9',
 				label: 'ביצה',
-				image: pic(2485),
+				image: pic(2427),
 				backgroundColor: '#FFF176',
 				borderColor: '#F9A825',
 				type: 'button'
@@ -269,7 +269,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'f10',
 				label: 'אורז',
-				image: pic(2554),
+				image: pic(6911),
 				backgroundColor: '#E0E0E0',
 				borderColor: '#616161',
 				type: 'button'
@@ -277,7 +277,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'f11',
 				label: 'מרק',
-				image: pic(7486),
+				image: pic(2573),
 				backgroundColor: '#FFCC80',
 				borderColor: '#E65100',
 				type: 'button'
@@ -285,7 +285,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'f12',
 				label: 'עוגיה',
-				image: pic(2340),
+				image: pic(3331),
 				backgroundColor: '#FFCC80',
 				borderColor: '#E65100',
 				type: 'button'
@@ -300,7 +300,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'g1',
 				label: 'כדור',
-				image: pic(2232),
+				image: pic(2269),
 				backgroundColor: '#EF9A9A',
 				borderColor: '#C62828',
 				type: 'button'
@@ -308,7 +308,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'g2',
 				label: 'בובה',
-				image: pic(2383),
+				image: pic(2482),
 				backgroundColor: '#F48FB1',
 				borderColor: '#C2185B',
 				type: 'button'
@@ -316,7 +316,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'g3',
 				label: 'ציור',
-				image: pic(2388),
+				image: pic(2360),
 				backgroundColor: '#90CAF9',
 				borderColor: '#1565C0',
 				type: 'button'
@@ -324,7 +324,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'g4',
 				label: 'מוזיקה',
-				image: pic(2634),
+				image: pic(24791),
 				backgroundColor: '#CE93D8',
 				borderColor: '#7B1FA2',
 				type: 'button'
@@ -332,7 +332,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'g5',
 				label: 'פאזל',
-				image: pic(5064),
+				image: pic(2540),
 				backgroundColor: '#A5D6A7',
 				borderColor: '#388E3C',
 				type: 'button'
@@ -340,7 +340,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'g6',
 				label: 'ספר',
-				image: pic(2318),
+				image: pic(2450),
 				backgroundColor: '#90CAF9',
 				borderColor: '#1565C0',
 				type: 'button'
@@ -348,7 +348,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'g7',
 				label: 'טלוויזיה',
-				image: pic(7601),
+				image: pic(25498),
 				backgroundColor: '#E0E0E0',
 				borderColor: '#616161',
 				type: 'button'
@@ -356,7 +356,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'g8',
 				label: 'מחשב',
-				image: pic(2337),
+				image: pic(2487),
 				backgroundColor: '#90CAF9',
 				borderColor: '#1565C0',
 				type: 'button'
@@ -364,7 +364,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'g9',
 				label: 'חצר',
-				image: pic(3430),
+				image: pic(33064),
 				backgroundColor: '#A5D6A7',
 				borderColor: '#388E3C',
 				type: 'button'
@@ -372,7 +372,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'g10',
 				label: 'בריכה',
-				image: pic(7558),
+				image: pic(30516),
 				backgroundColor: '#90CAF9',
 				borderColor: '#1565C0',
 				type: 'button'
@@ -380,7 +380,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'g11',
 				label: 'נדנדה',
-				image: pic(7558),
+				image: pic(4572),
 				backgroundColor: '#A5D6A7',
 				borderColor: '#388E3C',
 				type: 'button'
@@ -388,7 +388,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'g12',
 				label: 'רכיבה',
-				image: pic(2258),
+				image: pic(9698),
 				backgroundColor: '#FFCC80',
 				borderColor: '#E65100',
 				type: 'button'
@@ -403,7 +403,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'e1',
 				label: 'שמח',
-				image: pic(2549),
+				image: pic(3245),
 				backgroundColor: '#FFF176',
 				borderColor: '#F9A825',
 				type: 'button'
@@ -411,7 +411,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'e2',
 				label: 'עצוב',
-				image: pic(7194),
+				image: pic(2606),
 				backgroundColor: '#90CAF9',
 				borderColor: '#1565C0',
 				type: 'button'
@@ -419,7 +419,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'e3',
 				label: 'כועס',
-				image: pic(2208),
+				image: pic(2374),
 				backgroundColor: '#EF9A9A',
 				borderColor: '#C62828',
 				type: 'button'
@@ -427,7 +427,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'e4',
 				label: 'מפחד',
-				image: pic(2523),
+				image: pic(2261),
 				backgroundColor: '#CE93D8',
 				borderColor: '#7B1FA2',
 				type: 'button'
@@ -435,7 +435,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'e5',
 				label: 'עייף',
-				image: pic(7654),
+				image: pic(2314),
 				backgroundColor: '#E0E0E0',
 				borderColor: '#616161',
 				type: 'button'
@@ -443,7 +443,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'e6',
 				label: 'רעב',
-				image: pic(2575),
+				image: pic(4962),
 				backgroundColor: '#FFCC80',
 				borderColor: '#E65100',
 				type: 'button'
@@ -451,7 +451,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'e7',
 				label: 'צמא',
-				image: pic(7643),
+				image: pic(4963),
 				backgroundColor: '#90CAF9',
 				borderColor: '#1565C0',
 				type: 'button'
@@ -459,7 +459,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'e8',
 				label: 'חולה',
-				image: pic(7296),
+				image: pic(3308),
 				backgroundColor: '#EF9A9A',
 				borderColor: '#C62828',
 				type: 'button'
@@ -467,7 +467,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'e9',
 				label: 'נהנה',
-				image: pic(2549),
+				image: pic(8582),
 				backgroundColor: '#A5D6A7',
 				borderColor: '#388E3C',
 				type: 'button'
@@ -475,7 +475,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'e10',
 				label: 'מופתע',
-				image: pic(7580),
+				image: pic(2574),
 				backgroundColor: '#FFF176',
 				borderColor: '#F9A825',
 				type: 'button'
@@ -483,7 +483,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'e11',
 				label: 'אוהב',
-				image: pic(6345),
+				image: pic(6600),
 				backgroundColor: '#F48FB1',
 				borderColor: '#C2185B',
 				type: 'button'
@@ -491,7 +491,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'e12',
 				label: 'לבד',
-				image: pic(2197),
+				image: pic(7253),
 				backgroundColor: '#E0E0E0',
 				borderColor: '#616161',
 				type: 'button'
@@ -506,7 +506,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'p1',
 				label: 'בית',
-				image: pic(2736),
+				image: pic(2317),
 				backgroundColor: '#FFCC80',
 				borderColor: '#E65100',
 				type: 'button'
@@ -514,7 +514,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'p2',
 				label: 'בית ספר',
-				image: pic(7267),
+				image: pic(3082),
 				backgroundColor: '#90CAF9',
 				borderColor: '#1565C0',
 				type: 'button'
@@ -522,7 +522,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'p3',
 				label: 'גן',
-				image: pic(3430),
+				image: pic(30608),
 				backgroundColor: '#A5D6A7',
 				borderColor: '#388E3C',
 				type: 'button'
@@ -530,7 +530,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'p4',
 				label: 'חנות',
-				image: pic(7286),
+				image: pic(9116),
 				backgroundColor: '#CE93D8',
 				borderColor: '#7B1FA2',
 				type: 'button'
@@ -538,7 +538,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'p5',
 				label: 'פארק',
-				image: pic(3430),
+				image: pic(2859),
 				backgroundColor: '#A5D6A7',
 				borderColor: '#388E3C',
 				type: 'button'
@@ -546,7 +546,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'p6',
 				label: 'רופא',
-				image: pic(2380),
+				image: pic(2467),
 				backgroundColor: '#EF9A9A',
 				borderColor: '#C62828',
 				type: 'button'
@@ -554,7 +554,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'p7',
 				label: 'מסעדה',
-				image: pic(6858),
+				image: pic(10283),
 				backgroundColor: '#FFCC80',
 				borderColor: '#E65100',
 				type: 'button'
@@ -562,7 +562,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'p8',
 				label: 'ים',
-				image: pic(7262),
+				image: pic(2925),
 				backgroundColor: '#90CAF9',
 				borderColor: '#1565C0',
 				type: 'button'
@@ -570,7 +570,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'p9',
 				label: 'סבתא',
-				image: pic(3471),
+				image: pic(2243),
 				backgroundColor: '#F48FB1',
 				borderColor: '#C2185B',
 				type: 'button'
@@ -578,7 +578,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'p10',
 				label: 'סבא',
-				image: pic(3469),
+				image: pic(2244),
 				backgroundColor: '#90CAF9',
 				borderColor: '#1565C0',
 				type: 'button'
@@ -586,7 +586,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'p11',
 				label: 'מגרש',
-				image: pic(7362),
+				image: pic(6204),
 				backgroundColor: '#A5D6A7',
 				borderColor: '#388E3C',
 				type: 'button'
@@ -594,7 +594,7 @@ export const boards: Record<string, Board> = {
 			{
 				id: 'p12',
 				label: 'ספרייה',
-				image: pic(6375),
+				image: pic(3065),
 				backgroundColor: '#CE93D8',
 				borderColor: '#7B1FA2',
 				type: 'button'
