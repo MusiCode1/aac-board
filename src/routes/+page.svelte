@@ -8,6 +8,7 @@
 	import { boardStore } from '$lib/stores/board.svelte';
 	import { speak, speakAll } from '$lib/services/tts';
 	import { exportBoardsJSON } from '$lib/services/storage';
+	import { pictogramUrl } from '$lib/services/arasaac';
 	import type { Tile } from '$lib/types/board';
 	import { HOME_BOARD_ID } from '$lib/data/boards';
 
@@ -70,7 +71,7 @@
 		const newTile: Tile = {
 			id: `tile-${Date.now()}`,
 			label: 'חדש',
-			image: 'https://static.arasaac.org/pictograms/6009/6009_300.png',
+			image: pictogramUrl(6009),
 			backgroundColor: '#ffffff',
 			borderColor: '#ccc',
 			type: 'button'

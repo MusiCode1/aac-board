@@ -1,5 +1,49 @@
 # AAC Board — יומן פיתוח (Walkthrough)
 
+## 2026-03-12 22:45
+
+### שלב 3A — חיפוש סמלים ARASAAC, העלאת תמונה, והגדרות קול TTS
+
+מימוש שלב 3A: חיפוש סמלים חי מ-ARASAAC API בתוך עורך האריח, העלאת תמונה מקומית, ובורר קול TTS עם הגדרות מהירות וגובה.
+
+#### מה בוצע?
+
+**1. שירות חיפוש ARASAAC — `src/lib/services/arasaac.ts` (חדש)**
+
+- `searchPictograms(keyword, lang, signal)` — חיפוש סמלים מ-API עם cache session-level ותמיכה ב-AbortSignal
+- `pictogramUrl(id, size)` — helper לבניית URL של פיקטוגרמה (מחליף את `pic()` הפנימי ב-`boards.ts`)
+- Cache ב-`Map<string, ArasaacResult[]>` מונע קריאות כפולות לאותה מילת חיפוש
+
+**2. חיפוש סמלים והעלאת תמונה ב-TileEditor**
+
+- סקציית "תמונה / סמל" חדשה עם שדה חיפוש ו-debounce 300ms
+- רשת תוצאות (עד 24 thumbnails של 56px) עם גלילה אנכית
+- לחיצה על סמל → עדכון ה-preview בזמן אמת
+- כפתור "העלה" — `FileReader.readAsDataURL()` להמרת תמונה ל-base64
+- אזהרה מוצגת אם תמונה > 500KB
+- ה-preview tile מציג את התמונה הנבחרת/שהועלתה מיידית
+
+**3. הגדרות קול TTS**
+
+- `getTtsSettings()` / `saveTtsSettings()` — שמירת הגדרות ב-localStorage
+- `getHebrewVoices()` — סינון קולות עבריים מ-Web Speech API
+- `speak()` — קורא הגדרות שמורות במקום ערכים hardcoded
+- סקציית "הגדרות קול" ב-TileEditor: dropdown קולות, sliders מהירות/pitch, כפתור "נסה קול"
+- `onvoiceschanged` event לטעינה אסינכרונית של קולות (Chrome)
+
+**4. ניקוי**
+
+- `+page.svelte` — שימוש ב-`pictogramUrl(6009)` במקום URL hardcoded ב-`handleAddTile`
+
+#### החלטות ארכיטקטורה
+
+- **localStorage עבור TTS (לא IndexedDB)**: הגדרות TTS נשמרות ב-localStorage כי הן נקראות סינכרונית בכל `speak()`. בשלב 3B ייווצר settings store עם IndexedDB ומיגרציה אוטומטית.
+- **AbortSignal בחיפוש**: כל חיפוש חדש מבטל את הקודם כדי למנוע race conditions כשהמשתמש מקליד מהר.
+- **Cache session-level ב-Map**: מספיק כי סמלי ARASAAC לא משתנים תוך session, ואין צורך ב-persist בין sessions.
+- **base64 לתמונות מועלות**: פשוט ל-persist ב-IndexedDB (נשמר ישירות עם ה-Tile). אזהרה על 500KB כי תמונות גדולות מאיטות את הסריאליזציה.
+
+---
+
 ## 2026-03-12 21:00
 
 ### תיקון שמירה מקומית, הצגת אריחים מוסתרים, ושיפורי UX

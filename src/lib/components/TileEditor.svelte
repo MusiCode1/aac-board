@@ -1,5 +1,8 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import type { Tile } from '$lib/types/board';
+	import { searchPictograms, type ArasaacResult } from '$lib/services/arasaac';
+	import { speak, getTtsSettings, saveTtsSettings, getHebrewVoices } from '$lib/services/tts';
 
 	interface Props {
 		tile: Tile;
@@ -10,23 +13,80 @@
 
 	let { tile, onsave, ondelete, onclose }: Props = $props();
 
+	// ── Tile fields ──
 	let label = $state('');
+	let image = $state('');
 	let backgroundColor = $state('');
 	let borderColor = $state('');
 	let tileType = $state<'button' | 'folder'>('button');
 	let loadBoard = $state('');
 
+	// ── Symbol search ──
+	let searchQuery = $state('');
+	let searchResults = $state<ArasaacResult[]>([]);
+	let searching = $state(false);
+	let searchTimer: ReturnType<typeof setTimeout> | null = null;
+	let abortController: AbortController | null = null;
+
+	// ── Image upload ──
+	let imageInput: HTMLInputElement | undefined;
+	let uploadWarning = $state('');
+
+	// ── TTS settings ──
+	let availableVoices = $state<SpeechSynthesisVoice[]>([]);
+	let selectedVoiceURI = $state('');
+	let ttsRate = $state(0.9);
+	let ttsPitch = $state(1.0);
+
 	$effect(() => {
 		label = tile.label;
+		image = tile.image;
 		backgroundColor = tile.backgroundColor;
 		borderColor = tile.borderColor;
 		tileType = tile.type;
 		loadBoard = tile.loadBoard ?? '';
+		searchQuery = '';
+		searchResults = [];
+		uploadWarning = '';
+	});
+
+	// Debounced search
+	$effect(() => {
+		const query = searchQuery.trim();
+		if (searchTimer) clearTimeout(searchTimer);
+		if (query.length < 2) {
+			searchResults = [];
+			searching = false;
+			return;
+		}
+		searching = true;
+		searchTimer = setTimeout(async () => {
+			if (abortController) abortController.abort();
+			abortController = new AbortController();
+			const results = await searchPictograms(query, 'he', abortController.signal);
+			searchResults = results;
+			searching = false;
+		}, 300);
+	});
+
+	onMount(() => {
+		const settings = getTtsSettings();
+		selectedVoiceURI = settings.voiceURI;
+		ttsRate = settings.rate;
+		ttsPitch = settings.pitch;
+
+		availableVoices = getHebrewVoices();
+		if ('speechSynthesis' in globalThis) {
+			speechSynthesis.onvoiceschanged = () => {
+				availableVoices = getHebrewVoices();
+			};
+		}
 	});
 
 	function handleSave() {
 		const updates: Partial<Tile> = {
 			label,
+			image,
 			backgroundColor,
 			borderColor,
 			type: tileType
@@ -47,6 +107,33 @@
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'Escape') onclose();
+	}
+
+	function handleImageUpload(e: Event) {
+		const input = e.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) return;
+
+		if (file.size > 500 * 1024) {
+			uploadWarning = 'התמונה גדולה מ-500KB. מומלץ לבחור תמונה קטנה יותר.';
+		} else {
+			uploadWarning = '';
+		}
+
+		const reader = new FileReader();
+		reader.onload = () => {
+			image = reader.result as string;
+		};
+		reader.readAsDataURL(file);
+		input.value = '';
+	}
+
+	function persistTts() {
+		saveTtsSettings({ voiceURI: selectedVoiceURI, rate: ttsRate, pitch: ttsPitch });
+	}
+
+	function previewVoice() {
+		speak('שלום, זה ניסיון קול');
 	}
 
 	const presetColors = [
@@ -89,7 +176,7 @@
 
 		<div class="editor-preview">
 			<div class="preview-tile" style="background: {backgroundColor}; border-color: {borderColor}">
-				<img src={tile.image} alt={label} />
+				<img src={image} alt={label} />
 				<span>{label}</span>
 			</div>
 		</div>
@@ -99,6 +186,49 @@
 				<span class="field-label">תווית</span>
 				<input type="text" bind:value={label} class="field-input" />
 			</label>
+
+			<!-- Symbol search & image upload -->
+			<div class="field">
+				<span class="field-label">תמונה / סמל</span>
+				<div class="image-actions">
+					<input
+						type="text"
+						bind:value={searchQuery}
+						class="field-input"
+						placeholder="חפש סמל..."
+					/>
+					<button class="btn btn-upload" onclick={() => imageInput?.click()}>העלה</button>
+					<input
+						type="file"
+						accept="image/*"
+						bind:this={imageInput}
+						onchange={handleImageUpload}
+						hidden
+					/>
+				</div>
+				{#if uploadWarning}
+					<span class="upload-warning">{uploadWarning}</span>
+				{/if}
+				{#if searching}
+					<div class="search-status">מחפש...</div>
+				{:else if searchQuery.trim().length >= 2 && searchResults.length === 0}
+					<div class="search-status">לא נמצאו תוצאות</div>
+				{/if}
+				{#if searchResults.length > 0}
+					<div class="symbol-grid">
+						{#each searchResults.slice(0, 24) as result (result._id)}
+							<button
+								class="symbol-option"
+								class:selected={image === result.imageUrl}
+								onclick={() => (image = result.imageUrl)}
+								title={result.keywords[0]?.keyword ?? ''}
+							>
+								<img src={result.imageUrl} alt={result.keywords[0]?.keyword ?? ''} loading="lazy" />
+							</button>
+						{/each}
+					</div>
+				{/if}
+			</div>
 
 			<label class="field">
 				<span class="field-label">סוג</span>
@@ -137,6 +267,42 @@
 					<input type="color" bind:value={borderColor} class="color-picker-large" />
 					<span class="color-hex">{borderColor}</span>
 				</div>
+			</div>
+
+			<!-- TTS settings (global) -->
+			<div class="field tts-section">
+				<span class="field-label">הגדרות קול</span>
+				<select bind:value={selectedVoiceURI} class="field-input" onchange={persistTts}>
+					<option value="">ברירת מחדל</option>
+					{#each availableVoices as voice (voice.voiceURI)}
+						<option value={voice.voiceURI}>{voice.name}</option>
+					{/each}
+				</select>
+				<div class="slider-row">
+					<label class="slider-field">
+						<span class="slider-label">מהירות: {ttsRate.toFixed(1)}</span>
+						<input
+							type="range"
+							min="0.5"
+							max="2"
+							step="0.1"
+							bind:value={ttsRate}
+							oninput={persistTts}
+						/>
+					</label>
+					<label class="slider-field">
+						<span class="slider-label">גובה: {ttsPitch.toFixed(1)}</span>
+						<input
+							type="range"
+							min="0.5"
+							max="2"
+							step="0.1"
+							bind:value={ttsPitch}
+							oninput={persistTts}
+						/>
+					</label>
+				</div>
+				<button class="btn btn-preview" onclick={previewVoice}>נסה קול</button>
 			</div>
 		</div>
 
@@ -271,6 +437,131 @@
 		border-color: #1976d2;
 	}
 
+	/* ── Image search ── */
+
+	.image-actions {
+		display: flex;
+		gap: 6px;
+	}
+
+	.image-actions .field-input {
+		flex: 1;
+	}
+
+	.btn-upload {
+		padding: 8px 14px;
+		border: 1.5px solid #e0e0e0;
+		border-radius: 8px;
+		background: #f5f5f5;
+		color: #616161;
+		font-size: 13px;
+		font-weight: 600;
+		cursor: pointer;
+		white-space: nowrap;
+		transition: background 0.15s;
+	}
+
+	.btn-upload:hover {
+		background: #e0e0e0;
+	}
+
+	.upload-warning {
+		font-size: 12px;
+		color: #e65100;
+	}
+
+	.search-status {
+		font-size: 13px;
+		color: #9e9e9e;
+		padding: 4px 0;
+	}
+
+	.symbol-grid {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+		max-height: 200px;
+		overflow-y: auto;
+		padding: 4px 0;
+	}
+
+	.symbol-option {
+		width: 56px;
+		height: 56px;
+		border: 2px solid #e0e0e0;
+		border-radius: 8px;
+		background: white;
+		cursor: pointer;
+		padding: 4px;
+		transition:
+			border-color 0.15s,
+			transform 0.1s;
+	}
+
+	.symbol-option:hover {
+		border-color: #90caf9;
+		transform: scale(1.05);
+	}
+
+	.symbol-option.selected {
+		border-color: #1976d2;
+		box-shadow: 0 0 0 1px #1976d2;
+	}
+
+	.symbol-option img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+	}
+
+	/* ── TTS settings ── */
+
+	.tts-section {
+		border-top: 1px solid #e0e0e0;
+		padding-top: 14px;
+	}
+
+	.slider-row {
+		display: flex;
+		gap: 12px;
+	}
+
+	.slider-field {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+
+	.slider-label {
+		font-size: 12px;
+		color: #9e9e9e;
+	}
+
+	.slider-field input[type='range'] {
+		width: 100%;
+		accent-color: #1976d2;
+	}
+
+	.btn-preview {
+		align-self: flex-start;
+		padding: 6px 14px;
+		border: 1.5px solid #e0e0e0;
+		border-radius: 8px;
+		background: #e3f2fd;
+		color: #1565c0;
+		font-size: 13px;
+		font-weight: 600;
+		cursor: pointer;
+		transition: background 0.15s;
+	}
+
+	.btn-preview:hover {
+		background: #bbdefb;
+	}
+
+	/* ── Colors ── */
+
 	.color-row {
 		display: flex;
 		gap: 6px;
@@ -321,6 +612,8 @@
 		color: #9e9e9e;
 		font-family: monospace;
 	}
+
+	/* ── Footer ── */
 
 	.editor-actions {
 		display: flex;

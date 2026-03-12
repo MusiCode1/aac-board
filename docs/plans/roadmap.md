@@ -33,20 +33,54 @@
 
 **מטרה:** חוויית בחירת סמלים עשירה וקולות איכותיים.
 
-- [ ] **חיפוש ARASAAC** — קומפוננטת חיפוש עם autocomplete, תצוגה מקדימה, סינון לפי קטגוריה
-- [ ] **העלאת תמונה** — תמונה מקומית כסמל (File API + object URL / base64)
-- [ ] **בחירת קול TTS** — UI לבחירת קול מובנה (Web Speech voices)
+### שלב 3A — חיפוש סמלים, העלאת תמונה, בחירת קול
+
+- [ ] **שירות חיפוש ARASAAC** — `src/lib/services/arasaac.ts`
+  - [ ] `searchPictograms(keyword, lang)` עם cache ו-AbortSignal
+  - [ ] `pictogramUrl(id, size)` — helper לבניית URL
+- [ ] **חיפוש סמלים ב-TileEditor** — סקציית "תמונה / סמל"
+  - [ ] שדה חיפוש עם debounce 300ms
+  - [ ] רשת תוצאות (~60px thumbnails), לחיצה בוחרת סמל
+  - [ ] תצוגת loading ו-"לא נמצאו תוצאות"
+- [ ] **העלאת תמונה** — בתוך TileEditor
+  - [ ] כפתור "העלה תמונה" + `<input type="file" accept="image/*">`
+  - [ ] המרה ל-base64, אזהרה אם >500KB
+- [ ] **הגדרות קול TTS** — עדכון `tts.ts` + סקציה ב-TileEditor
+  - [ ] `getTtsSettings()` / `saveTtsSettings()` (localStorage)
+  - [ ] `getHebrewVoices()` — סינון קולות עבריים
+  - [ ] dropdown קולות, sliders מהירות/pitch, כפתור "נסה קול"
+  - [ ] `speak()` משתמש בהגדרות השמורות
+- [ ] **ניקוי** — `pictogramUrl()` במקום URL hardcoded ב-`+page.svelte`
+
+**קבצים:** `arasaac.ts` (חדש), `TileEditor.svelte` (עדכון), `tts.ts` (עדכון), `+page.svelte` (עדכון)
+
+### שלב 3B — הגדרות ו-PWA
+
+- [ ] **Settings Store** — `src/lib/stores/settings.svelte.ts`
+  - [ ] `AppSettings`: ttsVoice, ttsRate, ttsPitch, theme, tileSize
+  - [ ] persist ל-IndexedDB, `$state.snapshot()` לפני שמירה
+  - [ ] `init()` עם מיגרציה מ-localStorage של 3A
+  - [ ] `update(partial)` + `applyTheme()`
+- [ ] **דף הגדרות** — `src/routes/settings/+page.svelte`
+  - [ ] סקציית קול: dropdown, sliders, preview
+  - [ ] סקציית תצוגה: toggle בהיר/כהה, גודל אריחים
+  - [ ] סקציית נתונים: ייצוא/ייבוא, איפוס
+- [ ] **NavBar** — כפתור gear icon → `/settings`
+- [ ] **ערכת נושא** — CSS variables ב-`:root` / `:root.dark`
+  - [ ] גרדיאנט עדין לרקע האפליקציה ולכרטיסים (cards)
+  - [ ] anti-flash script ב-`app.html`
+- [ ] **PWA ידני** (ללא plugin — Cloudflare adapter)
+  - [ ] `static/manifest.json` — שם עברי, RTL, standalone
+  - [ ] אייקונים ב-`static/icons/`
+  - [ ] `app.html` — manifest link, theme-color meta
+- [ ] **חיבור** — settings store ב-`+page.svelte`, TTS params
+
+**קבצים:** `settings.svelte.ts` (חדש), `settings/+page.svelte` (חדש), `manifest.json` (חדש), `NavBar.svelte` (עדכון), `layout.css` (עדכון), `app.html` (עדכון), `tts.ts` (עדכון), `+page.svelte` (עדכון)
+
+### שלב 3 — עתידי (Azure TTS, ElevenLabs)
+
 - [ ] **Azure TTS** — חיבור ל-Azure Cognitive Services (קולות ענן)
 - [ ] **ElevenLabs** — חיבור ל-ElevenLabs API (קולות AI), בורר קולות עם preview
-- [ ] **הגדרות TTS** — קצב דיבור, עוצמה, pitch
-
-**קבצים עיקריים:**
-
-- `src/lib/components/SymbolSearch.svelte` (חדש)
-- `src/lib/components/VoiceSelector.svelte` (חדש)
-- `src/lib/services/tts.ts` (עדכון — multi-provider)
-- `src/lib/services/arasaac.ts` (עדכון — חיפוש)
-- `src/lib/stores/settings.svelte.ts` (חדש)
 
 ---
 
@@ -71,12 +105,10 @@
 
 ---
 
-## שלב 5 — הגדרות ופרופיל
+## שלב 5 — הגדרות מתקדמות ופרופיל
 
-**מטרה:** התאמה אישית מלאה של האפליקציה.
+**מטרה:** התאמה אישית מלאה של האפליקציה (מרחיב את 3B).
 
-- [ ] **דף הגדרות** — route חדש `/settings`
-- [ ] **הגדרות תצוגה** — ערכת נושא (בהיר/כהה), גודל פונט, צבע רקע
 - [ ] **הגדרות שפה** — בחירת שפה לממשק ולדיבור
 - [ ] **הגדרות ניווט** — ניווט אוטומטי, breadcrumbs on/off, lock board
 - [ ] **פרופיל מתקשר** — שם, גיל, שפה, רמת תקשורת
@@ -84,7 +116,7 @@
 
 **קבצים עיקריים:**
 
-- `src/routes/settings/+page.svelte` (חדש)
+- `src/routes/settings/+page.svelte` (עדכון)
 - `src/lib/stores/settings.svelte.ts` (עדכון)
 - `src/lib/components/settings/` (תיקייה חדשה)
 
@@ -166,17 +198,19 @@
 
 ## סדר עדיפויות מומלץ
 
-| שלב | תיאור                   | תלות     | עדיפות               |
-| --- | ----------------------- | -------- | -------------------- |
-| 2   | עריכה + IndexedDB       | —        | קריטי                |
-| 3   | חיפוש סמלים + TTS מתקדם | שלב 2    | גבוהה                |
-| 4   | נגישות + סריקה          | —        | גבוהה                |
-| 5   | הגדרות + פרופיל         | שלב 2    | בינונית              |
-| 6   | Grid Sets               | שלב 2, 5 | בינונית              |
-| 7   | PWA + אופליין           | שלב 2    | בינונית              |
-| 8   | Backend + אימות         | שלב 6    | נמוכה (יש IndexedDB) |
-| 9   | AI + מתקדם              | שלב 8    | עתידי                |
-| 10  | i18n + Production       | שלב 8    | עתידי                |
+| שלב | תיאור                           | תלות     | סטטוס                    |
+| --- | ------------------------------- | -------- | ------------------------ |
+| 1   | ליבה — רינדור, TTS, ניווט       | —        | :white_check_mark: הושלם |
+| 2   | עריכה + IndexedDB               | —        | :white_check_mark: הושלם |
+| 3A  | חיפוש סמלים + העלאת תמונה + קול | שלב 2    | :arrow_right: הבא        |
+| 3B  | הגדרות + PWA                    | שלב 3A   | :arrow_right: הבא        |
+| 4   | נגישות + סריקה                  | —        | בינונית                  |
+| 5   | הגדרות מתקדמות + פרופיל         | שלב 3B   | בינונית                  |
+| 6   | Grid Sets                       | שלב 2, 5 | בינונית                  |
+| 7   | PWA מתקדם + אופליין             | שלב 3B   | בינונית                  |
+| 8   | Backend + אימות                 | שלב 6    | נמוכה                    |
+| 9   | AI + מתקדם                      | שלב 8    | עתידי                    |
+| 10  | i18n + Production               | שלב 8    | עתידי                    |
 
 ## אימות
 
