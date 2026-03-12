@@ -6,9 +6,10 @@
 		board: Board;
 		ontilepress: (tile: TileType) => void;
 		direction: 'forward' | 'back' | 'none';
+		editMode: boolean;
 	}
 
-	let { board, ontilepress, direction = 'none' }: Props = $props();
+	let { board, ontilepress, direction = 'none', editMode = false }: Props = $props();
 
 	let animClass = $derived(
 		direction === 'back' ? 'slide-right' : direction === 'forward' ? 'slide-left' : ''
@@ -23,7 +24,7 @@
 		aria-label={board.name}
 	>
 		{#each board.tiles as tile, i (tile.id)}
-			<Tile {tile} index={i} onpress={ontilepress} />
+			<Tile {tile} index={i} onpress={ontilepress} {editMode} />
 		{/each}
 	</div>
 {/key}

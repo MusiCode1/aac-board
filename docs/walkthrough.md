@@ -1,5 +1,53 @@
 # AAC Board — יומן פיתוח (Walkthrough)
 
+## 2026-03-12 19:00
+
+### שלב 2 (חלק 1) — מצב עריכה, CRUD, ושמירה מקומית
+
+מימוש תשתית עריכת לוחות: edit mode, עריכת/מחיקת אריחים, ושמירה אוטומטית ב-IndexedDB.
+
+#### מה בוצע?
+
+**1. שירות שמירה מקומית (IndexedDB)**
+
+- `src/lib/services/storage.ts` — שירות חדש עם `idb-keyval` (~600 bytes)
+- פעולות: `saveBoard`, `loadAllBoards`, `deleteBoard`, `exportBoardsJSON`, `importBoardsJSON`, `clearAllBoards`
+- אינדקס מזהי לוחות נשמר בנפרד לטעינה מהירה
+
+**2. שדרוג board store עם CRUD**
+
+- `allBoards` — מילון לוחות מלא (מוטבל, נטען מ-IndexedDB או defaults)
+- `init()` — טוען לוחות שמורים, או שומר defaults בפעם הראשונה
+- פעולות אריחים: `updateTile`, `addTile`, `removeTile`, `reorderTiles`
+- פעולות לוח: `updateBoard`, `createBoard`, `deleteBoard`, `resetToDefaults`, `importBoards`
+- auto-persist — כל שינוי נשמר אוטומטית ל-IndexedDB
+
+**3. מצב עריכה (Edit Mode)**
+
+- כפתור עט/V ב-NavBar עם toggle
+- NavBar משנה צבע לכתום במצב עריכה
+- אריחים מציגים תג עריכה כתום + אנימציית wobble
+- לחיצה על אריח במצב עריכה פותחת את TileEditor (במקום TTS)
+
+**4. דיאלוג עריכת אריח (TileEditor)**
+
+- `src/lib/components/TileEditor.svelte` — דיאלוג modal חדש
+- עריכת: תווית, צבע רקע (10 presets + color picker), צבע גבול, סוג (כפתור/תיקייה)
+- תצוגה מקדימה חיה של האריח
+- כפתורי שמור/ביטול/מחק
+- סגירה עם Escape או לחיצה על הרקע
+
+**5. תוכנית פיתוח ארוכת טווח**
+
+- `docs/plans/roadmap.md` — 10 שלבים מ-edit mode ועד production
+- תלויות, סדר עדיפויות, וקבצים עיקריים לכל שלב
+
+#### החלטות ארכיטקטורה
+
+- **idb-keyval vs Dexie**: נבחר idb-keyval בגלל גודל זעיר (~600B) ו-API פשוט. מספיק לשלב הנוכחי, אפשר לשדרג ל-Dexie בעתיד אם צריך queries מורכבים
+- **allBoards מוטבל**: הלוחות נשמרים ב-`$state` מוטבל במקום ב-const, כדי לאפשר עריכה ושמירה דינמית
+- **auto-persist**: כל פעולת CRUD שומרת אוטומטית ל-IndexedDB, ללא כפתור "שמור" מפורש
+
 ## 2026-03-12 18:00
 
 ### תיקון מזהי פיקטוגרמות ARASAAC

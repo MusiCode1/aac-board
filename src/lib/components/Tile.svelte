@@ -5,9 +5,10 @@
 		tile: Tile;
 		index: number;
 		onpress: (tile: Tile) => void;
+		editMode: boolean;
 	}
 
-	let { tile, index, onpress }: Props = $props();
+	let { tile, index, onpress, editMode = false }: Props = $props();
 	let pressed = $state(false);
 
 	function handleClick() {
@@ -21,9 +22,10 @@
 	class="tile"
 	class:pressed
 	class:folder={tile.type === 'folder'}
+	class:editing={editMode}
 	style="--bg: {tile.backgroundColor}; --border-color: {tile.borderColor}; --index: {index}"
 	onclick={handleClick}
-	aria-label={tile.label}
+	aria-label={editMode ? `ערוך ${tile.label}` : tile.label}
 >
 	<div class="tile-icon">
 		<img src={tile.image} alt={tile.label} loading="lazy" draggable="false" />
@@ -45,10 +47,20 @@
 		{/if}
 	</div>
 	<span class="tile-label">{tile.label}</span>
+	{#if editMode}
+		<span class="edit-badge" aria-hidden="true">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+				<path
+					d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+				/>
+			</svg>
+		</span>
+	{/if}
 </button>
 
 <style>
 	.tile {
+		position: relative;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -156,6 +168,40 @@
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		max-width: 100%;
+	}
+
+	/* edit mode indicator */
+	.tile.editing {
+		animation: tile-wobble 1.5s ease-in-out infinite;
+	}
+
+	.edit-badge {
+		position: absolute;
+		top: 4px;
+		right: 4px;
+		width: 22px;
+		height: 22px;
+		border-radius: 50%;
+		background: #e65100;
+		color: white;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: 0 1px 4px rgb(0 0 0 / 0.3);
+		z-index: 2;
+	}
+
+	@keyframes tile-wobble {
+		0%,
+		100% {
+			transform: rotate(0deg);
+		}
+		25% {
+			transform: rotate(-1deg);
+		}
+		75% {
+			transform: rotate(1deg);
+		}
 	}
 
 	/* staggered fade-in + slide-up */

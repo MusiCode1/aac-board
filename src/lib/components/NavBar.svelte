@@ -4,14 +4,25 @@
 		canGoBack: boolean;
 		isHome: boolean;
 		breadcrumbs: string[];
+		editMode: boolean;
 		onback: () => void;
 		onhome: () => void;
+		ontoggleedit: () => void;
 	}
 
-	let { boardName, canGoBack, isHome, breadcrumbs = [], onback, onhome }: Props = $props();
+	let {
+		boardName,
+		canGoBack,
+		isHome,
+		breadcrumbs = [],
+		editMode = false,
+		onback,
+		onhome,
+		ontoggleedit
+	}: Props = $props();
 </script>
 
-<nav class="nav-bar" aria-label="ניווט לוח">
+<nav class="nav-bar" class:editing={editMode} aria-label="ניווט לוח">
 	<div class="nav-actions">
 		<button class="nav-btn" onclick={onhome} disabled={isHome} aria-label="בית" title="בית">
 			<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
@@ -38,6 +49,25 @@
 		{/if}
 		<h1 class="board-title">{boardName}</h1>
 	</div>
+	<button
+		class="nav-btn edit-btn"
+		class:active={editMode}
+		onclick={ontoggleedit}
+		aria-label={editMode ? 'סיום עריכה' : 'עריכה'}
+		title={editMode ? 'סיום עריכה' : 'עריכה'}
+	>
+		{#if editMode}
+			<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+				<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+			</svg>
+		{:else}
+			<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+				<path
+					d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+				/>
+			</svg>
+		{/if}
+	</button>
 </nav>
 
 <style>
@@ -49,6 +79,11 @@
 		background: linear-gradient(135deg, #1565c0, #1976d2, #1e88e5);
 		color: white;
 		box-shadow: 0 2px 8px rgb(0 0 0 / 0.2);
+		transition: background 0.3s;
+	}
+
+	.nav-bar.editing {
+		background: linear-gradient(135deg, #e65100, #f57c00, #ff9800);
 	}
 
 	.nav-actions {
@@ -85,6 +120,11 @@
 	.nav-btn:disabled {
 		opacity: 0.35;
 		cursor: not-allowed;
+	}
+
+	.edit-btn.active {
+		background: rgb(255 255 255 / 0.35);
+		box-shadow: 0 0 0 2px white;
 	}
 
 	.nav-title-area {
