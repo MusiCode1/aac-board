@@ -26,7 +26,7 @@ let initialized = $state(false);
 /** Auto-save the current board to IndexedDB */
 async function persist(board: Board) {
 	try {
-		await saveBoard(board);
+		await saveBoard($state.snapshot(board) as Board);
 	} catch {
 		// IndexedDB not available (SSR, private browsing)
 	}
@@ -81,7 +81,7 @@ export function boardStore() {
 					currentBoard = allBoards[HOME_BOARD_ID] ?? Object.values(allBoards)[0];
 				} else {
 					// First run — save defaults to IndexedDB
-					await saveAllBoards(allBoards);
+					await saveAllBoards($state.snapshot(allBoards) as Record<string, Board>);
 				}
 			} catch {
 				// IndexedDB not available
@@ -218,7 +218,7 @@ export function boardStore() {
 			allBoards = { ...defaultBoards };
 			currentBoard = allBoards[HOME_BOARD_ID];
 			navigationStack = [];
-			await saveAllBoards(allBoards);
+			await saveAllBoards($state.snapshot(allBoards) as Record<string, Board>);
 		},
 
 		/** Replace all boards (for import) */
@@ -226,7 +226,7 @@ export function boardStore() {
 			allBoards = boards;
 			currentBoard = allBoards[HOME_BOARD_ID] ?? Object.values(allBoards)[0];
 			navigationStack = [];
-			await saveAllBoards(allBoards);
+			await saveAllBoards($state.snapshot(allBoards) as Record<string, Board>);
 		}
 	};
 }

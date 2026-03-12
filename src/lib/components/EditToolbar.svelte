@@ -3,24 +3,28 @@
 		rows: number;
 		columns: number;
 		hiddenCount: number;
+		showOverflow: boolean;
 		onresizegrid: (rows: number, columns: number) => void;
 		onexport: () => void;
 		onimport: () => void;
 		onaddtile: () => void;
 		onreset: () => void;
 		ondeleteoverflow: () => void;
+		ontoggleoverflow: () => void;
 	}
 
 	let {
 		rows,
 		columns,
 		hiddenCount,
+		showOverflow,
 		onresizegrid,
 		onexport,
 		onimport,
 		onaddtile,
 		onreset,
-		ondeleteoverflow
+		ondeleteoverflow,
+		ontoggleoverflow
 	}: Props = $props();
 
 	function changeRows(delta: number) {
@@ -75,12 +79,30 @@
 	{#if hiddenCount > 0}
 		<div class="toolbar-sep"></div>
 		<div class="overflow-warning">
-			<span class="overflow-text">{hiddenCount} אריחים מוסתרים</span>
+			<button
+				class="overflow-toggle"
+				class:active={showOverflow}
+				onclick={ontoggleoverflow}
+				title="הצג/הסתר אריחים מוסתרים"
+			>
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+					{#if showOverflow}
+						<path
+							d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46A11.804 11.804 0 001 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"
+						/>
+					{:else}
+						<path
+							d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
+						/>
+					{/if}
+				</svg>
+				{hiddenCount} מוסתרים
+			</button>
 			<button class="toolbar-btn danger" onclick={ondeleteoverflow} title="מחק אריחים שמעבר לרשת">
 				<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
 					<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
 				</svg>
-				מחק עודפים
+				מחק
 			</button>
 		</div>
 	{/if}
@@ -205,10 +227,28 @@
 		border-radius: 6px;
 	}
 
-	.overflow-text {
+	.overflow-toggle {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		padding: 4px 10px;
+		border-radius: 6px;
+		border: 1px solid #ff9800;
+		background: white;
+		color: #e65100;
 		font-size: 12px;
 		font-weight: 600;
-		color: #e65100;
+		cursor: pointer;
+		transition: background 0.15s;
 		white-space: nowrap;
+	}
+
+	.overflow-toggle:hover {
+		background: #fff3e0;
+	}
+
+	.overflow-toggle.active {
+		background: #ff9800;
+		color: white;
 	}
 </style>

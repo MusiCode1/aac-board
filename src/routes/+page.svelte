@@ -14,6 +14,7 @@
 	const store = boardStore();
 
 	let editingTile = $state<Tile | null>(null);
+	let showOverflow = $state(false);
 
 	onMount(() => {
 		store.init();
@@ -141,12 +142,14 @@
 			rows={store.currentBoard.grid.rows}
 			columns={store.currentBoard.grid.columns}
 			{hiddenCount}
+			{showOverflow}
 			onresizegrid={handleResizeGrid}
 			onexport={handleExport}
 			onimport={handleImport}
 			onaddtile={handleAddTile}
 			onreset={handleReset}
 			ondeleteoverflow={() => store.trimTilesToGrid()}
+			ontoggleoverflow={() => (showOverflow = !showOverflow)}
 		/>
 	{/if}
 	<Board
@@ -155,6 +158,7 @@
 		onreorder={handleReorder}
 		direction={store.navDirection}
 		editMode={store.editMode}
+		{showOverflow}
 	/>
 </div>
 

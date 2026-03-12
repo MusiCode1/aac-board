@@ -69,6 +69,10 @@ test.describe('Edit Mode', () => {
 	test('add tile creates a new tile', async ({ page }) => {
 		await page.locator('.edit-btn').click();
 
+		// Increase rows to ensure there's room for a new tile
+		const rowPlusBtn = page.locator('.stepper-btn', { hasText: '+' }).first();
+		await rowPlusBtn.click();
+
 		const initialCount = await page.locator('.tile').count();
 
 		// Click "הוסף" button
@@ -137,10 +141,10 @@ test.describe('Edit Mode', () => {
 		const visibleTiles = await page.locator('.tile').count();
 		if (initialCount > visibleTiles) {
 			await expect(page.locator('.overflow-warning')).toBeVisible();
-			await expect(page.locator('.overflow-text')).toContainText('אריחים מוסתרים');
+			await expect(page.locator('.overflow-toggle')).toContainText('מוסתרים');
 
 			// Click delete overflow
-			await page.locator('.toolbar-btn', { hasText: 'מחק עודפים' }).click();
+			await page.locator('.toolbar-btn', { hasText: 'מחק' }).click();
 
 			// Warning should disappear
 			await expect(page.locator('.overflow-warning')).not.toBeVisible();

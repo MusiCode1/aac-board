@@ -1,5 +1,47 @@
 # AAC Board — יומן פיתוח (Walkthrough)
 
+## 2026-03-12 21:00
+
+### תיקון שמירה מקומית, הצגת אריחים מוסתרים, ושיפורי UX
+
+תיקון באג קריטי בשמירה ל-IndexedDB, הוספת תצוגה מקדימה לאריחים מוסתרים, והתאמת ה-grid להסתרה נכונה.
+
+#### מה בוצע?
+
+**1. תיקון שמירה ל-IndexedDB ($state.snapshot)**
+
+- שינויים לא נשמרו בין ריענונים — הבאג הקריטי ביותר בפרויקט עד כה
+- כל קריאות `saveBoard` ו-`saveAllBoards` עודכנו לעטוף ב-`$state.snapshot()` לפני שמירה
+- הסיבה: Svelte 5 `$state` יוצר Proxy objects, ו-IndexedDB structured clone algorithm לא יודע לסריאלז Proxies
+
+**2. הסתרת אריחים חורגים (visibleTiles)**
+
+- Board מרנדר רק `rows × columns` אריחים (`visibleTiles = board.tiles.slice(0, gridCapacity)`)
+- במקום הסתרה ב-CSS (`overflow: hidden`) שלא עבדה כי CSS Grid יוצר implicit rows
+- אריחים עודפים נשמרים בנתונים אך לא ב-DOM
+
+**3. תצוגת אריחים מוסתרים (showOverflow toggle)**
+
+- כפתור עין ב-EditToolbar מאפשר הצגה/הסתרה של האריחים החורגים
+- אריחים מוסתרים מוצגים מעומעמים (opacity 0.45 + grayscale) מתחת לקו מפריד כתום
+- הרשת עוברת למצב גלילה (`overflow-y: auto`, `grid-template-rows: auto`)
+- prop `dimmed` חדש ב-Tile לעיצוב מעומעם
+
+**4. שיפורי EditToolbar**
+
+- כפתור toggle עם אייקון עין/עין חסומה
+- מצב active כתום כשהאריחים המוסתרים מוצגים
+- כפתור "מחק" (קוצר מ-"מחק עודפים") לממשק נקי יותר
+
+#### החלטות ארכיטקטורה
+
+- **`$state.snapshot()` vs `structuredClone()`**: נבחר `$state.snapshot()` כי הוא ה-API הרשמי של Svelte 5 להמרת Proxy לאובייקט רגיל, יעיל יותר מ-`structuredClone` כי הוא יודע לדלג על ה-Proxy layer ישירות
+- **רינדור מוגבל vs CSS overflow**: נבחר `slice(0, capacity)` ב-JS על פני `overflow: hidden` ב-CSS כי CSS Grid יוצר implicit rows לאריחים שחורגים מהרשת המוגדרת, מה שגורם להם להיראות למרות ה-overflow
+
+#### מעקפים ופתרונות
+
+- **Svelte 5 $state Proxy + IndexedDB**: ה-`catch` ב-`persist()` בלע את שגיאת ה-structured clone בשקט. פתרון: `$state.snapshot(board)` לפני כל שמירה. זה רלוונטי לכל מקום שמעביר `$state` ל-APIs חיצוניים (IndexedDB, postMessage, Web Workers)
+
 ## 2026-03-12 20:15
 
 ### שלב 2 (חלק 2) — גרירה ושחרור, סרגל עריכה, ייצוא/ייבוא, ובדיקות E2E

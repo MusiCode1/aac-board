@@ -8,6 +8,7 @@
 		editMode: boolean;
 		dragging?: boolean;
 		dragOver?: boolean;
+		dimmed?: boolean;
 		ondragstart?: (e: DragEvent) => void;
 		ondragover?: (e: DragEvent) => void;
 		ondrop?: () => void;
@@ -24,6 +25,7 @@
 		editMode = false,
 		dragging = false,
 		dragOver = false,
+		dimmed = false,
 		ondragstart,
 		ondragover,
 		ondrop,
@@ -48,6 +50,7 @@
 	class:editing={editMode}
 	class:dragging
 	class:drag-over={dragOver}
+	class:dimmed
 	style="--bg: {tile.backgroundColor}; --border-color: {tile.borderColor}; --index: {index}"
 	data-tile-index={index}
 	onclick={handleClick}
@@ -229,6 +232,11 @@
 
 	.tile.editing.drag-over {
 		animation: none;
+	}
+
+	.tile.dimmed {
+		opacity: 0.45;
+		filter: grayscale(0.5);
 	}
 
 	.edit-badge {

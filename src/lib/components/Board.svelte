@@ -8,9 +8,17 @@
 		onreorder?: (tiles: TileType[]) => void;
 		direction: 'forward' | 'back' | 'none';
 		editMode: boolean;
+		showOverflow?: boolean;
 	}
 
-	let { board, ontilepress, onreorder, direction = 'none', editMode = false }: Props = $props();
+	let {
+		board,
+		ontilepress,
+		onreorder,
+		direction = 'none',
+		editMode = false,
+		showOverflow = false
+	}: Props = $props();
 
 	let animClass = $derived(
 		direction === 'back' ? 'slide-right' : direction === 'forward' ? 'slide-left' : ''
@@ -145,6 +153,10 @@
 
 	// ── Shared reorder logic ──
 
+	let gridCapacity = $derived(board.grid.rows * board.grid.columns);
+	let visibleTiles = $derived(board.tiles.slice(0, gridCapacity));
+	let overflowTiles = $derived(board.tiles.slice(gridCapacity));
+
 	function commitReorder(toIndex: number) {
 		if (dragFromIndex !== null && dragFromIndex !== toIndex) {
 			const tiles = [...board.tiles];
@@ -160,12 +172,13 @@
 {#key board.id}
 	<div
 		class="board-grid {animClass}"
+		class:show-overflow={showOverflow && overflowTiles.length > 0}
 		style="--rows: {board.grid.rows}; --cols: {board.grid.columns}"
 		role="grid"
 		aria-label={board.name}
 		bind:this={gridEl}
 	>
-		{#each board.tiles as tile, i (tile.id)}
+		{#each visibleTiles as tile, i (tile.id)}
 			<Tile
 				{tile}
 				index={i}
@@ -182,6 +195,22 @@
 				ontouchend={handleTouchEnd}
 			/>
 		{/each}
+		{#if showOverflow && overflowTiles.length > 0}
+			<div class="overflow-divider" style="grid-column: 1 / -1">
+				<span>אריחים מוסתרים ({overflowTiles.length})</span>
+			</div>
+			{#each overflowTiles as tile, i (tile.id)}
+				<Tile
+					{tile}
+					index={gridCapacity + i}
+					onpress={ontilepress}
+					{editMode}
+					dragging={false}
+					dragOver={false}
+					dimmed
+				/>
+			{/each}
+		{/if}
 	</div>
 {/key}
 
@@ -197,6 +226,34 @@
 		width: 100%;
 		max-width: 100%;
 		overflow: hidden;
+	}
+
+	.board-grid.show-overflow {
+		grid-template-rows: auto;
+		overflow-y: auto;
+	}
+
+	.overflow-divider {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		padding: 6px 0;
+		color: #e65100;
+		font-size: 13px;
+		font-weight: 600;
+	}
+
+	.overflow-divider::before,
+	.overflow-divider::after {
+		content: '';
+		flex: 1;
+		height: 2px;
+		background: linear-gradient(to var(--dir, right), #ff9800, transparent);
+	}
+
+	.overflow-divider::before {
+		--dir: left;
 	}
 
 	/* Board transition animations */
