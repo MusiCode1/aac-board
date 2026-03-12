@@ -1,5 +1,46 @@
 # AAC Board — יומן פיתוח (Walkthrough)
 
+## 2026-03-12 17:30
+
+### שיפורי עיצוב ואנימציות — שלב 1
+
+שדרוג חזותי ואנימציות לכל רכיבי הממשק של הלוח: אריחים, סרגל פלט, וניווט.
+
+#### מה בוצע?
+
+**1. אנימציות אריחים (Tile)**
+
+- אנימציית כניסה מדורגת (staggered): fade-in + slide-up עם delay לפי אינדקס (30ms × i)
+- אנימציית pulse בלחיצה: הבהוב box-shadow בצבע הגבול
+- אפקט hover: הגבהה עדינה (translateY -3px) עם צל מוגבר
+- תג תיקייה: SVG icon בעיגול צבעוני במקום emoji, עם גבול מקווקו פנימי
+
+**2. מעברי לוח (Board)**
+
+- אנימציית slide-left כשנכנסים לתיקייה, slide-right כשחוזרים אחורה
+- מעקב אחרי כיוון ניווט (navDirection) ב-store
+- שימוש ב-`{#key board.id}` לטריגור האנימציות
+
+**3. סרגל פלט (OutputBar)**
+
+- Svelte transitions: fly לפריטים חדשים, fade להסרה, flip לסידור מחדש
+- תמונות גדולות יותר (36px), טקסט עם font-weight 500
+- אפקט hover אדמדם (רמז להסרה)
+- SVG icons במקום emoji לכפתורי דיבור וניקוי
+- רקע gradient עדין
+
+**4. ניווט (NavBar)**
+
+- רקע gradient כחול (3 גוונים) עם backdrop-filter
+- SVG icons לכפתורי בית וחזור (במקום emoji/text)
+- Breadcrumbs: שביל ניווט מלא (בית ‹ אוכל ‹ ...)
+- מעקב אחרי breadcrumbs ב-store
+
+#### החלטות ארכיטקטורה
+
+- **CSS animations vs Svelte transitions לאריחים**: נבחרו CSS keyframes כי האריחים לא נוספים/מוסרים מה-DOM אלא תמיד קיימים — Svelte transitions דורשים `{#if}` או `{#each}` שמשתנה
+- **כיוון ניווט ב-store**: navDirection נשמר ב-store ולא ב-component כדי שה-Board ידע אם להציג slide-left או slide-right
+
 ## 2026-03-12 04:15
 
 ### אתחול פרויקט SvelteKit + תשתית פיתוח

@@ -49,10 +49,11 @@
 		boardName={store.currentBoard.name}
 		canGoBack={store.canGoBack}
 		isHome={store.currentBoard.id === HOME_BOARD_ID}
+		breadcrumbs={store.breadcrumbs}
 		onback={() => store.goBack()}
 		onhome={() => store.goHome()}
 	/>
-	<Board board={store.currentBoard} ontilepress={handleTilePress} />
+	<Board board={store.currentBoard} ontilepress={handleTilePress} direction={store.navDirection} />
 </div>
 
 <style>

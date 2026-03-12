@@ -10,6 +10,9 @@ let currentBoard = $state<Board>(boards[HOME_BOARD_ID]);
 /** Output bar items (tiles that have been pressed) */
 let output = $state<OutputItem[]>([]);
 
+/** Navigation direction for transition animations */
+let navDirection = $state<'forward' | 'back' | 'none'>('none');
+
 export function boardStore() {
 	return {
 		get currentBoard() {
@@ -28,11 +31,21 @@ export function boardStore() {
 			return navigationStack.length > 0;
 		},
 
+		get navDirection() {
+			return navDirection;
+		},
+
+		/** Get breadcrumb trail (board names in the stack) */
+		get breadcrumbs(): string[] {
+			return navigationStack.map((id) => boards[id]?.name ?? id);
+		},
+
 		/** Navigate to a sub-board (folder) */
 		navigateTo(boardId: string) {
 			const target = boards[boardId];
 			if (!target) return;
 			navigationStack.push(currentBoard.id);
+			navDirection = 'forward';
 			currentBoard = target;
 		},
 
@@ -40,12 +53,14 @@ export function boardStore() {
 		goBack() {
 			const prevId = navigationStack.pop();
 			if (prevId && boards[prevId]) {
+				navDirection = 'back';
 				currentBoard = boards[prevId];
 			}
 		},
 
 		/** Go to the home board, clearing the stack */
 		goHome() {
+			navDirection = 'back';
 			navigationStack = [];
 			currentBoard = boards[HOME_BOARD_ID];
 		},

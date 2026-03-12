@@ -5,21 +5,28 @@
 	interface Props {
 		board: Board;
 		ontilepress: (tile: TileType) => void;
+		direction: 'forward' | 'back' | 'none';
 	}
 
-	let { board, ontilepress }: Props = $props();
+	let { board, ontilepress, direction = 'none' }: Props = $props();
+
+	let animClass = $derived(
+		direction === 'back' ? 'slide-right' : direction === 'forward' ? 'slide-left' : ''
+	);
 </script>
 
-<div
-	class="board-grid"
-	style="--rows: {board.grid.rows}; --cols: {board.grid.columns}"
-	role="grid"
-	aria-label={board.name}
->
-	{#each board.tiles as tile (tile.id)}
-		<Tile {tile} onpress={ontilepress} />
-	{/each}
-</div>
+{#key board.id}
+	<div
+		class="board-grid {animClass}"
+		style="--rows: {board.grid.rows}; --cols: {board.grid.columns}"
+		role="grid"
+		aria-label={board.name}
+	>
+		{#each board.tiles as tile, i (tile.id)}
+			<Tile {tile} index={i} onpress={ontilepress} />
+		{/each}
+	</div>
+{/key}
 
 <style>
 	.board-grid {
@@ -33,5 +40,36 @@
 		width: 100%;
 		max-width: 100%;
 		overflow: hidden;
+	}
+
+	/* Board transition animations */
+	.board-grid.slide-left {
+		animation: slide-in-left 0.3s ease-out;
+	}
+
+	.board-grid.slide-right {
+		animation: slide-in-right 0.3s ease-out;
+	}
+
+	@keyframes slide-in-left {
+		from {
+			opacity: 0;
+			transform: translateX(-30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateX(0);
+		}
+	}
+
+	@keyframes slide-in-right {
+		from {
+			opacity: 0;
+			transform: translateX(30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateX(0);
+		}
 	}
 </style>
