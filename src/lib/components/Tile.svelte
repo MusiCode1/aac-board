@@ -6,9 +6,32 @@
 		index: number;
 		onpress: (tile: Tile) => void;
 		editMode: boolean;
+		dragging?: boolean;
+		dragOver?: boolean;
+		ondragstart?: () => void;
+		ondragover?: (e: DragEvent) => void;
+		ondrop?: () => void;
+		ondragend?: () => void;
+		ontouchstart?: (e: TouchEvent) => void;
+		ontouchmove?: (e: TouchEvent) => void;
+		ontouchend?: () => void;
 	}
 
-	let { tile, index, onpress, editMode = false }: Props = $props();
+	let {
+		tile,
+		index,
+		onpress,
+		editMode = false,
+		dragging = false,
+		dragOver = false,
+		ondragstart,
+		ondragover,
+		ondrop,
+		ondragend,
+		ontouchstart,
+		ontouchmove,
+		ontouchend
+	}: Props = $props();
 	let pressed = $state(false);
 
 	function handleClick() {
@@ -23,8 +46,19 @@
 	class:pressed
 	class:folder={tile.type === 'folder'}
 	class:editing={editMode}
+	class:dragging
+	class:drag-over={dragOver}
 	style="--bg: {tile.backgroundColor}; --border-color: {tile.borderColor}; --index: {index}"
+	data-tile-index={index}
 	onclick={handleClick}
+	draggable={editMode}
+	{ondragstart}
+	{ondragover}
+	{ondrop}
+	{ondragend}
+	{ontouchstart}
+	{ontouchmove}
+	{ontouchend}
 	aria-label={editMode ? `ערוך ${tile.label}` : tile.label}
 >
 	<div class="tile-icon">
@@ -170,9 +204,31 @@
 		max-width: 100%;
 	}
 
+	/* drag & drop */
+	.tile.dragging {
+		opacity: 0.4;
+		transform: scale(0.95);
+	}
+
+	.tile.drag-over {
+		border-color: #1976d2;
+		box-shadow: 0 0 0 3px rgb(25 118 210 / 0.4);
+		transform: scale(1.05);
+	}
+
 	/* edit mode indicator */
 	.tile.editing {
+		opacity: 1;
 		animation: tile-wobble 1.5s ease-in-out infinite;
+	}
+
+	.tile.editing.dragging {
+		opacity: 0.4;
+		animation: none;
+	}
+
+	.tile.editing.drag-over {
+		animation: none;
 	}
 
 	.edit-badge {

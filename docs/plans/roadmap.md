@@ -11,13 +11,13 @@
 
 **מטרה:** לאפשר למשתמש (הורה/מטפל) להתאים את הלוח.
 
-- **Edit Mode** — מצב עריכה עם toggle, lock icon ב-NavBar
-- **עריכת אריח** — שינוי תווית, צבע רקע/גבול, תמונה (חיפוש ARASAAC), סוג (כפתור/תיקייה)
-- **הוספה/מחיקה** — הוספת אריח חדש, מחיקת אריח קיים, השבתת אריח (disabled)
-- **Drag & Drop** — סידור מחדש של אריחים בגרירה (svelte-dnd-action / neodrag)
-- **שינוי גודל רשת** — שינוי מספר שורות/עמודות
-- **IndexedDB persistence** — שמירה אוטומטית מקומית (idb-keyval או Dexie)
-- **ייצוא/ייבוא JSON** — גיבוי ושחזור לוחות
+- [x] **Edit Mode** — מצב עריכה עם toggle, lock icon ב-NavBar
+- [x] **עריכת אריח** — שינוי תווית, צבע רקע/גבול, תמונה (חיפוש ARASAAC), סוג (כפתור/תיקייה)
+- [x] **הוספה/מחיקה** — הוספת אריח חדש, מחיקת אריח קיים, השבתת אריח (disabled)
+- [x] **Drag & Drop** — סידור מחדש של אריחים בגרירה (HTML5 native)
+- [x] **שינוי גודל רשת** — שינוי מספר שורות/עמודות
+- [x] **IndexedDB persistence** — שמירה אוטומטית מקומית (idb-keyval או Dexie)
+- [x] **ייצוא/ייבוא JSON** — גיבוי ושחזור לוחות
 
 **קבצים עיקריים:**
 
@@ -33,12 +33,12 @@
 
 **מטרה:** חוויית בחירת סמלים עשירה וקולות איכותיים.
 
-- **חיפוש ARASAAC** — קומפוננטת חיפוש עם autocomplete, תצוגה מקדימה, סינון לפי קטגוריה
-- **העלאת תמונה** — תמונה מקומית כסמל (File API + object URL / base64)
-- **בחירת קול TTS** — UI לבחירת קול מובנה (Web Speech voices)
-- **Azure TTS** — חיבור ל-Azure Cognitive Services (קולות ענן)
-- **ElevenLabs** — חיבור ל-ElevenLabs API (קולות AI), בורר קולות עם preview
-- **הגדרות TTS** — קצב דיבור, עוצמה, pitch
+- [ ] **חיפוש ARASAAC** — קומפוננטת חיפוש עם autocomplete, תצוגה מקדימה, סינון לפי קטגוריה
+- [ ] **העלאת תמונה** — תמונה מקומית כסמל (File API + object URL / base64)
+- [ ] **בחירת קול TTS** — UI לבחירת קול מובנה (Web Speech voices)
+- [ ] **Azure TTS** — חיבור ל-Azure Cognitive Services (קולות ענן)
+- [ ] **ElevenLabs** — חיבור ל-ElevenLabs API (קולות AI), בורר קולות עם preview
+- [ ] **הגדרות TTS** — קצב דיבור, עוצמה, pitch
 
 **קבצים עיקריים:**
 
@@ -54,14 +54,14 @@
 
 **מטרה:** נגישות מלאה — switch scanning, keyboard, מעקב עיניים.
 
-- **Keyboard navigation** — Tab/Enter/Arrow keys, focus management מלא
-- **Switch scanning** — סריקה אוטומטית/ידנית עם 1-2 מתגים
+- [ ] **Keyboard navigation** — Tab/Enter/Arrow keys, focus management מלא
+- [ ] **Switch scanning** — סריקה אוטומטית/ידנית עם 1-2 מתגים
   - Row-column scanning, linear scanning
   - הגדרת מהירות, dwell time, scanning pattern
-- **High contrast mode** — מצב ניגודיות גבוהה
-- **גודל אריחים מותאם** — אפשרות להגדלה/הקטנה
-- **Screen reader** — תמיכה מלאה ב-ARIA live regions
-- **Pointer/eye-tracking ready** — dwell-to-select
+- [ ] **High contrast mode** — מצב ניגודיות גבוהה
+- [ ] **גודל אריחים מותאם** — אפשרות להגדלה/הקטנה
+- [ ] **Screen reader** — תמיכה מלאה ב-ARIA live regions
+- [ ] **Pointer/eye-tracking ready** — dwell-to-select
 
 **קבצים עיקריים:**
 
@@ -75,12 +75,12 @@
 
 **מטרה:** התאמה אישית מלאה של האפליקציה.
 
-- **דף הגדרות** — route חדש `/settings`
-- **הגדרות תצוגה** — ערכת נושא (בהיר/כהה), גודל פונט, צבע רקע
-- **הגדרות שפה** — בחירת שפה לממשק ולדיבור
-- **הגדרות ניווט** — ניווט אוטומטי, breadcrumbs on/off, lock board
-- **פרופיל מתקשר** — שם, גיל, שפה, רמת תקשורת
-- **גיבוי/שחזור** — ייצוא כל ההגדרות + לוחות ל-JSON
+- [ ] **דף הגדרות** — route חדש `/settings`
+- [ ] **הגדרות תצוגה** — ערכת נושא (בהיר/כהה), גודל פונט, צבע רקע
+- [ ] **הגדרות שפה** — בחירת שפה לממשק ולדיבור
+- [ ] **הגדרות ניווט** — ניווט אוטומטי, breadcrumbs on/off, lock board
+- [ ] **פרופיל מתקשר** — שם, גיל, שפה, רמת תקשורת
+- [ ] **גיבוי/שחזור** — ייצוא כל ההגדרות + לוחות ל-JSON
 
 **קבצים עיקריים:**
 
@@ -94,12 +94,12 @@
 
 **מטרה:** מערכת שלמה של לוחות מקושרים (כמו Grid AAC).
 
-- **Grid Set** — אוסף לוחות מקושרים עם Home Board
-- **Grid Set Explorer** — דשבורד לניהול Grid Sets
-- **שכפול לוח** — deep clone עם עדכון מזהים
-- **תבניות מובנות** — לוחות בסיס מוכנים (צרכים, רגשות, מקומות, אנשים, פעלים)
-- **ייבוא/ייצוא Grid Sets** — שיתוף בין משתמשים
-- **Online Grids** — גלריה קהילתית (דורש backend)
+- [ ] **Grid Set** — אוסף לוחות מקושרים עם Home Board
+- [ ] **Grid Set Explorer** — דשבורד לניהול Grid Sets
+- [ ] **שכפול לוח** — deep clone עם עדכון מזהים
+- [ ] **תבניות מובנות** — לוחות בסיס מוכנים (צרכים, רגשות, מקומות, אנשים, פעלים)
+- [ ] **ייבוא/ייצוא Grid Sets** — שיתוף בין משתמשים
+- [ ] **Online Grids** — גלריה קהילתית (דורש backend)
 
 **קבצים עיקריים:**
 
@@ -114,11 +114,11 @@
 
 **מטרה:** עבודה מלאה ללא אינטרנט.
 
-- **Service Worker** — caching של אפליקציה + סמלי ARASAAC
-- **Manifest** — install prompt, splash screen, standalone mode
-- **Offline TTS** — fallback לקולות מובנים כשאין אינטרנט
-- **Sync** — סנכרון לוחות כשחוזרים לאינטרנט (אם יש backend)
-- **Precache ARASAAC** — הורדת סמלים מראש לשימוש אופליין
+- [ ] **Service Worker** — caching של אפליקציה + סמלי ARASAAC
+- [ ] **Manifest** — install prompt, splash screen, standalone mode
+- [ ] **Offline TTS** — fallback לקולות מובנים כשאין אינטרנט
+- [ ] **Sync** — סנכרון לוחות כשחוזרים לאינטרנט (אם יש backend)
+- [ ] **Precache ARASAAC** — הורדת סמלים מראש לשימוש אופליין
 
 **כלים:** `@vite-pwa/sveltekit`, workbox
 
@@ -128,11 +128,11 @@
 
 **מטרה:** סנכרון ענן, אימות משתמשים, שיתוף.
 
-- **חיבור ל-cboard-api** — שימוש ב-API הקיים (~35 endpoints)
-- **אימות** — login/signup (email, Google OAuth)
-- **סנכרון לוחות** — upload/download boards מהשרת
-- **שיתוף** — שליחת לוחות למטפלים/מורים
-- **אנליטיקה** — מעקב שימוש (מילים נפוצות, זמן שימוש)
+- [ ] **חיבור ל-cboard-api** — שימוש ב-API הקיים (~35 endpoints)
+- [ ] **אימות** — login/signup (email, Google OAuth)
+- [ ] **סנכרון לוחות** — upload/download boards מהשרת
+- [ ] **שיתוף** — שליחת לוחות למטפלים/מורים
+- [ ] **אנליטיקה** — מעקב שימוש (מילים נפוצות, זמן שימוש)
 
 **או לחלופין** — Cloudflare D1/KV כ-backend עצמאי.
 
@@ -142,12 +142,12 @@
 
 **מטרה:** תכונות פרימיום ובינה מלאכותית.
 
-- **חיזוי מילים** — הצעות מילה הבאה מבוססות היסטוריה
-- **AI Fix** — תיקון דקדוק ומשפטים (Claude/GPT)
-- **דקדוק חכם** — נטיית פעלים אוטומטית (זכר/נקבה/רבים)
-- **Message Banking** — הקלטת ביטויים בקול הטבעי
-- **עריכה מרחוק** — מטפלים/משפחה יכולים לערוך לוחות מרחוק
-- **היסטוריית צ'אט** — שמירת שיחות קודמות
+- [ ] **חיזוי מילים** — הצעות מילה הבאה מבוססות היסטוריה
+- [ ] **AI Fix** — תיקון דקדוק ומשפטים (Claude/GPT)
+- [ ] **דקדוק חכם** — נטיית פעלים אוטומטית (זכר/נקבה/רבים)
+- [ ] **Message Banking** — הקלטת ביטויים בקול הטבעי
+- [ ] **עריכה מרחוק** — מטפלים/משפחה יכולים לערוך לוחות מרחוק
+- [ ] **היסטוריית צ'אט** — שמירת שיחות קודמות
 
 ---
 
@@ -155,12 +155,12 @@
 
 **מטרה:** תמיכה ב-50+ שפות ופריסה.
 
-- **i18n** — paraglide-sveltekit / inlang לממשק (50+ שפות, JSON מ-Cboard)
-- **ARASAAC multilingual** — חיפוש סמלים בכל שפה
-- **RTL/LTR** — תמיכה מלאה בשתי הכיוונים
-- **Playwright E2E** — בדיקות מקצה לקצה לכל הפיצ'רים
-- **Performance audit** — Lighthouse, bundle analysis
-- **Cloudflare Workers deploy** — production deployment עם CI/CD
+- [ ] **i18n** — paraglide-sveltekit / inlang לממשק (50+ שפות, JSON מ-Cboard)
+- [ ] **ARASAAC multilingual** — חיפוש סמלים בכל שפה
+- [ ] **RTL/LTR** — תמיכה מלאה בשתי הכיוונים
+- [ ] **Playwright E2E** — בדיקות מקצה לקצה לכל הפיצ'רים
+- [ ] **Performance audit** — Lighthouse, bundle analysis
+- [ ] **Cloudflare Workers deploy** — production deployment עם CI/CD
 
 ---
 

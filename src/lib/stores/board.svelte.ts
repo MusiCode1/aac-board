@@ -167,6 +167,16 @@ export function boardStore() {
 			persist(currentBoard);
 		},
 
+		/** Remove tiles that overflow the grid */
+		trimTilesToGrid() {
+			const max = currentBoard.grid.rows * currentBoard.grid.columns;
+			if (currentBoard.tiles.length > max) {
+				currentBoard.tiles = currentBoard.tiles.slice(0, max);
+				allBoards[currentBoard.id] = currentBoard;
+				persist(currentBoard);
+			}
+		},
+
 		/** Reorder tiles (after drag & drop) */
 		reorderTiles(newTiles: Tile[]) {
 			currentBoard.tiles = newTiles;
