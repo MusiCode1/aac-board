@@ -1,5 +1,65 @@
 # AAC Board — יומן פיתוח (Walkthrough)
 
+## 2026-03-12 20:15
+
+### שלב 2 (חלק 2) — גרירה ושחרור, סרגל עריכה, ייצוא/ייבוא, ובדיקות E2E
+
+השלמת שלב 2: תמיכה מלאה בגרירת אריחים (דסקטופ + מגע), סרגל כלים לעריכה, ייצוא/ייבוא JSON, ניהול אריחים מוסתרים, ו-8 בדיקות E2E.
+
+#### מה בוצע?
+
+**1. Drag & Drop עם ghost מותאם אישית**
+
+- HTML5 Drag API לדסקטופ + Touch Events (long-press 400ms) למסך מגע
+- Ghost element אחיד לשתי השיטות: `cloneNode(true)` + `position: fixed` עוקב אחרי הסמן/אצבע
+- בדסקטופ — `setDragImage` עם תמונת 1x1 שקופה מסתיר את ה-ghost המובנה של הדפדפן
+- `elementFromPoint` + `data-tile-index` לזיהוי יעד ההנחה בגרירת touch
+- Haptic feedback (`navigator.vibrate`) בתחילת גרירת touch
+- מצבי CSS ויזואליים: `dragging` (opacity 0.4), `drag-over` (גבול כחול + scale 1.05)
+
+**2. סרגל כלים לעריכה (EditToolbar)**
+
+- `src/lib/components/EditToolbar.svelte` — רכיב חדש, מופיע רק במצב עריכה
+- Stepper לשורות (1-10) ועמודות (1-12)
+- כפתורי: הוסף אריח, ייצוא JSON, ייבוא JSON, איפוס לברירת מחדל
+- עיצוב gradient כתום בהתאם למצב עריכה
+
+**3. ייצוא/ייבוא JSON**
+
+- ייצוא: יוצר blob JSON עם שם קובץ מבוסס תאריך (`aac-boards-YYYY-MM-DD.json`)
+- ייבוא: input file מוסתר, קורא JSON ומעדכן את ה-store + IndexedDB
+
+**4. ניהול אריחים מוסתרים**
+
+- כשהרשת מוקטנת — אריחים שמעבר לקיבולת נשמרים בנתונים אך לא מוצגים
+- אינדיקטור כתום מופיע ב-EditToolbar עם מספר האריחים המוסתרים
+- כפתור "מחק עודפים" — מחיקת אריחים מעבר לקיבולת הרשת
+- `trimTilesToGrid()` ב-store
+
+**5. בדיקות Playwright E2E (8 טסטים)**
+
+- `tests/edit-mode.e2e.ts` — toggle edit mode, TileEditor, grid resize, add tile, desktop drag, export, hidden tiles, touch drag
+- בדיקת touch: browser context נפרד עם `hasTouch: true` + synthetic TouchEvent
+- השבתת wobble animation ב-CSS inject לייצוב אלמנטים בטסטים
+
+**6. עדכון Roadmap**
+
+- כל המשימות (שלבים 2-10) סומנו ב-checkboxes
+- כל משימות שלב 2 סומנו כ-`[x]`
+
+#### החלטות ארכיטקטורה
+
+- **HTML5 Drag API + Touch Events נייטיב vs ספרייה חיצונית**: נבחר מימוש עצמי כי ספריות כמו svelte-dnd-action לא תומכות ב-Svelte 5 runes, והצורך פשוט (swap בין שתי מיקומים)
+- **Long-press 400ms**: סף סטנדרטי למובייל — קצר מספיק לחוויה חלקה, ארוך מספיק למנוע גרירה מקרית
+- **Ghost אחיד desktop+touch**: `setDragImage` עם תמונה שקופה 1x1 מבטל את ה-ghost המובנה של הדפדפן, ובמקומו מוצג clone מותאם עם צל ושקיפות — חוויה זהה בשתי הפלטפורמות
+- **הסתרה vs מחיקה בהקטנת רשת**: אריחים נשמרים בנתונים אך לא מוצגים (overflow hidden) — בטוח יותר מאשר מחיקה אוטומטית, המשתמש בוחר אם למחוק
+
+#### מעקפים ופתרונות
+
+- **אריחים נעלמים בכניסה למצב עריכה**: אנימציית `tile-wobble` דרסה את `tile-enter` שהתחיל מ-`opacity: 0`. פתרון: הוספת `opacity: 1` ל-`.tile.editing`
+- **Playwright "element is not stable"**: אנימציית wobble גרמה לאריחים לזוז ברציפות. פתרון: inject של CSS `animation: none !important` בטסטים
+- **Playwright touch — "hasTouch must be enabled"**: יצירת browser context נפרד עם `{ hasTouch: true }` במקום שימוש ב-page ברירת מחדל
+
 ## 2026-03-12 19:00
 
 ### שלב 2 (חלק 1) — מצב עריכה, CRUD, ושמירה מקומית

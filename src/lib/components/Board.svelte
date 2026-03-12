@@ -19,22 +19,42 @@
 	let dragFromIndex = $state<number | null>(null);
 	let dragOverIndex = $state<number | null>(null);
 
+	// ── Transparent 1x1 image to hide browser's default ghost ──
+	let emptyImg: HTMLImageElement | undefined;
+	function getEmptyImg() {
+		if (!emptyImg) {
+			emptyImg = new Image();
+			emptyImg.src =
+				'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+		}
+		return emptyImg;
+	}
+
 	// ── Desktop drag (HTML5 API) ──
 
-	function handleDragStart(index: number) {
+	function handleDragStart(index: number, e: DragEvent) {
 		dragFromIndex = index;
+		// Hide default browser ghost and show custom one
+		e.dataTransfer?.setDragImage(getEmptyImg(), 0, 0);
+		const target = (e.target as HTMLElement).closest('[data-tile-index]') as HTMLElement | null;
+		if (target) {
+			ghostEl = createGhost(target, e.clientX, e.clientY);
+		}
 	}
 
 	function handleDragOver(e: DragEvent, index: number) {
 		e.preventDefault();
 		dragOverIndex = index;
+		moveGhost(e.clientX, e.clientY);
 	}
 
 	function handleDrop(index: number) {
+		removeGhost();
 		commitReorder(index);
 	}
 
 	function handleDragEnd() {
+		removeGhost();
 		dragFromIndex = null;
 		dragOverIndex = null;
 	}
@@ -153,7 +173,7 @@
 				{editMode}
 				dragging={editMode && dragFromIndex === i}
 				dragOver={editMode && dragOverIndex === i && dragFromIndex !== i}
-				ondragstart={() => handleDragStart(i)}
+				ondragstart={(e: DragEvent) => handleDragStart(i, e)}
 				ondragover={(e: DragEvent) => handleDragOver(e, i)}
 				ondrop={() => handleDrop(i)}
 				ondragend={handleDragEnd}

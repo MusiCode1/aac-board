@@ -8,7 +8,7 @@
 		editMode: boolean;
 		dragging?: boolean;
 		dragOver?: boolean;
-		ondragstart?: () => void;
+		ondragstart?: (e: DragEvent) => void;
 		ondragover?: (e: DragEvent) => void;
 		ondrop?: () => void;
 		ondragend?: () => void;
