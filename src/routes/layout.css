@@ -3,7 +3,7 @@
 /* ── Theme variables ── */
 
 :root {
-	--bg-app: linear-gradient(160deg, #f0f4f8 0%, #e8eef5 100%);
+	--bg-app: linear-gradient(160deg, #f0f4f8 0%, #dce4ef 50%, #e8eef5 100%);
 	--bg-app-solid: #f0f4f8;
 	--bg-card: linear-gradient(145deg, #ffffff 0%, #fafbfc 100%);
 	--bg-card-solid: #ffffff;
@@ -18,7 +18,7 @@
 }
 
 :root.dark {
-	--bg-app: linear-gradient(160deg, #121212 0%, #1a1a2e 100%);
+	--bg-app: linear-gradient(160deg, #121212 0%, #15152a 50%, #1a1a2e 100%);
 	--bg-app-solid: #121212;
 	--bg-card: linear-gradient(145deg, #1e1e1e 0%, #252530 100%);
 	--bg-card-solid: #1e1e1e;

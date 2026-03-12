@@ -104,8 +104,15 @@
 		justify-content: center;
 		gap: 4px;
 		padding: 6px;
-		background: var(--bg, #fff);
-		border: 3px solid var(--border-color, #ccc);
+		background:
+			linear-gradient(0deg, var(--bg, #fff), var(--bg, #fff)) padding-box,
+			linear-gradient(
+					325deg,
+					color-mix(in srgb, var(--border-color, #ccc), white 25%),
+					color-mix(in srgb, var(--border-color, #ccc), black 20%)
+				)
+				border-box;
+		border: 3px solid transparent;
 		border-radius: 14px;
 		cursor: pointer;
 		box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
@@ -124,6 +131,17 @@
 		transition:
 			transform 0.15s ease,
 			box-shadow 0.15s ease;
+	}
+
+	/* subtle gradient sheen on every tile */
+	.tile::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(145deg, rgb(255 255 255 / 0.25) 0%, rgb(0 0 0 / 0.06) 100%);
+		border-radius: inherit;
+		pointer-events: none;
+		z-index: 1;
 	}
 
 	/* hover lift effect */
@@ -149,8 +167,6 @@
 
 	/* folder dashed border hint */
 	.tile.folder {
-		border-style: solid;
-		border-width: 3px;
 		position: relative;
 	}
 
@@ -214,7 +230,9 @@
 	}
 
 	.tile.drag-over {
-		border-color: #1976d2;
+		background:
+			linear-gradient(0deg, var(--bg, #fff), var(--bg, #fff)) padding-box,
+			linear-gradient(325deg, #42a5f5, #1565c0) border-box;
 		box-shadow: 0 0 0 3px rgb(25 118 210 / 0.4);
 		transform: scale(1.05);
 	}
