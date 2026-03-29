@@ -34,18 +34,14 @@
 		ontouchmove,
 		ontouchend
 	}: Props = $props();
-	let pressed = $state(false);
-
 	function handleClick() {
-		pressed = true;
 		onpress(tile);
-		setTimeout(() => (pressed = false), 300);
 	}
 </script>
 
 <button
 	class="tile"
-	class:pressed
+
 	class:folder={tile.type === 'folder'}
 	class:editing={editMode}
 	class:dragging
@@ -150,14 +146,9 @@
 		box-shadow: 0 6px 16px rgb(0 0 0 / 0.15);
 	}
 
-	/* press pulse animation */
-	.tile.pressed {
-		animation: tile-pulse 0.3s ease-out;
-	}
-
+	/* press feedback — shadow only, no scale/animation swap */
 	.tile:active {
-		transform: scale(0.93);
-		box-shadow: 0 1px 4px rgb(0 0 0 / 0.2);
+		box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
 	}
 
 	.tile:focus-visible {
@@ -298,16 +289,5 @@
 		}
 	}
 
-	/* pulse on press */
-	@keyframes tile-pulse {
-		0% {
-			box-shadow: 0 0 0 0 var(--border-color);
-		}
-		50% {
-			box-shadow: 0 0 0 8px transparent;
-		}
-		100% {
-			box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
-		}
-	}
+
 </style>
