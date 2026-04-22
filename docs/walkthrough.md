@@ -1,5 +1,83 @@
 # AAC Board — יומן פיתוח (Walkthrough)
 
+## 2026-04-22 16:15
+
+### שלב 3C — כפתורי edit/delete על אריח + יצירת לוח חדש + טרמינולוגיה
+
+מימוש שלב 3C: שינוי מודל האינטראקציה במצב עריכה — לחיצה על אריח לא פותחת יותר את ה-editor, אלא משמיעה/מנווטת כרגיל. עריכה ומחיקה דרך שני badges ייעודיים על האריח (✏ ו-✕).
+
+#### מה בוצע?
+
+**1. מודל אינטראקציה חדש במצב עריכה — `Tile.svelte`**
+
+- לחיצה על גוף האריח (`.tile-icon` / label) → פעולה רגילה (speak / navigateTo) גם במצב עריכה
+- שני badges במצב עריכה:
+  - `.tile-edit-btn` (ימין-עליון, כתום) → פותח TileEditor
+  - `.tile-delete-btn` (שמאל-עליון, אדום) → מחיקה עם `confirm()`
+- ה-badges הם `<span role="button">` (לא `<button>` — HTML לא מאפשר `<button>` מקונן), עם `onpointerdown={e => e.stopPropagation()}` כדי למנוע התחלת drag בעת click על ה-badge
+- ה-`edit-badge` הישן (רק אייקון ויזואלי) הוסר — `tile-edit-btn` מחליף אותו פונקציונלית
+
+**2. יצירת לוח חדש מ-toolbar — `handleAddBoard` + EditToolbar**
+
+- כפתור חדש "**+ לוח**" ב-EditToolbar (ליד "הוסף")
+- flow:
+  1. `store.createBoardFromName('לוח חדש', 3, 4)` — יוצר לוח ריק
+  2. `store.addTile()` — יוצר folder tile בלוח הנוכחי עם `loadBoard` → לוח חדש
+  3. `editingTile = newTile` — פותח את ה-TileEditor מיד כדי לערוך שם/צבע/אייקון
+
+**3. טרמינולוגיה — "לוח" במקום "תיקייה"**
+
+- ב-`TileEditor` ה-`<option value="folder">` שינה טקסט מ-"תיקייה" ל-"**לוח**"
+- ה-`type` הפנימי נשאר `'folder'` (backward compatible)
+- ה-badge הגרפי של folder-icon על האריח נשאר — זה רק אייקון דקורטיבי
+
+**4. בדיקות**
+
+- `tests/board-management.e2e.ts` — 7 בדיקות חדשות ב-`describe('Edit Mode — New Interaction (3C)')`:
+  - `clicking tile body in edit mode still speaks` — לחיצה על `.tile-icon` → output
+  - `clicking folder tile body in edit mode navigates` — `.tile.folder .tile-icon` → navigation
+  - `edit badge opens TileEditor` — `.tile-edit-btn` → modal
+  - `delete badge removes tile (with confirm)` — `.tile-delete-btn` → tile removed
+  - `"+ לוח" button creates a linked folder tile` — toolbar button → +1 folder tile
+  - `clicking a newly-created board tile navigates to an empty board` — nav → empty-state
+  - `TileEditor shows "לוח" instead of "תיקייה" in type field`
+- `tests/edit-mode.e2e.ts` — בדיקת `clicking tile in edit mode opens TileEditor` עודכנה לכפתור edit ושונתה ל-`clicking edit badge`
+- `tests/core.e2e.ts` — בדיקת `tile edit persists after reload` עודכנה להשתמש ב-`.tile-edit-btn`
+
+#### החלטות ארכיטקטורה
+
+- **`<span role="button">` במקום `<button>` לכפתורי edit/delete**: HTML לא מתיר `<button>` מקונן בתוך `<button>` (האריח עצמו הוא button). אלטרנטיבה הייתה להמיר את האריח ל-`<div>`, אבל זה היה גורר שינוי רחב בכל ה-CSS וה-a11y. הבחירה: badges הם spans עם `role="button"` ו-`tabindex="0"`, שומר על a11y + לא שובר HTML.
+- **`stopPropagation` ב-`pointerdown` ולא רק ב-click**: ה-drag-and-drop מופעל ב-`dragstart`/`touchstart`/`pointerdown`. אם רק חוסמים click, ה-drag עדיין מתחיל בעת touch-and-hold על ה-badge. פתרון: `onpointerdown={e => e.stopPropagation()}` על שני ה-badges.
+- **confirm native על מחיקת אריח — לא מודאל**: תאימות ל-architecture §10.5.1 "**בלי** אישור על מחיקת אריח" — מה שלא קורה כרגע הוא מסודר בתוך המסלול הרחב יותר של Undo. כרגע שמרנו confirm native כחגורת ביטחון קלה.
+- **"+ לוח" פותח את TileEditor אוטומטית**: אחרי יצירת folder tile, פתיחה מיידית של ה-editor נותנת למשתמש הזדמנות לתת שם/אייקון לאריח בלי צעד נוסף. אם המשתמש סוגר — ה-folder tile עדיין שם עם שם ברירת מחדל.
+- **שמירת `edit-badge` class מחוק — אי-תאימות חזרה**: ה-class הישן `.edit-badge` (אייקון עיפרון בלבד, לא אינטראקטיבי) הוסר כי `.tile-edit-btn` מחליף אותו פונקציונלית.
+
+#### מעקפים ופתרונות
+
+- **הבדיקה "+ לוח" נכשלה כי ה-grid מלא**: ה-home board הוא 4×5=20 עם 21 tiles (overflow). אריח חדש הלך ל-overflow ולא היה נראה. פתרון: הבדיקה מגדילה את ה-grid ב-2 שורות לפני `+ לוח` (`stepper-btn '+'` × 2). זה שינוי נקי בבדיקה, לא בקוד.
+- **TileEditor נפתח אוטומטית אחרי "+ לוח"**: בבדיקה שרוצה לנווט ל-לוח החדש, צריך לסגור את ה-editor (`Escape`) לפני יציאה ממצב עריכה.
+
+#### מבנה קבצים
+
+קבצים שעודכנו:
+
+- `src/lib/components/Tile.svelte` — תמיכה ב-`onedit`/`ondelete`, badges חדשים, הסרת `edit-badge` הישן
+- `src/lib/components/Board.svelte` — העברת `ontileedit`/`ontiledelete` ל-Tile
+- `src/lib/components/EditToolbar.svelte` — כפתור "+ לוח", callback `onaddboard`
+- `src/lib/components/TileEditor.svelte` — `<option>`: "תיקייה" → "לוח"
+- `src/routes/+page.svelte` — `handleTileEdit`, `handleTileDeleteRequest`, `handleAddBoard`, `handleTilePress` ללא `editMode` gating
+- `tests/board-management.e2e.ts` — 7 בדיקות חדשות + תיקון בדיקה קיימת
+- `tests/edit-mode.e2e.ts` — עדכון בדיקה אחת
+- `tests/core.e2e.ts` — עדכון בדיקה אחת
+- `docs/plans/roadmap.md` — שלב 3C סומן כהושלם
+
+#### מצב בדיקות
+
+- **28 בדיקות E2E עוברות** (5 core + 14 board-management + 8 edit-mode + 1 demo)
+- `bun run check` — 0 errors, 4 warnings (קיימים מקודם)
+
+---
+
 ## 2026-04-22 14:55
 
 ### שלב 2.5 — שימוש בסיסי + ניהול לוחות מלא

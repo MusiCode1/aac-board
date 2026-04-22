@@ -272,7 +272,7 @@
 				<span class="field-label">סוג</span>
 				<select bind:value={tileType} class="field-input">
 					<option value="button">כפתור</option>
-					<option value="folder">תיקייה</option>
+					<option value="folder">לוח</option>
 				</select>
 			</label>
 

@@ -31,15 +31,24 @@
 	});
 
 	function handleTilePress(tile: Tile) {
-		if (store.editMode) {
-			editingTile = tile;
-			return;
-		}
+		// 3C: Tile body always performs the normal action — even in edit mode.
+		// Editing/deleting is done via explicit badges on the tile.
 		if (tile.type === 'folder' && tile.loadBoard) {
 			store.navigateTo(tile.loadBoard);
 		} else {
 			store.addToOutput(tile);
 			speak(tile.label);
+		}
+	}
+
+	function handleTileEdit(tile: Tile) {
+		editingTile = tile;
+	}
+
+	function handleTileDeleteRequest(tile: Tile) {
+		// 3C: explicit delete badge. Small confirm to prevent misclicks.
+		if (confirm(`למחוק את האריח "${tile.label}"?`)) {
+			store.removeTile(tile.id);
 		}
 	}
 
@@ -86,6 +95,25 @@
 			type: 'button'
 		};
 		store.addTile(newTile);
+	}
+
+	function handleAddBoard() {
+		// Create an empty board, then create a folder-tile on the current board
+		// that links to it. Open TileEditor on the new tile for naming/styling.
+		const defaultName = 'לוח חדש';
+		const newBoardId = store.createBoardFromName(defaultName, 3, 4);
+		const newTile: Tile = {
+			id: `tile-${Date.now()}`,
+			label: defaultName,
+			image: pictogramUrl(2484), // generic "folder" icon
+			backgroundColor: '#BBDEFB',
+			borderColor: '#1565C0',
+			type: 'folder',
+			loadBoard: newBoardId
+		};
+		store.addTile(newTile);
+		// Open editor so the user can immediately rename/style
+		editingTile = newTile;
 	}
 
 	async function handleExport() {
@@ -204,6 +232,7 @@
 				onexport={handleExport}
 				onimport={handleImport}
 				onaddtile={handleAddTile}
+				onaddboard={handleAddBoard}
 				onmanageBoards={openBoardManager}
 				onreset={handleReset}
 				ondeleteoverflow={() => store.trimTilesToGrid()}
@@ -213,6 +242,8 @@
 		<Board
 			board={store.currentBoard}
 			ontilepress={handleTilePress}
+			ontileedit={handleTileEdit}
+			ontiledelete={handleTileDeleteRequest}
 			onreorder={handleReorder}
 			direction={store.navDirection}
 			editMode={store.editMode}

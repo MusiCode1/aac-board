@@ -5,6 +5,8 @@
 	interface Props {
 		board: Board;
 		ontilepress: (tile: TileType) => void;
+		ontileedit?: (tile: TileType) => void;
+		ontiledelete?: (tile: TileType) => void;
 		onreorder?: (tiles: TileType[]) => void;
 		direction: 'forward' | 'back' | 'none';
 		editMode: boolean;
@@ -14,6 +16,8 @@
 	let {
 		board,
 		ontilepress,
+		ontileedit,
+		ontiledelete,
 		onreorder,
 		direction = 'none',
 		editMode = false,
@@ -209,6 +213,8 @@
 				{tile}
 				index={i}
 				onpress={ontilepress}
+				onedit={ontileedit}
+				ondelete={ontiledelete}
 				{editMode}
 				dragging={editMode && dragFromIndex === i}
 				dragOver={editMode && dragOverIndex === i && dragFromIndex !== i}

@@ -5,6 +5,8 @@
 		tile: Tile;
 		index: number;
 		onpress: (tile: Tile) => void;
+		onedit?: (tile: Tile) => void;
+		ondelete?: (tile: Tile) => void;
 		editMode: boolean;
 		dragging?: boolean;
 		dragOver?: boolean;
@@ -22,6 +24,8 @@
 		tile,
 		index,
 		onpress,
+		onedit,
+		ondelete,
 		editMode = false,
 		dragging = false,
 		dragOver = false,
@@ -34,10 +38,21 @@
 		ontouchmove,
 		ontouchend
 	}: Props = $props();
+
 	function handleClick() {
-		// Disabled tiles are non-interactive in view mode, but editable in edit mode
+		// Disabled tiles are non-interactive in view mode
 		if (tile.disabled && !editMode) return;
 		onpress(tile);
+	}
+
+	function handleEditClick(e: MouseEvent) {
+		e.stopPropagation();
+		onedit?.(tile);
+	}
+
+	function handleDeleteClick(e: MouseEvent) {
+		e.stopPropagation();
+		ondelete?.(tile);
 	}
 </script>
 
@@ -60,7 +75,7 @@
 	{ontouchstart}
 	{ontouchmove}
 	{ontouchend}
-	aria-label={editMode ? `ערוך ${tile.label}` : tile.label}
+	aria-label={tile.label}
 >
 	<div class="tile-icon">
 		<img src={tile.image} alt={tile.label} loading="lazy" draggable="false" />
@@ -83,11 +98,49 @@
 	</div>
 	<span class="tile-label">{tile.label}</span>
 	{#if editMode}
-		<span class="edit-badge" aria-hidden="true">
+		<!--
+			NOTE: nested <button> inside <button> is invalid HTML. We render
+			these as <span role="button"> with click handlers + pointerdown stops.
+			Pointerdown stopPropagation is important to prevent the draggable outer
+			button from starting a drag when the user taps the badge.
+		-->
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<span
+			class="tile-action tile-edit-btn"
+			role="button"
+			tabindex="0"
+			aria-label="ערוך {tile.label}"
+			title="ערוך"
+			onclick={handleEditClick}
+			onpointerdown={(e) => e.stopPropagation()}
+		>
 			<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
 				<path
 					d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
 				/>
+			</svg>
+		</span>
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<span
+			class="tile-action tile-delete-btn"
+			role="button"
+			tabindex="0"
+			aria-label="מחק {tile.label}"
+			title="מחק"
+			onclick={handleDeleteClick}
+			onpointerdown={(e) => e.stopPropagation()}
+		>
+			<svg
+				width="14"
+				height="14"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="3"
+				stroke-linecap="round"
+			>
+				<line x1="6" y1="6" x2="18" y2="18" />
+				<line x1="6" y1="18" x2="18" y2="6" />
 			</svg>
 		</span>
 	{/if}
@@ -265,20 +318,49 @@
 		opacity: 0.6;
 	}
 
-	.edit-badge {
+	/* ── Edit/delete action badges (visible only in edit mode) ── */
+
+	.tile-action {
 		position: absolute;
 		top: 4px;
-		right: 4px;
-		width: 22px;
-		height: 22px;
+		width: 24px;
+		height: 24px;
 		border-radius: 50%;
-		background: #e65100;
-		color: white;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		box-shadow: 0 1px 4px rgb(0 0 0 / 0.3);
-		z-index: 2;
+		z-index: 3;
+		cursor: pointer;
+		color: white;
+		transition:
+			transform 0.1s ease,
+			box-shadow 0.15s ease;
+	}
+
+	.tile-action:hover {
+		transform: scale(1.15);
+		box-shadow: 0 2px 6px rgb(0 0 0 / 0.4);
+	}
+
+	.tile-action:active {
+		transform: scale(0.92);
+	}
+
+	.tile-action:focus-visible {
+		outline: 2px solid white;
+		outline-offset: 2px;
+	}
+
+	.tile-edit-btn {
+		right: 4px;
+		background: #e65100;
+	}
+
+	.tile-delete-btn {
+		/* RTL-aware: we want this visually on the LEFT corner of the tile */
+		left: 4px;
+		background: #c62828;
 	}
 
 	@keyframes tile-wobble {

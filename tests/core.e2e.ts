@@ -68,8 +68,8 @@ test.describe('Core Functionality', () => {
 		await enterEditMode(page);
 		await page.addStyleTag({ content: '*, *::before, *::after { animation: none !important; }' });
 
-		// Open tile editor
-		await page.locator('.tile').first().click();
+		// Open tile editor via the edit badge (3C: tile body no longer opens editor)
+		await page.locator('.tile .tile-edit-btn').first().click();
 		await expect(page.locator('.editor[role="dialog"]')).toBeVisible();
 
 		// Change label to a unique marker

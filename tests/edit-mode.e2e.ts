@@ -27,14 +27,14 @@ test.describe('Edit Mode', () => {
 		await expect(page.locator('.nav-bar')).not.toHaveClass(/editing/);
 	});
 
-	test('clicking tile in edit mode opens TileEditor', async ({ page }) => {
+	test('clicking edit badge in edit mode opens TileEditor', async ({ page }) => {
 		await enterEditMode(page);
 
 		// Disable wobble animation so Playwright sees stable elements
 		await page.addStyleTag({ content: '*, *::before, *::after { animation: none !important; }' });
 
-		// Click a tile
-		await page.locator('.tile').first().click();
+		// Click the edit badge on first tile (3C: click body no longer opens editor)
+		await page.locator('.tile .tile-edit-btn').first().click();
 
 		// TileEditor modal should appear
 		await expect(page.locator('.overlay')).toBeVisible();
