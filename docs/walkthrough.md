@@ -1,5 +1,99 @@
 # AAC Board — יומן פיתוח (Walkthrough)
 
+## 2026-04-22 14:55
+
+### שלב 2.5 — שימוש בסיסי + ניהול לוחות מלא
+
+מימוש שלב 2.5: ניהול לוחות מלא (BoardManager), רשת ביטחון של בדיקות ליבה, ו-6 שיפורי UX שחוסמים שימוש אמיתי ע"י הורה/מטפל.
+
+#### מה בוצע?
+
+**1. רשת ביטחון — `tests/core.e2e.ts` (חדש, 5 בדיקות)**
+
+כיסוי פונקציונליות ליבה שלא נבדקה עד כה — הגנה מפני רגרסיה בכל פיתוח עתידי:
+
+- `tile click adds to output bar` — לחיצה על כפתור → פריט ב-output
+- `folder tile click navigates to sub-board` — ניווט ללוח-בן
+- `back and home buttons work` — ניווט ה-breadcrumb
+- `tile edit persists after reload` — persistence ב-IndexedDB
+- `theme toggle persists after reload` — persistence של הגדרות
+
+**2. ניהול לוחות מלא — `BoardManager.svelte` + מתודות store**
+
+- `src/lib/components/BoardManager.svelte` (חדש) — מודאל עם 3 views: list / new / edit
+- 4 מתודות חדשות ב-store:
+  - `generateBoardId(name, existing)` — slug עם dedup (`-2`, `-3`…)
+  - `createBoardFromName(name, rows, cols)` — יצירת לוח ריק עם ID אוטומטי
+  - `duplicateBoard(sourceId, newName?)` — deep clone + tile IDs חדשים
+  - `findBoardDependents(boardId)` / `stripBoardReferences(boardId)` — ניהול תיקיות תלויות
+- delete confirm עם תצוגת תלויות + אפשרות "מחק ונקה הפניות"
+- כפתור "לוחות" ב-EditToolbar (icon תיקייה) פותח את המודאל
+- `tests/board-management.e2e.ts` (חדש, 7 בדיקות) — כיסוי CRUD מלא
+
+**3. Dropdown לוחות ב-TileEditor**
+
+- החלפת שדה הטקסט החופשי ל-`<select>` עם כל הלוחות הקיימים
+- sentinel `__create__` → "+ צור לוח חדש…" פותח BoardManager ב-new view ומחזיר ID
+- אם `loadBoard` הנוכחי לא קיים — מוצג כ-option מושבת "(חסר) <id>"
+
+**4. Loading state — skeleton**
+
+- `boardStore.initialized` flag חשוף מה-store
+- `+page.svelte` מציג skeleton (3 אזורים: output, nav, grid) עד שה-`init()` מסיים
+- מונע flash של ברירת המחדל לפני טעינת המידע מ-IndexedDB
+
+**5. Empty state בלוח ריק**
+
+- `Board.svelte` מציג placeholder עם אייקון + טקסט מנחה כשהלוח ריק
+- טקסט שונה לכל מצב (view / edit)
+
+**6. Edit mode gating — long-press 600ms**
+
+- כפתור ✏ ב-NavBar דורש החזקה של 600ms כדי להיכנס למצב עריכה
+- progress bar ויזואלי במהלך ההחזקה (gradient חצי-שקוף עולה)
+- יציאה ממצב עריכה — click רגיל (ללא gating)
+- `tests/helpers.ts` (חדש) — `enterEditMode(page)` ועזרים לבדיקות (mouse.down + 750ms wait)
+- כל הבדיקות הקיימות עודכנו להשתמש בעזר
+
+**7. OutputBar — שני כפתורי מחיקה**
+
+- ⌫ "מחק אחרון" (כתום, backspace icon) — מסיר פריט יחיד
+- 🗑 "נקה הכל" (אדום, trash icon) — מרוקן
+- prop אופציונלי `onbackspace` ב-component
+
+**8. Tile.disabled — שדה per-tile**
+
+- `Tile.disabled?: boolean` ב-type
+- אריח מושבת: opacity 0.35 + grayscale, non-interactive ב-view mode
+- במצב עריכה עדיין ניתן ללחוץ עליו (לפתוח את ה-editor)
+- checkbox ב-TileEditor: "השבת אריח (מוצג אפור ולא ניתן ללחיצה)"
+
+**9. אישור ב-reset**
+
+- `handleReset` קורא `confirm()` לפני resetToDefaults
+
+#### החלטות ארכיטקטורה
+
+- **BoardManager כמודאל יחיד עם views פנימיים** (לא 3 קומפוננטות נפרדות): פחות קבצים, פחות event plumbing, אותו overlay CSS. views: `list | new | edit`.
+- **generateBoardId ע"י slug + dedup**: שם בעברית → `slug-2` וכו'. מזהים נשארים URL-safe מההתחלה, מוכנים ל-routing עתידי (שלב 6).
+- **Deep clone ב-duplicateBoard — לא recursive**: `structuredClone` על הלוח, tile IDs חדשים, אבל `loadBoard` refs נשמרים כמו במקור (לא משכפלים גם את לוחות-הבנים).
+- **long-press 600ms על edit-btn בלבד** (לא PIN, לא hidden entry): הכי פשוט, תואם touch+mouse, לא דורש setup. PIN נדחה לעתיד.
+- **Undo נדחה**: במקום תשתית מלאה, בחרנו דפוס "confirm על הרסני + אין אישור על מחיקת אריח". פחות קוד, פחות קומפלקסיות.
+- **skeleton CSS ולא ספריה**: שמירה על bundle size. 3 אזורים: output (72px), nav (56px), grid של 12 squares עם shimmer animation.
+- **תיקיות תלויות — strip, לא block**: במחיקת לוח עם תלויות, הברירה היא "מחק ונקה הפניות" (הפיכת folder tiles ל-buttons) או ביטול.
+
+#### מעקפים ופתרונות
+
+- **Playwright `.click()` לא מפעיל long-press**: `.click()` מבצע pointerdown+up מיידית, פחות מ-600ms. הפתרון: `tests/helpers.ts` עם `enterEditMode(page)` שמשתמש ב-`mouse.move + mouse.down + waitForTimeout(750) + mouse.up` ידני.
+- **theme test races עם init**: בדיקת התמדה של theme הצריכה חיכוי ל-`store.init()` + לדקלרציה של class על documentElement. פתרון: `waitForTimeout(300)` אחרי navigation ל-/settings + בדיקת class במקום ה-settings object.
+
+#### מצב בדיקות
+
+- **21 בדיקות E2E עוברות** (5 core + 7 board-management + 8 edit-mode + 1 demo)
+- `bun run check` — 0 errors, 4 warnings (קיימים מקודם)
+
+---
+
 ## 2026-03-12 23:55
 
 ### שלב 3E — תכנון כוונות תקשורתיות (Communication Intents)
@@ -36,6 +130,7 @@
 **3. עדכון שלבים 4-6 ב-roadmap**
 
 הוספת תוכניות TDD לשלבים שלא היו מותאמים למסגרת הבדיקות:
+
 - שלב 4: scanner.spec.ts (מכונת מצבים), scanning.e2e.ts, a11y.e2e.ts
 - שלב 5: settings.spec.ts (מיגרציה, backup round-trip), settings.e2e.ts
 - שלב 6: gridsets.spec.ts (CRUD, deep clone, templates), gridsets.e2e.ts
@@ -45,6 +140,7 @@
 #### ניתוח כיסוי בדיקות קיים
 
 נמצא שהכיסוי הנוכחי דליל מאוד:
+
 - **E2E**: רק `edit-mode.e2e.ts` (8 בדיקות) — מכסה רק מצב עריכה
 - **Unit tests**: אפס (רק vitest-examples)
 - **חסר**: ניווט, פלט + TTS, שמירה (persistence), הגדרות, store logic, storage service
@@ -66,10 +162,10 @@
 
 #### מה נבחר: גישה דו-שכבתית
 
-| שכבה | כלי | מה נבדק | מתי רץ |
-|------|------|---------|--------|
-| Unit/Integration | Vitest | services, stores, utils — לוגיקה טהורה | watch mode, על כל שמירה |
-| E2E | Playwright | תרחישי משתמש מלאים — ניווט, עריכה, דיבור | לפני commit |
+| שכבה             | כלי        | מה נבדק                                  | מתי רץ                  |
+| ---------------- | ---------- | ---------------------------------------- | ----------------------- |
+| Unit/Integration | Vitest     | services, stores, utils — לוגיקה טהורה   | watch mode, על כל שמירה |
+| E2E              | Playwright | תרחישי משתמש מלאים — ניווט, עריכה, דיבור | לפני commit             |
 
 - **Vitest TDD** על שירותים ו-stores — כותבים בדיקה שנכשלת קודם, אז ממשים
 - **Playwright ATDD** על תרחישי משתמש — מתארים התנהגות רצויה, כותבים E2E שנכשל, אז ממשים

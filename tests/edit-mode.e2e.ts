@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { enterEditMode } from './helpers';
 
 test.describe('Edit Mode', () => {
 	test.beforeEach(async ({ page }) => {
@@ -8,8 +9,7 @@ test.describe('Edit Mode', () => {
 	});
 
 	test('toggle edit mode shows toolbar and wobble', async ({ page }) => {
-		const editBtn = page.locator('.edit-btn');
-		await editBtn.click();
+		await enterEditMode(page);
 
 		// NavBar should have editing class (orange gradient)
 		await expect(page.locator('.nav-bar')).toHaveClass(/editing/);
@@ -21,15 +21,14 @@ test.describe('Edit Mode', () => {
 		const firstTile = page.locator('.tile').first();
 		await expect(firstTile).toHaveClass(/editing/);
 
-		// Click again to exit edit mode
-		await editBtn.click();
+		// Single click exits edit mode (no long-press needed)
+		await page.locator('.edit-btn').click();
 		await expect(page.locator('.edit-toolbar')).not.toBeVisible();
 		await expect(page.locator('.nav-bar')).not.toHaveClass(/editing/);
 	});
 
 	test('clicking tile in edit mode opens TileEditor', async ({ page }) => {
-		// Enter edit mode
-		await page.locator('.edit-btn').click();
+		await enterEditMode(page);
 
 		// Disable wobble animation so Playwright sees stable elements
 		await page.addStyleTag({ content: '*, *::before, *::after { animation: none !important; }' });
@@ -47,7 +46,7 @@ test.describe('Edit Mode', () => {
 	});
 
 	test('grid resize changes tile layout', async ({ page }) => {
-		await page.locator('.edit-btn').click();
+		await enterEditMode(page);
 
 		// Get initial tile count visible
 		const tilesCount = await page.locator('.tile').count();
@@ -67,7 +66,7 @@ test.describe('Edit Mode', () => {
 	});
 
 	test('add tile creates a new tile', async ({ page }) => {
-		await page.locator('.edit-btn').click();
+		await enterEditMode(page);
 
 		// Increase rows to ensure there's room for a new tile
 		const rowPlusBtn = page.locator('.stepper-btn', { hasText: '+' }).first();
@@ -83,7 +82,7 @@ test.describe('Edit Mode', () => {
 	});
 
 	test('drag and drop reorders tiles (desktop)', async ({ page }) => {
-		await page.locator('.edit-btn').click();
+		await enterEditMode(page);
 
 		// Disable wobble animation so Playwright sees stable elements
 		await page.addStyleTag({ content: '*, *::before, *::after { animation: none !important; }' });
@@ -107,7 +106,7 @@ test.describe('Edit Mode', () => {
 	});
 
 	test('export downloads JSON file', async ({ page }) => {
-		await page.locator('.edit-btn').click();
+		await enterEditMode(page);
 
 		// Listen for download event
 		const downloadPromise = page.waitForEvent('download');
@@ -118,7 +117,7 @@ test.describe('Edit Mode', () => {
 	});
 
 	test('reducing grid shows hidden tiles warning and delete overflow works', async ({ page }) => {
-		await page.locator('.edit-btn').click();
+		await enterEditMode(page);
 
 		// Disable wobble animation
 		await page.addStyleTag({ content: '*, *::before, *::after { animation: none !important; }' });
@@ -158,7 +157,7 @@ test.describe('Edit Mode', () => {
 		await page.goto('/');
 		await page.waitForSelector('.tile');
 
-		await page.locator('.edit-btn').click();
+		await enterEditMode(page);
 
 		// Disable wobble animation
 		await page.addStyleTag({ content: '*, *::before, *::after { animation: none !important; }' });

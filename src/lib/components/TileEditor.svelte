@@ -6,12 +6,47 @@
 
 	interface Props {
 		tile: Tile;
+		availableBoards?: { id: string; name: string }[];
 		onsave: (tileId: string, updates: Partial<Tile>) => void;
 		ondelete: (tileId: string) => void;
 		onclose: () => void;
+		onRequestCreateBoard?: () => Promise<string | null>;
 	}
 
-	let { tile, onsave, ondelete, onclose }: Props = $props();
+	let {
+		tile,
+		availableBoards = [],
+		onsave,
+		ondelete,
+		onclose,
+		onRequestCreateBoard
+	}: Props = $props();
+
+	const CREATE_SENTINEL = '__create__';
+
+	const boardOptions = $derived.by(() => {
+		const opts = availableBoards.map((b) => ({ id: b.id, name: b.name, missing: false }));
+		if (loadBoard && !availableBoards.some((b) => b.id === loadBoard)) {
+			opts.unshift({ id: loadBoard, name: `(חסר) ${loadBoard}`, missing: true });
+		}
+		return opts;
+	});
+
+	async function handleBoardSelectChange(e: Event) {
+		const val = (e.target as HTMLSelectElement).value;
+		if (val === CREATE_SENTINEL) {
+			if (!onRequestCreateBoard) return;
+			const newId = await onRequestCreateBoard();
+			if (newId) {
+				loadBoard = newId;
+			} else {
+				// User cancelled — revert the select to the previous value
+				(e.target as HTMLSelectElement).value = loadBoard;
+			}
+		} else {
+			loadBoard = val;
+		}
+	}
 
 	// ── Tile fields ──
 	let label = $state('');
@@ -20,6 +55,7 @@
 	let borderColor = $state('');
 	let tileType = $state<'button' | 'folder'>('button');
 	let loadBoard = $state('');
+	let tileDisabled = $state(false);
 
 	// ── Symbol search ──
 	let searchQuery = $state('');
@@ -45,6 +81,7 @@
 		borderColor = tile.borderColor;
 		tileType = tile.type;
 		loadBoard = tile.loadBoard ?? '';
+		tileDisabled = tile.disabled ?? false;
 		searchQuery = '';
 		searchResults = [];
 		uploadWarning = '';
@@ -89,7 +126,8 @@
 			image,
 			backgroundColor,
 			borderColor,
-			type: tileType
+			type: tileType,
+			disabled: tileDisabled
 		};
 		if (tileType === 'folder' && loadBoard) {
 			updates.loadBoard = loadBoard;
@@ -240,10 +278,27 @@
 
 			{#if tileType === 'folder'}
 				<label class="field">
-					<span class="field-label">מזהה לוח יעד</span>
-					<input type="text" bind:value={loadBoard} class="field-input" placeholder="board-id" />
+					<span class="field-label">לוח יעד</span>
+					<select
+						class="field-input load-board-select"
+						value={loadBoard}
+						onchange={handleBoardSelectChange}
+					>
+						<option value="">בחר לוח...</option>
+						{#each boardOptions as opt (opt.id)}
+							<option value={opt.id} disabled={opt.missing}>{opt.name}</option>
+						{/each}
+						{#if onRequestCreateBoard}
+							<option value={CREATE_SENTINEL}>+ צור לוח חדש…</option>
+						{/if}
+					</select>
 				</label>
 			{/if}
+
+			<label class="field field-checkbox">
+				<input type="checkbox" class="tile-disabled-checkbox" bind:checked={tileDisabled} />
+				<span class="field-label-inline">השבת אריח (מוצג אפור ולא ניתן ללחיצה)</span>
+			</label>
 
 			<div class="field">
 				<span class="field-label">צבע רקע</span>
@@ -611,6 +666,26 @@
 		font-size: 13px;
 		color: #9e9e9e;
 		font-family: monospace;
+	}
+
+	.field-checkbox {
+		flex-direction: row;
+		align-items: center;
+		gap: 8px;
+		cursor: pointer;
+		padding: 4px 0;
+	}
+
+	.tile-disabled-checkbox {
+		width: 18px;
+		height: 18px;
+		accent-color: var(--primary, #1976d2);
+		cursor: pointer;
+	}
+
+	.field-label-inline {
+		font-size: 13px;
+		color: var(--text-secondary, #616161);
 	}
 
 	/* ── Footer ── */

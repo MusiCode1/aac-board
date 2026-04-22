@@ -35,18 +35,20 @@
 		ontouchend
 	}: Props = $props();
 	function handleClick() {
+		// Disabled tiles are non-interactive in view mode, but editable in edit mode
+		if (tile.disabled && !editMode) return;
 		onpress(tile);
 	}
 </script>
 
 <button
 	class="tile"
-
 	class:folder={tile.type === 'folder'}
 	class:editing={editMode}
 	class:dragging
 	class:drag-over={dragOver}
 	class:dimmed
+	class:tile-disabled={tile.disabled}
 	style="--bg: {tile.backgroundColor}; --border-color: {tile.borderColor}; --index: {index}"
 	data-tile-index={index}
 	onclick={handleClick}
@@ -248,6 +250,21 @@
 		filter: grayscale(0.5);
 	}
 
+	.tile.tile-disabled {
+		opacity: 0.35;
+		filter: grayscale(0.85);
+	}
+
+	.tile.tile-disabled:hover {
+		transform: none;
+		box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+	}
+
+	.tile.tile-disabled.editing {
+		/* In edit mode, the tile is still interactive (for the editor), but visually muted */
+		opacity: 0.6;
+	}
+
 	.edit-badge {
 		position: absolute;
 		top: 4px;
@@ -288,6 +305,4 @@
 			transform: translateY(0);
 		}
 	}
-
-
 </style>

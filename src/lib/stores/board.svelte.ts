@@ -2,6 +2,39 @@ import type { Board, OutputItem, Tile } from '$lib/types/board';
 import { boards as defaultBoards, HOME_BOARD_ID } from '$lib/data/boards';
 import { saveAllBoards, saveBoard, loadAllBoards, deleteBoard } from '$lib/services/storage';
 
+/**
+ * Generate a URL-safe board ID from a name (slug + dedup against existing boards).
+ * Falls back to `board-<timestamp>` if the slug is empty.
+ */
+export function generateBoardId(name: string, existing: Record<string, Board>): string {
+	// Slug: keep Unicode letters/digits, replace runs of anything else with '-'
+	const base = name
+		.trim()
+		.toLowerCase()
+		.replace(/[^\p{L}\p{N}]+/gu, '-')
+		.replace(/^-+|-+$/g, '');
+	const candidate = base || `board-${Date.now()}`;
+	if (!existing[candidate]) return candidate;
+	let i = 2;
+	while (existing[`${candidate}-${i}`]) i++;
+	return `${candidate}-${i}`;
+}
+
+/** Create a fresh, empty board with a given name and grid size. */
+export function createEmptyBoard(
+	id: string,
+	name: string,
+	rows: number = 3,
+	columns: number = 4
+): Board {
+	return {
+		id,
+		name,
+		tiles: [],
+		grid: { rows, columns }
+	};
+}
+
 /** All boards (mutable — loaded from IndexedDB or defaults) */
 let allBoards = $state<Record<string, Board>>({ ...defaultBoards });
 
@@ -102,7 +135,10 @@ export function boardStore() {
 
 		navigateTo(boardId: string) {
 			const target = allBoards[boardId];
-			if (!target) return;
+			if (!target) {
+				console.warn(`[boardStore] navigateTo: board "${boardId}" not found`);
+				return;
+			}
 			navigationStack.push(currentBoard.id);
 			navDirection = 'forward';
 			currentBoard = target;
@@ -201,6 +237,85 @@ export function boardStore() {
 		createBoard(board: Board) {
 			allBoards[board.id] = board;
 			persist(board);
+		},
+
+		/**
+		 * Create a new empty board from a name. Generates an ID automatically.
+		 * Returns the new board's ID.
+		 */
+		createBoardFromName(name: string, rows: number = 3, columns: number = 4): string {
+			const id = generateBoardId(name, allBoards);
+			const board = createEmptyBoard(id, name, rows, columns);
+			allBoards[id] = board;
+			persist(board);
+			return id;
+		},
+
+		/**
+		 * Duplicate a board (deep clone). Tile IDs are regenerated, `loadBoard` refs
+		 * are preserved (no recursive tree clone).
+		 * Returns the new board's ID, or null if the source doesn't exist.
+		 */
+		duplicateBoard(sourceId: string, newName?: string): string | null {
+			const source = allBoards[sourceId];
+			if (!source) return null;
+			const cloned = structuredClone($state.snapshot(source) as Board);
+			const displayName = newName ?? `${source.name} (עותק)`;
+			const newId = generateBoardId(displayName, allBoards);
+			cloned.id = newId;
+			cloned.name = displayName;
+			cloned.tiles = cloned.tiles.map((t) => ({
+				...t,
+				id: `tile-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+			}));
+			allBoards[newId] = cloned;
+			persist(cloned);
+			return newId;
+		},
+
+		/**
+		 * Find all boards (and their folder tiles) that reference `boardId` via `loadBoard`.
+		 * Read-only; does not mutate anything.
+		 */
+		findBoardDependents(
+			boardId: string
+		): { boardId: string; boardName: string; tileIds: string[] }[] {
+			const result: { boardId: string; boardName: string; tileIds: string[] }[] = [];
+			for (const board of Object.values(allBoards)) {
+				const matchingTiles = board.tiles.filter(
+					(t) => t.type === 'folder' && t.loadBoard === boardId
+				);
+				if (matchingTiles.length > 0) {
+					result.push({
+						boardId: board.id,
+						boardName: board.name,
+						tileIds: matchingTiles.map((t) => t.id)
+					});
+				}
+			}
+			return result;
+		},
+
+		/**
+		 * Strip all folder references to `boardId`: convert matching tiles to plain buttons
+		 * (type='button', loadBoard=undefined). Persists each affected board.
+		 */
+		async stripBoardReferences(boardId: string): Promise<void> {
+			for (const board of Object.values(allBoards)) {
+				let changed = false;
+				for (const tile of board.tiles) {
+					if (tile.type === 'folder' && tile.loadBoard === boardId) {
+						tile.type = 'button';
+						tile.loadBoard = undefined;
+						changed = true;
+					}
+				}
+				if (changed) {
+					allBoards[board.id] = board;
+					if (currentBoard.id === board.id) currentBoard = board;
+					await saveBoard($state.snapshot(board) as Board);
+				}
+			}
 		},
 
 		/** Delete a board */

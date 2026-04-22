@@ -20,6 +20,53 @@
 		onhome,
 		ontoggleedit
 	}: Props = $props();
+
+	const LONG_PRESS_MS = 600;
+	let pressTimer: ReturnType<typeof setTimeout> | null = null;
+	let pressFired = false;
+	let pressProgress = $state(0);
+	let progressTimer: ReturnType<typeof setInterval> | null = null;
+
+	function startPress() {
+		// In edit mode, no long-press needed — single click exits
+		if (editMode) return;
+		pressFired = false;
+		pressProgress = 0;
+		const start = Date.now();
+		progressTimer = setInterval(() => {
+			pressProgress = Math.min(100, ((Date.now() - start) / LONG_PRESS_MS) * 100);
+		}, 30);
+		pressTimer = setTimeout(() => {
+			pressFired = true;
+			pressProgress = 100;
+			clearProgress();
+			ontoggleedit();
+		}, LONG_PRESS_MS);
+	}
+
+	function cancelPress() {
+		if (pressTimer) {
+			clearTimeout(pressTimer);
+			pressTimer = null;
+		}
+		clearProgress();
+		pressProgress = 0;
+	}
+
+	function clearProgress() {
+		if (progressTimer) {
+			clearInterval(progressTimer);
+			progressTimer = null;
+		}
+	}
+
+	function handleEditClick() {
+		// In edit mode, single click exits
+		if (editMode) {
+			ontoggleedit();
+		}
+		// Otherwise, the long-press handlers took care of it
+	}
 </script>
 
 <nav class="nav-bar" class:editing={editMode} aria-label="ניווט לוח">
@@ -59,9 +106,15 @@
 	<button
 		class="nav-btn edit-btn"
 		class:active={editMode}
-		onclick={ontoggleedit}
-		aria-label={editMode ? 'סיום עריכה' : 'עריכה'}
-		title={editMode ? 'סיום עריכה' : 'עריכה'}
+		class:pressing={pressProgress > 0 && pressProgress < 100}
+		onclick={handleEditClick}
+		onpointerdown={startPress}
+		onpointerup={cancelPress}
+		onpointerleave={cancelPress}
+		onpointercancel={cancelPress}
+		style={pressProgress > 0 ? `--press-progress: ${pressProgress}%` : ''}
+		aria-label={editMode ? 'סיום עריכה' : 'עריכה (לחיצה ארוכה)'}
+		title={editMode ? 'סיום עריכה' : 'לחיצה ארוכה כדי להיכנס למצב עריכה'}
 	>
 		{#if editMode}
 			<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
@@ -132,6 +185,17 @@
 	.edit-btn.active {
 		background: rgb(255 255 255 / 0.35);
 		box-shadow: 0 0 0 2px white;
+	}
+
+	.edit-btn.pressing {
+		background: linear-gradient(
+			to top,
+			rgb(255 255 255 / 0.55) 0%,
+			rgb(255 255 255 / 0.55) var(--press-progress, 0%),
+			rgb(255 255 255 / 0.15) var(--press-progress, 0%),
+			rgb(255 255 255 / 0.15) 100%
+		);
+		box-shadow: 0 0 0 2px rgb(255 255 255 / 0.6);
 	}
 
 	.nav-title-area {

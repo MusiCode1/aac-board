@@ -117,13 +117,13 @@
 
 ### קבצים
 
-| קובץ | שינוי |
-|-------|-------|
-| `Tile.svelte` | כפתורי edit/delete, הסרת `onclick→TileEditor` במצב עריכה, props חדשים `onedit`/`ondelete` |
-| `+page.svelte` | `handleTilePress` ללא תנאי `editMode`, handlers חדשים `handleAddBoard`, `handleEditTile`, `handleDeleteTile` |
-| `EditToolbar.svelte` | כפתור "+ לוח", callback `onaddboard` |
-| `TileEditor.svelte` | תווית "לוח" במקום "תיקייה", סקציית "לוח יעד" |
-| `Board.svelte` | העברת `onedit`/`ondelete` ל-Tile |
+| קובץ                 | שינוי                                                                                                        |
+| -------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `Tile.svelte`        | כפתורי edit/delete, הסרת `onclick→TileEditor` במצב עריכה, props חדשים `onedit`/`ondelete`                    |
+| `+page.svelte`       | `handleTilePress` ללא תנאי `editMode`, handlers חדשים `handleAddBoard`, `handleEditTile`, `handleDeleteTile` |
+| `EditToolbar.svelte` | כפתור "+ לוח", callback `onaddboard`                                                                         |
+| `TileEditor.svelte`  | תווית "לוח" במקום "תיקייה", סקציית "לוח יעד"                                                                 |
+| `Board.svelte`       | העברת `onedit`/`ondelete` ל-Tile                                                                             |
 
 ### תוכנית מימוש לפי מסגרת הבדיקות
 
@@ -133,7 +133,7 @@
 
 **שלב 1 — Red: בדיקות שנכשלות**
 
-*Playwright E2E — `tests/board-management.e2e.ts`:*
+_Playwright E2E — `tests/board-management.e2e.ts`:_
 
 - [ ] `clicking tile in edit mode still speaks` — לחיצה על אריח כפתור במצב עריכה → פריט ב-output bar
 - [ ] `clicking folder tile in edit mode navigates` — לחיצה על אריח לוח במצב עריכה → מעבר ללוח
@@ -142,7 +142,7 @@
 - [ ] `add board creates folder tile with linked board` — לחיצה על "+ לוח" → אריח folder חדש עם loadBoard
 - [ ] `new board is navigable` — לחיצה על האריח החדש → מעבר ללוח ריק
 
-*Vitest Unit — אין צורך בבדיקות unit חדשות:*
+_Vitest Unit — אין צורך בבדיקות unit חדשות:_
 `createBoard` כבר קיים ב-store, והלוגיקה פשוטה (אין שירות חדש).
 
 **שלב 2 — Green: מימוש מינימלי**
@@ -207,16 +207,16 @@
 
 ### קבצים
 
-| קובץ | שינוי |
-|-------|-------|
-| `EditToolbar.svelte` | כפתורי "בחירה", "הדבק", "שכפל לוח" |
-| `Tile.svelte` | checkbox overlay במצב בחירה, prop `selected` |
-| `Board.svelte` | ניהול מצב בחירה, העברת `onselect` ל-Tile |
-| `+page.svelte` | handlers: handleCopy, handlePaste, handleMove, handleDuplicate, handleBulkDelete |
-| `src/lib/stores/clipboard.svelte.ts` | (חדש) clipboard store |
-| `src/lib/components/SelectionToolbar.svelte` | (חדש) סרגל בחירה מרובה |
-| `src/lib/components/BoardBrowser.svelte` | (חדש) סייד-בר דפדפן לוחות |
-| `NavBar.svelte` | כפתור hamburger לפתיחת BoardBrowser |
+| קובץ                                         | שינוי                                                                            |
+| -------------------------------------------- | -------------------------------------------------------------------------------- |
+| `EditToolbar.svelte`                         | כפתורי "בחירה", "הדבק", "שכפל לוח"                                               |
+| `Tile.svelte`                                | checkbox overlay במצב בחירה, prop `selected`                                     |
+| `Board.svelte`                               | ניהול מצב בחירה, העברת `onselect` ל-Tile                                         |
+| `+page.svelte`                               | handlers: handleCopy, handlePaste, handleMove, handleDuplicate, handleBulkDelete |
+| `src/lib/stores/clipboard.svelte.ts`         | (חדש) clipboard store                                                            |
+| `src/lib/components/SelectionToolbar.svelte` | (חדש) סרגל בחירה מרובה                                                           |
+| `src/lib/components/BoardBrowser.svelte`     | (חדש) סייד-בר דפדפן לוחות                                                        |
+| `NavBar.svelte`                              | כפתור hamburger לפתיחת BoardBrowser                                              |
 
 ### תוכנית מימוש לפי מסגרת הבדיקות
 
@@ -226,14 +226,14 @@
 
 **שלב 1 — Red: בדיקות שנכשלות**
 
-*Vitest Unit — `src/lib/stores/clipboard.spec.ts`:*
+_Vitest Unit — `src/lib/stores/clipboard.spec.ts`:_
 
 - [ ] `copy stores deep clone of tiles` — `copy(tiles)` → `clipboard.items` לא משתנה כשהמקור משתנה
 - [ ] `paste generates new IDs` — `paste()` → כל אריח מקבל UUID חדש
 - [ ] `hasItems is true after copy` — `copy([tile])` → `hasItems === true`
 - [ ] `clear empties clipboard` — `clear()` → `hasItems === false`
 
-*Playwright E2E — `tests/board-management.e2e.ts` (הרחבה):*
+_Playwright E2E — `tests/board-management.e2e.ts` (הרחבה):_
 
 - [ ] `multi-select tiles and delete` — בחירת 3 אריחים → מחיקה → 3 אריחים פחות
 - [ ] `copy tiles to another board` — בחירה → העתקה → ניווט → הדבקה → אריחים מופיעים
@@ -275,31 +275,31 @@
 
 ```typescript
 interface IntentBoard {
-  id: string;
-  name: string;           // "כוונות בסיסיות", "כן/לא מהיר"
-  tiles: IntentTile[];    // 2-8 אריחים
+	id: string;
+	name: string; // "כוונות בסיסיות", "כן/לא מהיר"
+	tiles: IntentTile[]; // 2-8 אריחים
 }
 
 interface IntentTile {
-  id: string;
-  label: string;
-  image: string;          // ARASAAC URL או base64
-  backgroundColor: string;
-  borderColor: string;
-  // אין loadBoard, אין type: 'folder' — תמיד כפתור
+	id: string;
+	label: string;
+	image: string; // ARASAAC URL או base64
+	backgroundColor: string;
+	borderColor: string;
+	// אין loadBoard, אין type: 'folder' — תמיד כפתור
 }
 
 // קישור ללוח תקשורת
 interface Board {
-  // ... שדות קיימים
-  intentBoardId?: string; // undefined = ברירת מחדל גלובלית, מזהה = override
+	// ... שדות קיימים
+	intentBoardId?: string; // undefined = ברירת מחדל גלובלית, מזהה = override
 }
 
 // הגדרות גלובליות
 interface AppSettings {
-  // ... שדות קיימים
-  defaultIntentBoardId: string; // לוח כוונות ברירת מחדל
-  showIntents: boolean;         // true = הצג, false = הסתר
+	// ... שדות קיימים
+	defaultIntentBoardId: string; // לוח כוונות ברירת מחדל
+	showIntents: boolean; // true = הצג, false = הסתר
 }
 ```
 
@@ -318,12 +318,14 @@ interface AppSettings {
 ```
 
 **הבחנה ויזואלית:**
+
 - מסגרת (border) + רקע עדין שונה מ-`--bg-app`
 - קו מפריד אנכי (border-left, 2px)
 - אריחי כוונות קצת קטנים יותר (~70-80% מאריח רגיל)
 - צבעים לפי מוסכמות Fitzgerald Key (פעלים בירוק, שלילה באדום, תיאורים בכחול)
 
 **התנהגות:**
+
 - לחיצה על אריח כוונה → מוסיפה ל-Output Bar (כמו אריח רגיל)
 - הסיידבר **נשמר בניווט** בין לוחות — זה כל הרעיון
 - במצב עריכה: הסיידבר **לא ניתן לעריכה** (אין wobble, אין כפתורי edit/delete)
@@ -333,14 +335,14 @@ interface AppSettings {
 
 רשת 2×3, צבעי Fitzgerald Key:
 
-| אריח | צבע | הסבר |
-|------|------|-------|
-| רוצה | ירוק 🟩 | פועל |
-| לא רוצה | אדום 🟥 | שלילה |
-| כן | ירוק 🟩 | אישור |
-| לא | אדום 🟥 | שלילה |
-| עוד | כחול 🟦 | כמותי/תיאורי |
-| מספיק | אדום 🟥 | עצירה |
+| אריח    | צבע     | הסבר         |
+| ------- | ------- | ------------ |
+| רוצה    | ירוק 🟩 | פועל         |
+| לא רוצה | אדום 🟥 | שלילה        |
+| כן      | ירוק 🟩 | אישור        |
+| לא      | אדום 🟥 | שלילה        |
+| עוד     | כחול 🟦 | כמותי/תיאורי |
+| מספיק   | אדום 🟥 | עצירה        |
 
 עם סמלי ARASAAC מאומתים (כמו ב-`boards.ts`).
 
@@ -355,24 +357,25 @@ interface AppSettings {
 ### הגדרות
 
 בדף `/settings`, סקציה חדשה "כוונות תקשורתיות":
+
 - toggle הצג/הסתר כוונות (`showIntents`)
 - dropdown בחירת לוח כוונות ברירת מחדל (`defaultIntentBoardId`)
 
 ### קבצים
 
-| קובץ | שינוי |
-|-------|-------|
-| `src/lib/types/board.ts` | הוספת `IntentBoard`, `IntentTile`, הרחבת `Board` ו-`AppSettings` |
-| `src/lib/stores/intents.svelte.ts` | (חדש) intent boards store — CRUD, `getActiveIntentBoard(boardId)` |
-| `src/lib/stores/intents.spec.ts` | (חדש) Vitest — רזולוציית לוח כוונות |
-| `src/lib/data/intents.ts` | (חדש) לוח כוונות ברירת מחדל |
-| `src/lib/services/storage.ts` | (עדכון) `saveIntentBoard`, `loadAllIntentBoards`, `deleteIntentBoard` |
-| `src/lib/components/IntentSidebar.svelte` | (חדש) סיידבר כוונות |
-| `src/routes/intents/+page.svelte` | (חדש) דף ניהול כוונות |
-| `src/routes/+page.svelte` | (עדכון) שילוב IntentSidebar ב-layout |
-| `src/routes/settings/+page.svelte` | (עדכון) סקציית כוונות |
-| `src/lib/stores/settings.svelte.ts` | (עדכון) `defaultIntentBoardId`, `showIntents` |
-| `NavBar.svelte` | (עדכון) קישור לדף ניהול כוונות (אופציונלי) |
+| קובץ                                      | שינוי                                                                 |
+| ----------------------------------------- | --------------------------------------------------------------------- |
+| `src/lib/types/board.ts`                  | הוספת `IntentBoard`, `IntentTile`, הרחבת `Board` ו-`AppSettings`      |
+| `src/lib/stores/intents.svelte.ts`        | (חדש) intent boards store — CRUD, `getActiveIntentBoard(boardId)`     |
+| `src/lib/stores/intents.spec.ts`          | (חדש) Vitest — רזולוציית לוח כוונות                                   |
+| `src/lib/data/intents.ts`                 | (חדש) לוח כוונות ברירת מחדל                                           |
+| `src/lib/services/storage.ts`             | (עדכון) `saveIntentBoard`, `loadAllIntentBoards`, `deleteIntentBoard` |
+| `src/lib/components/IntentSidebar.svelte` | (חדש) סיידבר כוונות                                                   |
+| `src/routes/intents/+page.svelte`         | (חדש) דף ניהול כוונות                                                 |
+| `src/routes/+page.svelte`                 | (עדכון) שילוב IntentSidebar ב-layout                                  |
+| `src/routes/settings/+page.svelte`        | (עדכון) סקציית כוונות                                                 |
+| `src/lib/stores/settings.svelte.ts`       | (עדכון) `defaultIntentBoardId`, `showIntents`                         |
+| `NavBar.svelte`                           | (עדכון) קישור לדף ניהול כוונות (אופציונלי)                            |
 
 ### תוכנית מימוש לפי מסגרת הבדיקות
 
@@ -394,14 +397,14 @@ interface AppSettings {
 
 **שלב 1 — Red: בדיקות שנכשלות**
 
-*Vitest Unit — `src/lib/stores/intents.spec.ts`:*
+_Vitest Unit — `src/lib/stores/intents.spec.ts`:_
 
 - [ ] `getActiveIntentBoard returns global default when no override` — לוח ללא `intentBoardId` → לוח כוונות גלובלי
 - [ ] `getActiveIntentBoard returns per-board override` — לוח עם `intentBoardId` → לוח הכוונות הספציפי
 - [ ] `getActiveIntentBoard returns null when showIntents is false` — `showIntents: false` → null
 - [ ] `getActiveIntentBoard returns null when intentBoardId points to deleted board` — ID שלא קיים → fallback לגלובלי
 
-*Playwright E2E — `tests/intents.e2e.ts`:*
+_Playwright E2E — `tests/intents.e2e.ts`:_
 
 - [ ] `intent sidebar is visible on board page` — סיידבר מופיע עם 6 אריחי כוונות
 - [ ] `clicking intent tile adds to output bar` — לחיצה על "רוצה" → "רוצה" ב-output bar
@@ -458,18 +461,21 @@ interface AppSettings {
 **Vitest TDD — `src/lib/services/scanner.spec.ts`:**
 
 ה-scanner הוא מכונת מצבים טהורה — מועמד מושלם ל-unit tests:
+
 - לוגיקת סריקת row-column: התקדמות בין שורות, מעבר לסריקת עמודות, בחירת אריח
 - הגדרות מהירות: `tick()` מתקדם לפי `speed` setting
 - Edge cases: שורה ריקה, עמודה אחת, wrap-around
 - Dwell timing: dwell-to-select מפעיל אריח אחרי זמן שהייה
 
 **Playwright E2E — `tests/scanning.e2e.ts`:**
+
 - Tab navigation בין אריחים
 - הפעלת סריקה מהגדרות → highlight נע על הלוח
 - Space בוחר שורה → Space בוחר עמודה → אריח נוסף ל-output
 - ARIA roles ו-live regions מתעדכנים
 
 **Playwright E2E — `tests/a11y.e2e.ts`:**
+
 - High contrast mode משנה צבעים
 - Screen reader: ARIA labels על אריחים, live region ב-output bar
 - Focus management: פתיחת TileEditor → focus בתוך הדיאלוג, סגירה → focus חוזר
@@ -494,11 +500,13 @@ interface AppSettings {
 ### תוכנית מימוש לפי מסגרת הבדיקות
 
 **Vitest TDD — `src/lib/stores/settings.spec.ts` (הרחבה):**
+
 - מיגרציה: settings v1 → v2 עם שדות חדשים (שפה, פרופיל)
 - גיבוי/שחזור: export → import round-trip שומר הכל (לוחות + כוונות + הגדרות + פרופיל)
 - ולידציית פרופיל: שדות חובה, טווחי ערכים
 
 **Playwright E2E — `tests/settings.e2e.ts`:**
+
 - שינוי שפה → ממשק מתעדכן
 - שינוי הגדרות ניווט (breadcrumbs off) → breadcrumbs נעלמים
 - עריכת פרופיל מתקשר → שמירה → ריענון → פרופיל נשמר
@@ -535,6 +543,7 @@ interface AppSettings {
 **Vitest TDD — `src/lib/stores/gridsets.spec.ts`:**
 
 הלוגיקה הכי מורכבת ב-roadmap — שווה כיסוי unit מלא:
+
 - CRUD: יצירה, עדכון, מחיקת grid set
 - ניווט: `setActiveGridSet(id)` → home board משתנה
 - Deep clone: שכפול grid set → כל IDs חדשים, כל לוחות-בנים משוכפלים, קישורי `loadBoard` מעודכנים
@@ -542,6 +551,7 @@ interface AppSettings {
 - ייבוא/ייצוא: export → import round-trip, ולידציית מבנה JSON
 
 **Playwright E2E — `tests/gridsets.e2e.ts`:**
+
 - Grid Set Explorer מציג רשימת grid sets
 - יצירת grid set חדש → מופיע ב-explorer
 - מעבר בין grid sets → home board משתנה
@@ -609,14 +619,14 @@ interface AppSettings {
 
 **מטרה:** לסגור פערים שחוסמים שימוש אמיתי ע"י הורה/מטפל. חלק מהסעיפים נשענים על הנוכחות של board-management ו-Sets ומבוצעים לצדם.
 
-- [ ] **ניהול לוחות מלא** — ראה [board-management.md](board-management.md). יצירה/שינוי שם/שכפול/מחיקה + dropdown ב-TileEditor.
-- [ ] **אישור בפעולות הרסניות** — modal confirm על reset + מחיקת לוח + מחיקת אוסף. **לא** על מחיקת אריח.
-- [ ] **תשתית Undo** — history store עם stack של mutations, toast "בטל" על מחיקה. Hotkey מלא (`Ctrl+Z`) יכול להידחות; התשתית חייבת להיבנות מההתחלה.
-- [ ] **Loading state** — skeleton בזמן `store.init()` כדי למנוע flash של ברירת מחדל.
-- [ ] **Empty states** — לוח ללא אריחים מציג "הוסף אריח". חיפוש ARASAAC ללא תוצאות (כבר חלקית).
-- [ ] **Edit mode gating** — long-press על ✏ (+ PIN אופציונלי ב-`/settings`) כדי שילדים לא ייכנסו בטעות.
-- [ ] **OutputBar — שני כפתורי מחיקה** — ⌫ "מחק אחרון" ו-🗑 "ניקוי" כשני כפתורים נפרדים.
-- [ ] **Tile.disabled** — שדה בוליאני per-tile להסתרה/השבתה (לא קיים היום; `hiddenCount` הוא overflow גריד, לא per-tile).
+- [x] **ניהול לוחות מלא** — ראה [board-management.md](board-management.md). יצירה/שינוי שם/שכפול/מחיקה + dropdown ב-TileEditor.
+- [x] **אישור בפעולות הרסניות** — modal confirm על reset + מחיקת לוח + מחיקת אוסף. **לא** על מחיקת אריח.
+- [ ] **תשתית Undo** — history store עם stack של mutations, toast "בטל" על מחיקה. **נדחה לשלב מאוחר**.
+- [x] **Loading state** — skeleton בזמן `store.init()` כדי למנוע flash של ברירת מחדל.
+- [x] **Empty states** — לוח ללא אריחים מציג "הוסף אריח". חיפוש ARASAAC ללא תוצאות (כבר חלקית).
+- [x] **Edit mode gating** — long-press 600ms על ✏ (PIN נדחה לעתיד).
+- [x] **OutputBar — שני כפתורי מחיקה** — ⌫ "מחק אחרון" ו-🗑 "ניקוי" כשני כפתורים נפרדים.
+- [x] **Tile.disabled** — שדה בוליאני per-tile להסתרה/השבתה.
 - [ ] **כותרת טאב דינמית** — `<title>` מתעדכן לשם הלוח הנוכחי. זמין כשיש routing (שלב B).
 - [ ] **Broadcast channel בין טאבים** — סנכרון IndexedDB בין טאבים פתוחים. פחות דחוף.
 
@@ -626,23 +636,23 @@ interface AppSettings {
 
 ## סדר עדיפויות מומלץ
 
-| שלב | תיאור                              | תלות     | סטטוס / עדיפות           |
-| --- | ---------------------------------- | -------- | ------------------------ |
-| 1   | ליבה — רינדור, TTS, ניווט          | —        | :white_check_mark: הושלם |
-| 2   | עריכה + IndexedDB                  | —        | :white_check_mark: הושלם |
-| 2.5 | שימוש בסיסי + ניהול לוחות          | שלב 2    | קריטי — הבא              |
-| 3A  | חיפוש סמלים + העלאת תמונה + קול    | שלב 2    | :white_check_mark: הושלם |
-| 3B  | הגדרות + PWA                       | שלב 3A   | :white_check_mark: הושלם |
-| 3C  | יצירת לוח + שיפור מצב עריכה        | שלב 2.5  | :arrow_right: הבא        |
-| 3D  | בחירה מרובה + שכפול + סייד-בר     | שלב 3C   | ממתין                    |
-| 3E  | כוונות תקשורתיות (סיידבר ימני)    | שלב 3B   | ממתין                    |
-| 4   | נגישות + סריקה                     | —        | בינונית                  |
-| 5   | הגדרות מתקדמות + פרופיל            | שלב 3B   | בינונית                  |
-| 6   | אוספי לוחות (Sets) + Routing       | שלב 2.5  | גבוהה                    |
-| 7   | PWA מתקדם + אופליין                | שלב 3B   | בינונית                  |
-| 8   | Backend + אימות + Drive backup     | שלב 6    | נמוכה                    |
-| 9   | AI + מתקדם                         | שלב 8    | עתידי                    |
-| 10  | i18n + Production                  | שלב 8    | עתידי                    |
+| שלב | תיאור                           | תלות    | סטטוס / עדיפות                      |
+| --- | ------------------------------- | ------- | ----------------------------------- |
+| 1   | ליבה — רינדור, TTS, ניווט       | —       | :white_check_mark: הושלם            |
+| 2   | עריכה + IndexedDB               | —       | :white_check_mark: הושלם            |
+| 2.5 | שימוש בסיסי + ניהול לוחות       | שלב 2   | :white_check_mark: הושלם (ללא Undo) |
+| 3A  | חיפוש סמלים + העלאת תמונה + קול | שלב 2   | :white_check_mark: הושלם            |
+| 3B  | הגדרות + PWA                    | שלב 3A  | :white_check_mark: הושלם            |
+| 3C  | יצירת לוח + שיפור מצב עריכה     | שלב 2.5 | ממתין                               |
+| 3D  | בחירה מרובה + שכפול + סייד-בר   | שלב 3C  | ממתין                               |
+| 3E  | כוונות תקשורתיות (סיידבר ימני)  | שלב 3B  | ממתין                               |
+| 4   | נגישות + סריקה                  | —       | בינונית                             |
+| 5   | הגדרות מתקדמות + פרופיל         | שלב 3B  | בינונית                             |
+| 6   | אוספי לוחות (Sets) + Routing    | שלב 2.5 | גבוהה                               |
+| 7   | PWA מתקדם + אופליין             | שלב 3B  | בינונית                             |
+| 8   | Backend + אימות + Drive backup  | שלב 6   | נמוכה                               |
+| 9   | AI + מתקדם                      | שלב 8   | עתידי                               |
+| 10  | i18n + Production               | שלב 8   | עתידי                               |
 
 ## אימות
 

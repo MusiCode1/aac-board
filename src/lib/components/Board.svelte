@@ -173,11 +173,37 @@
 	<div
 		class="board-grid {animClass}"
 		class:show-overflow={showOverflow && overflowTiles.length > 0}
+		class:empty={board.tiles.length === 0}
 		style="--rows: {board.grid.rows}; --cols: {board.grid.columns}"
 		role="grid"
 		aria-label={board.name}
 		bind:this={gridEl}
 	>
+		{#if board.tiles.length === 0}
+			<div class="empty-state" style="grid-column: 1 / -1; grid-row: 1 / -1">
+				<svg
+					width="72"
+					height="72"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.5"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<rect x="3" y="3" width="7" height="7" rx="1" />
+					<rect x="14" y="3" width="7" height="7" rx="1" />
+					<rect x="3" y="14" width="7" height="7" rx="1" />
+					<rect x="14" y="14" width="7" height="7" rx="1" />
+				</svg>
+				<p class="empty-title">הלוח ריק</p>
+				{#if editMode}
+					<p class="empty-hint">לחץ על "הוסף" בסרגל העליון כדי ליצור את האריח הראשון</p>
+				{:else}
+					<p class="empty-hint">היכנס למצב עריכה והוסף אריחים</p>
+				{/if}
+			</div>
+		{/if}
 		{#each visibleTiles as tile, i (tile.id)}
 			<Tile
 				{tile}
@@ -231,6 +257,31 @@
 	.board-grid.show-overflow {
 		grid-template-rows: auto;
 		overflow-y: auto;
+	}
+
+	.empty-state {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		color: var(--text-secondary, #9e9e9e);
+		text-align: center;
+		padding: 20px;
+	}
+
+	.empty-title {
+		margin: 4px 0 0;
+		font-size: 18px;
+		font-weight: 600;
+		color: var(--text-primary, #424242);
+	}
+
+	.empty-hint {
+		margin: 0;
+		font-size: 14px;
+		max-width: 320px;
+		line-height: 1.5;
 	}
 
 	.overflow-divider {

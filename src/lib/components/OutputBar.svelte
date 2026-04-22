@@ -8,9 +8,19 @@
 		onclear: () => void;
 		onspeakall: () => void;
 		onremove: (index: number) => void;
+		onbackspace?: () => void;
 	}
 
-	let { items, onclear, onspeakall, onremove }: Props = $props();
+	let { items, onclear, onspeakall, onremove, onbackspace }: Props = $props();
+
+	function handleBackspace() {
+		if (items.length === 0) return;
+		if (onbackspace) {
+			onbackspace();
+		} else {
+			onremove(items.length - 1);
+		}
+	}
 </script>
 
 <div class="output-bar" role="region" aria-label="שורת פלט">
@@ -47,24 +57,27 @@
 			</svg>
 		</button>
 		<button
+			class="action-btn backspace-btn"
+			onclick={handleBackspace}
+			disabled={items.length === 0}
+			aria-label="מחק אחרון"
+			title="מחק אחרון"
+		>
+			<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+				<path
+					d="M22 3H7c-.69 0-1.23.35-1.59.88L0 12l5.41 8.11c.36.53.9.89 1.59.89h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-3 12.59L17.59 17 14 13.41 10.41 17 9 15.59 12.59 12 9 8.41 10.41 7 14 10.59 17.59 7 19 8.41 15.41 12 19 15.59z"
+				/>
+			</svg>
+		</button>
+		<button
 			class="action-btn clear-btn"
 			onclick={onclear}
 			disabled={items.length === 0}
-			aria-label="נקה"
-			title="נקה"
+			aria-label="נקה הכל"
+			title="נקה הכל"
 		>
-			<svg
-				width="18"
-				height="18"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="2.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-			>
-				<line x1="18" y1="6" x2="6" y2="18" />
-				<line x1="6" y1="6" x2="18" y2="18" />
+			<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+				<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
 			</svg>
 		</button>
 	</div>
@@ -179,6 +192,15 @@
 
 	.speak-btn:hover:not(:disabled) {
 		background: #e3f2fd;
+	}
+
+	.backspace-btn {
+		border-color: #ef6c00;
+		color: #ef6c00;
+	}
+
+	.backspace-btn:hover:not(:disabled) {
+		background: #fff3e0;
 	}
 
 	.clear-btn {

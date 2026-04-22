@@ -7,6 +7,8 @@ export interface Tile {
 	/** If set, this tile is a folder that navigates to another board */
 	loadBoard?: string;
 	type: 'button' | 'folder';
+	/** If true, tile is greyed out and non-interactive (but preserved in data) */
+	disabled?: boolean;
 }
 
 export interface Board {
