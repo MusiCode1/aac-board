@@ -1,5 +1,8 @@
 {
 	"files.associations": {
 		"*.css": "tailwindcss"
-	}
+	},
+	"markdown.extension.completion.enabled": false,
+	"markdown.extension.tableFormatter.enabled": false,
+	"specstory.cloudSync.enabled": "never"
 }
