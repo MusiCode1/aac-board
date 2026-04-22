@@ -56,6 +56,7 @@
 	let tileType = $state<'button' | 'folder'>('button');
 	let loadBoard = $state('');
 	let tileDisabled = $state(false);
+	let tileHidden = $state(false);
 
 	// ── Symbol search ──
 	let searchQuery = $state('');
@@ -63,6 +64,8 @@
 	let searching = $state(false);
 	let searchTimer: ReturnType<typeof setTimeout> | null = null;
 	let abortController: AbortController | null = null;
+	/** Whether the user has manually edited the search query (then we stop auto-syncing from label). */
+	let searchManuallyEdited = $state(false);
 
 	// ── Image upload ──
 	let imageInput: HTMLInputElement | undefined;
@@ -82,9 +85,19 @@
 		tileType = tile.type;
 		loadBoard = tile.loadBoard ?? '';
 		tileDisabled = tile.disabled ?? false;
-		searchQuery = '';
+		tileHidden = tile.hidden ?? false;
+		// Seed the symbol search with the current label — auto-searches matching symbols
+		searchQuery = tile.label ?? '';
+		searchManuallyEdited = false;
 		searchResults = [];
 		uploadWarning = '';
+	});
+
+	// Auto-sync the search query with the label, unless the user manually edited it
+	$effect(() => {
+		if (!searchManuallyEdited) {
+			searchQuery = label;
+		}
 	});
 
 	// Debounced search
@@ -127,7 +140,8 @@
 			backgroundColor,
 			borderColor,
 			type: tileType,
-			disabled: tileDisabled
+			disabled: tileDisabled,
+			hidden: tileHidden
 		};
 		if (tileType === 'folder' && loadBoard) {
 			updates.loadBoard = loadBoard;
@@ -167,7 +181,13 @@
 	}
 
 	function persistTts() {
-		saveTtsSettings({ voiceURI: selectedVoiceURI, rate: ttsRate, pitch: ttsPitch });
+		const current = getTtsSettings();
+		saveTtsSettings({
+			...current,
+			voiceURI: selectedVoiceURI,
+			rate: ttsRate,
+			pitch: ttsPitch
+		});
 	}
 
 	function previewVoice() {
@@ -231,7 +251,11 @@
 				<div class="image-actions">
 					<input
 						type="text"
-						bind:value={searchQuery}
+						value={searchQuery}
+						oninput={(e) => {
+							searchQuery = (e.target as HTMLInputElement).value;
+							searchManuallyEdited = true;
+						}}
 						class="field-input"
 						placeholder="חפש סמל..."
 					/>
@@ -298,6 +322,11 @@
 			<label class="field field-checkbox">
 				<input type="checkbox" class="tile-disabled-checkbox" bind:checked={tileDisabled} />
 				<span class="field-label-inline">השבת אריח (מוצג אפור ולא ניתן ללחיצה)</span>
+			</label>
+
+			<label class="field field-checkbox">
+				<input type="checkbox" class="tile-hidden-checkbox" bind:checked={tileHidden} />
+				<span class="field-label-inline">הסתר אריח (לא מוצג במצב תצוגה)</span>
 			</label>
 
 			<div class="field">
@@ -676,7 +705,8 @@
 		padding: 4px 0;
 	}
 
-	.tile-disabled-checkbox {
+	.tile-disabled-checkbox,
+	.tile-hidden-checkbox {
 		width: 18px;
 		height: 18px;
 		accent-color: var(--primary, #1976d2);

@@ -1,4 +1,17 @@
+/**
+ * Public TTS API — routes to the currently selected provider.
+ *
+ * Providers: webspeech (default), elevenlabs, gemini.
+ * Settings stored in localStorage under `tts-settings`.
+ */
+
+import { getProvider, webSpeechProvider } from './tts-providers';
+import type { TtsProviderId, TtsVoice } from './tts-providers';
+
 export interface TtsSettings {
+	/** Active provider */
+	provider: TtsProviderId;
+	/** Voice ID within the active provider (format depends on provider) */
 	voiceURI: string;
 	rate: number;
 	pitch: number;
@@ -6,15 +19,25 @@ export interface TtsSettings {
 
 const TTS_SETTINGS_KEY = 'tts-settings';
 
+const DEFAULT_SETTINGS: TtsSettings = {
+	provider: 'webspeech',
+	voiceURI: '',
+	rate: 0.9,
+	pitch: 1
+};
+
 /** Read TTS settings from localStorage */
 export function getTtsSettings(): TtsSettings {
 	try {
 		const raw = localStorage.getItem(TTS_SETTINGS_KEY);
-		if (raw) return JSON.parse(raw);
+		if (raw) {
+			const parsed = JSON.parse(raw) as Partial<TtsSettings>;
+			return { ...DEFAULT_SETTINGS, ...parsed };
+		}
 	} catch {
 		/* empty */
 	}
-	return { voiceURI: '', rate: 0.9, pitch: 1 };
+	return { ...DEFAULT_SETTINGS };
 }
 
 /** Save TTS settings to localStorage */
@@ -26,48 +49,64 @@ export function saveTtsSettings(settings: TtsSettings): void {
 	}
 }
 
-/** Get available Hebrew voices */
+/** Get Hebrew voices from the Web Speech API (legacy — used by settings UI directly). */
 export function getHebrewVoices(): SpeechSynthesisVoice[] {
 	if (!('speechSynthesis' in globalThis)) return [];
 	return speechSynthesis.getVoices().filter((v) => v.lang.startsWith('he'));
 }
 
-/**
- * Speak a single text string using Web Speech API.
- * Uses saved TTS settings for voice, rate, and pitch.
- */
-export function speak(text: string, lang = 'he-IL'): void {
-	if (!('speechSynthesis' in window)) return;
+/** Get voices for the currently-selected provider (or for a specific one). */
+export async function getVoicesForProvider(
+	providerId: TtsProviderId,
+	lang = 'he'
+): Promise<TtsVoice[]> {
+	const provider = getProvider(providerId);
+	return provider.getVoices(lang);
+}
 
-	window.speechSynthesis.cancel();
-
-	const utterance = new SpeechSynthesisUtterance(text);
-	utterance.lang = lang;
-
+/** Speak a single text string using the active provider, falling back to Web Speech on error. */
+export async function speak(text: string, lang = 'he-IL'): Promise<void> {
 	const settings = getTtsSettings();
-	utterance.rate = settings.rate;
-	utterance.pitch = settings.pitch;
+	const provider = getProvider(settings.provider);
 
-	const voices = window.speechSynthesis.getVoices();
-	const preferred = settings.voiceURI ? voices.find((v) => v.voiceURI === settings.voiceURI) : null;
-	utterance.voice = preferred ?? voices.find((v) => v.lang.startsWith('he')) ?? null;
+	// Try the selected provider first
+	if (provider.isAvailable()) {
+		try {
+			await provider.speak(text, {
+				voiceId: settings.voiceURI || undefined,
+				rate: settings.rate,
+				pitch: settings.pitch,
+				lang
+			});
+			return;
+		} catch (e) {
+			console.warn(`[tts] provider "${settings.provider}" failed — falling back to webspeech`, e);
+		}
+	}
 
-	window.speechSynthesis.speak(utterance);
+	// Fallback to Web Speech
+	if (settings.provider !== 'webspeech' && webSpeechProvider.isAvailable()) {
+		await webSpeechProvider.speak(text, {
+			rate: settings.rate,
+			pitch: settings.pitch,
+			lang
+		});
+	}
 }
 
-/**
- * Speak an array of labels sequentially, joined with a short pause.
- */
-export function speakAll(labels: string[], lang = 'he-IL'): void {
+/** Speak an array of labels joined as a single sentence. */
+export async function speakAll(labels: string[], lang = 'he-IL'): Promise<void> {
 	const sentence = labels.join(' ');
-	speak(sentence, lang);
+	await speak(sentence, lang);
 }
 
-/**
- * Stop any ongoing speech.
- */
+/** Stop any ongoing speech across all providers. */
 export function stopSpeaking(): void {
-	if ('speechSynthesis' in window) {
-		window.speechSynthesis.cancel();
+	for (const id of ['webspeech', 'elevenlabs', 'gemini'] as TtsProviderId[]) {
+		try {
+			getProvider(id).stop();
+		} catch {
+			/* ignore */
+		}
 	}
 }

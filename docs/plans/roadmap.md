@@ -79,10 +79,15 @@
 
 **קבצים:** `settings.svelte.ts` (חדש), `settings/+page.svelte` (חדש), `manifest.json` (חדש), `NavBar.svelte` (עדכון), `layout.css` (עדכון), `app.html` (עדכון), `tts.ts` (עדכון), `+page.svelte` (עדכון)
 
-### שלב 3 — עתידי (Azure TTS, ElevenLabs)
+### שלב 3 — TTS providers מתקדמים
 
-- [ ] **Azure TTS** — חיבור ל-Azure Cognitive Services (קולות ענן)
-- [ ] **ElevenLabs** — חיבור ל-ElevenLabs API (קולות AI), בורר קולות עם preview
+- [x] **ElevenLabs** — חיבור ל-ElevenLabs API (קולות AI), בורר קולות עם preview
+- [x] **Google Gemini TTS** — gemini-2.5-flash-preview-tts (30 קולות prebuilt, תמיכה בעברית)
+- [x] **Web Speech API** — ברירת מחדל (תמיד זמין)
+- [x] **תשתית Provider abstraction** — `src/lib/services/tts-providers/` עם interface אחיד
+- [x] **חיפוש סמל אוטומטי לפי תווית** — בזמן הקלדת שם לאריח, החיפוש מתעדכן
+- [x] **Tile.hidden** — הסתרה מלאה של אריח (לא רק השבתה)
+- [ ] **Azure TTS** — עתידי
 
 ---
 

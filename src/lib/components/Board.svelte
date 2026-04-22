@@ -158,8 +158,11 @@
 	// ── Shared reorder logic ──
 
 	let gridCapacity = $derived(board.grid.rows * board.grid.columns);
-	let visibleTiles = $derived(board.tiles.slice(0, gridCapacity));
-	let overflowTiles = $derived(board.tiles.slice(gridCapacity));
+	// In view mode, skip tiles flagged as `hidden`. In edit mode, show everything
+	// so the user can unhide / edit them.
+	let displayTiles = $derived(editMode ? board.tiles : board.tiles.filter((t) => !t.hidden));
+	let visibleTiles = $derived(displayTiles.slice(0, gridCapacity));
+	let overflowTiles = $derived(displayTiles.slice(gridCapacity));
 
 	function commitReorder(toIndex: number) {
 		if (dragFromIndex !== null && dragFromIndex !== toIndex) {

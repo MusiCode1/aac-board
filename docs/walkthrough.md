@@ -1,5 +1,94 @@
 # AAC Board — יומן פיתוח (Walkthrough)
 
+## 2026-04-22 17:00
+
+### תיקוני UX: חיפוש סמל אוטומטי + Tile.hidden + תשתית TTS providers
+
+שלושה תיקונים קטנים אבל משמעותיים: חיפוש אוטומטי של סמל בזמן כתיבת תווית, הסתרה מלאה של אריח (בניגוד להשבתה), ותשתית TTS מודולרית שתומכת ב-ElevenLabs ו-Gemini בנוסף ל-Web Speech.
+
+#### מה בוצע?
+
+**1. חיפוש סמל אוטומטי לפי התווית — `TileEditor.svelte`**
+
+- בעת פתיחת TileEditor, `searchQuery` מאותחל מה-`tile.label`
+- `$effect` מסנכרן את `searchQuery` עם `label` כל עוד המשתמש לא ערך את שדה החיפוש ידנית
+- `searchManuallyEdited` flag נדלק ברגע שהמשתמש מקליד ב-search input
+- ה-debounce (300ms) + searchPictograms הקיים עובדים ללא שינוי
+
+**2. Tile.hidden — הסתרה מלאה של אריח**
+
+- שדה חדש `Tile.hidden?: boolean` ב-type
+- `Board.svelte` מסנן `board.tiles.filter((t) => !t.hidden)` במצב תצוגה בלבד; במצב עריכה מציג הכל
+- `Tile.svelte` מוסיף `class:tile-hidden` שמציג overlay של פסים 45° במצב עריכה
+- checkbox חדש ב-TileEditor: "הסתר אריח (לא מוצג במצב תצוגה)"
+- **הבדל מ-disabled**: disabled=אפור + לא לחיץ אבל מוצג; hidden=נעלם לגמרי במצב תצוגה
+
+**3. תשתית TTS providers מודולרית**
+
+קבצים חדשים:
+
+- `src/lib/services/tts-providers/types.ts` — interface `TtsProvider` + `TtsVoice` + `SpeakOptions`
+- `src/lib/services/tts-providers/webspeech.ts` — ברירת מחדל (תמיד זמין)
+- `src/lib/services/tts-providers/elevenlabs.ts` — API, voices cache 10min, eleven_multilingual_v2
+- `src/lib/services/tts-providers/gemini.ts` — gemini-2.5-flash-preview-tts, 10 קולות prebuilt (Zephyr, Puck, ...), PCM→WAV wrapper
+- `src/lib/services/tts-providers/index.ts` — router + `getProvider()` + `listProviders()`
+
+`src/lib/services/tts.ts` עודכן:
+
+- `TtsSettings` קיבל `provider: TtsProviderId`
+- `speak()` מנתב ל-provider הנבחר עם fallback ל-webspeech אם נכשל
+- `getVoicesForProvider()` החזר קולות לכל provider
+
+**4. Settings UI — ממשק בחירת provider**
+
+`src/routes/settings/+page.svelte`:
+
+- `<toggle-group>` לבחירת provider: דפדפן / ElevenLabs / Gemini
+- שדה API key (type=password, autocomplete=off) מופיע רק כש-provider מתאים נבחר
+- שדה "קול" נטען דינמית מה-provider הפעיל
+- `settings.svelte.ts` מסנכרן את `ttsProvider/Voice/Rate/Pitch` עם localStorage (`tts-settings`) כדי שהקריאה מ-`tts.ts` תקרא את הערכים הנכונים
+
+#### החלטות ארכיטקטורה
+
+- **Provider abstraction עם `TtsProvider` interface**: כל provider חייב לממש `isAvailable`, `getVoices`, `speak`, `stop`. זה מאפשר להוסיף Azure/Polly/Coqui בעתיד בלי לגעת בקריאה. כל provider גם אחראי על ה-cache שלו (ElevenLabs — 10min voice cache).
+- **API keys ב-localStorage ולא ב-IndexedDB**: קריאה סינכרונית מקובלת לפני כל fetch, פשוט יותר. הסיכון: XSS יכול לקרוא. זה מקובל במצב הנוכחי (אפליקציה מקומית, לא multi-user), נשקל שוב אם נהפוך ל-hosted.
+- **Gemini PCM→WAV wrapper מקומי**: Gemini מחזיר raw 16-bit PCM @ 24kHz בלי header. במקום לטעון מפענח WAV חיצוני, כתבנו wrapper של 44 בייטים (RIFF header) ידני. bundle size נשמר.
+- **Fallback ל-Web Speech בעת כישלון**: אם ElevenLabs נכשל (מפתח לא תקין, rate limit), `speak()` מנסה Web Speech אוטומטית. חשוב בתחום AAC — תקשורת לא יכולה להישבר בגלל API.
+- **האזנה אוטומטית בזמן הקלדה — opt-out ולא opt-in**: `searchManuallyEdited` מחזיק את ה-flag. הסיבה: מרבית ההורים ישתמשו בתווית כ-query (זה הזרימה הטבעית). רק אם בוחרים לחפש משהו שונה במפורש, ה-sync נפסק עד סגירת העורך.
+- **Hidden בסינון ב-Board, disabled בלוגיקת click ב-Tile**: חלוקה נקייה. Board יודע אילו אריחים לרנדר; Tile יודע מתי ללחוץ.
+
+#### מעקפים ופתרונות
+
+- **TypeScript lib.dom: `Uint8Array.buffer` עשוי להיות `SharedArrayBuffer`**: Blob constructor לא מקבל SharedArrayBuffer. פתרון: העתקה ל-`Uint8Array` חדש ו-cast ל-`ArrayBuffer` מפורש. הקוד מצוי ב-`gemini.ts` בתוך `pcmToWav()`.
+- **`tts-settings` ב-localStorage + `app-settings` ב-IndexedDB — שני מקורות אמת**: `settings.svelte.ts` מסנכרן mirror ל-localStorage בכל `persist()`. `tts.ts` (הקוד שמנגן בפועל) קורא מ-localStorage כי צריך גישה סינכרונית לפני כל `speak()`. בעתיד אולי נאחד.
+
+#### מבנה קבצים
+
+קבצים חדשים:
+
+- `src/lib/services/tts-providers/types.ts`
+- `src/lib/services/tts-providers/webspeech.ts`
+- `src/lib/services/tts-providers/elevenlabs.ts`
+- `src/lib/services/tts-providers/gemini.ts`
+- `src/lib/services/tts-providers/index.ts`
+
+קבצים שעודכנו:
+
+- `src/lib/services/tts.ts` — provider routing + fallback
+- `src/lib/stores/settings.svelte.ts` — `ttsProvider` field + localStorage mirror
+- `src/lib/types/board.ts` — `Tile.hidden?`
+- `src/lib/components/Board.svelte` — סינון hidden ב-view mode
+- `src/lib/components/Tile.svelte` — class `tile-hidden` + overlay פסים
+- `src/lib/components/TileEditor.svelte` — checkbox "הסתר" + auto-search לפי label
+- `src/routes/settings/+page.svelte` — provider toggle + API key inputs
+
+#### מצב בדיקות
+
+- **28 בדיקות E2E עוברות** (ללא שינוי)
+- `bun run check` — 0 errors, 4 warnings (קיימים)
+
+---
+
 ## 2026-04-22 16:15
 
 ### שלב 3C — כפתורי edit/delete על אריח + יצירת לוח חדש + טרמינולוגיה

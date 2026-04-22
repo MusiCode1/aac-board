@@ -64,6 +64,7 @@
 	class:drag-over={dragOver}
 	class:dimmed
 	class:tile-disabled={tile.disabled}
+	class:tile-hidden={tile.hidden}
 	style="--bg: {tile.backgroundColor}; --border-color: {tile.borderColor}; --index: {index}"
 	data-tile-index={index}
 	onclick={handleClick}
@@ -316,6 +317,28 @@
 	.tile.tile-disabled.editing {
 		/* In edit mode, the tile is still interactive (for the editor), but visually muted */
 		opacity: 0.6;
+	}
+
+	/* Hidden tiles: only visible in edit mode (view mode is filtered at Board level).
+	   In edit mode, show them with a striped overlay so the editor knows they're hidden. */
+	.tile.tile-hidden {
+		opacity: 0.5;
+	}
+
+	.tile.tile-hidden::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background-image: repeating-linear-gradient(
+			45deg,
+			transparent,
+			transparent 8px,
+			rgb(0 0 0 / 0.08) 8px,
+			rgb(0 0 0 / 0.08) 16px
+		);
+		border-radius: inherit;
+		pointer-events: none;
+		z-index: 2;
 	}
 
 	/* ── Edit/delete action badges (visible only in edit mode) ── */

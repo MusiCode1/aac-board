@@ -2,29 +2,73 @@
 	import { onMount } from 'svelte';
 	import { settingsStore } from '$lib/stores/settings.svelte';
 	import { boardStore } from '$lib/stores/board.svelte';
-	import { speak, getHebrewVoices } from '$lib/services/tts';
+	import { speak, getVoicesForProvider } from '$lib/services/tts';
+	import {
+		setElevenLabsApiKey,
+		getElevenLabsApiKey,
+		setGeminiApiKey,
+		getGeminiApiKey,
+		type TtsProviderId,
+		type TtsVoice
+	} from '$lib/services/tts-providers';
 	import { exportBoardsJSON } from '$lib/services/storage';
 
 	const sStore = settingsStore();
 	const bStore = boardStore();
 
-	let availableVoices = $state<SpeechSynthesisVoice[]>([]);
+	let availableVoices = $state<TtsVoice[]>([]);
+	let elevenLabsKey = $state('');
+	let geminiKey = $state('');
 	let fileInput: HTMLInputElement | undefined;
+	let loadingVoices = $state(false);
 
-	onMount(() => {
-		sStore.init();
+	onMount(async () => {
+		await sStore.init();
 		bStore.init();
-		availableVoices = getHebrewVoices();
-		if ('speechSynthesis' in globalThis) {
-			speechSynthesis.onvoiceschanged = () => {
-				availableVoices = getHebrewVoices();
-			};
-		}
+		elevenLabsKey = getElevenLabsApiKey();
+		geminiKey = getGeminiApiKey();
+		await refreshVoices();
 	});
+
+	async function refreshVoices() {
+		loadingVoices = true;
+		try {
+			availableVoices = await getVoicesForProvider(sStore.settings.ttsProvider, 'he');
+		} catch (e) {
+			console.warn('[settings] refreshVoices failed', e);
+			availableVoices = [];
+		}
+		loadingVoices = false;
+	}
+
+	async function handleProviderChange(provider: TtsProviderId) {
+		sStore.update({ ttsProvider: provider, ttsVoice: '' });
+		await refreshVoices();
+	}
+
+	function handleElevenLabsKeyChange(e: Event) {
+		const key = (e.target as HTMLInputElement).value.trim();
+		elevenLabsKey = key;
+		setElevenLabsApiKey(key);
+		if (sStore.settings.ttsProvider === 'elevenlabs') refreshVoices();
+	}
+
+	function handleGeminiKeyChange(e: Event) {
+		const key = (e.target as HTMLInputElement).value.trim();
+		geminiKey = key;
+		setGeminiApiKey(key);
+		if (sStore.settings.ttsProvider === 'gemini') refreshVoices();
+	}
 
 	function previewVoice() {
 		speak('שלום, זה ניסיון קול');
 	}
+
+	const providers: { id: TtsProviderId; label: string }[] = [
+		{ id: 'webspeech', label: 'דפדפן' },
+		{ id: 'elevenlabs', label: 'ElevenLabs' },
+		{ id: 'gemini', label: 'Gemini' }
+	];
 
 	async function handleExport() {
 		const json = await exportBoardsJSON();
@@ -95,18 +139,71 @@
 				הגדרות קול
 			</h2>
 
+			<div class="field">
+				<span class="field-label">מנוע הקראה</span>
+				<div class="toggle-group">
+					{#each providers as p (p.id)}
+						<button
+							class="toggle-btn"
+							class:active={sStore.settings.ttsProvider === p.id}
+							onclick={() => handleProviderChange(p.id)}
+						>
+							{p.label}
+						</button>
+					{/each}
+				</div>
+			</div>
+
+			{#if sStore.settings.ttsProvider === 'elevenlabs'}
+				<label class="field">
+					<span class="field-label">ElevenLabs API Key</span>
+					<input
+						type="password"
+						class="field-input"
+						value={elevenLabsKey}
+						oninput={handleElevenLabsKeyChange}
+						placeholder="sk_..."
+						autocomplete="off"
+					/>
+					<span class="field-hint">המפתח נשמר מקומית בדפדפן בלבד. קבל מפתח ב-elevenlabs.io</span>
+				</label>
+			{/if}
+
+			{#if sStore.settings.ttsProvider === 'gemini'}
+				<label class="field">
+					<span class="field-label">Gemini API Key</span>
+					<input
+						type="password"
+						class="field-input"
+						value={geminiKey}
+						oninput={handleGeminiKeyChange}
+						placeholder="AI..."
+						autocomplete="off"
+					/>
+					<span class="field-hint"
+						>המפתח נשמר מקומית בדפדפן בלבד. קבל מפתח ב-aistudio.google.com/apikey</span
+					>
+				</label>
+			{/if}
+
 			<label class="field">
 				<span class="field-label">קול</span>
 				<select
 					class="field-input"
 					value={sStore.settings.ttsVoice}
 					onchange={(e) => sStore.update({ ttsVoice: (e.target as HTMLSelectElement).value })}
+					disabled={loadingVoices || availableVoices.length === 0}
 				>
 					<option value="">ברירת מחדל</option>
-					{#each availableVoices as voice (voice.voiceURI)}
-						<option value={voice.voiceURI}>{voice.name}</option>
+					{#each availableVoices as voice (voice.id)}
+						<option value={voice.id}>{voice.name}</option>
 					{/each}
 				</select>
+				{#if loadingVoices}
+					<span class="field-hint">טוען קולות...</span>
+				{:else if availableVoices.length === 0 && sStore.settings.ttsProvider !== 'webspeech'}
+					<span class="field-hint">הכנס API Key למעלה כדי לטעון קולות</span>
+				{/if}
 			</label>
 
 			<label class="field">
@@ -326,6 +423,12 @@
 		font-size: 13px;
 		font-weight: 600;
 		color: var(--text-secondary, #616161);
+	}
+
+	.field-hint {
+		font-size: 12px;
+		color: var(--text-secondary, #9e9e9e);
+		margin-top: 2px;
 	}
 
 	.field-input {

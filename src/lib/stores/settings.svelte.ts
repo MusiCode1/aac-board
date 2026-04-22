@@ -1,6 +1,9 @@
 import { get, set } from 'idb-keyval';
+import type { TtsProviderId } from '$lib/services/tts-providers';
 
 export interface AppSettings {
+	/** Active TTS provider */
+	ttsProvider: TtsProviderId;
 	ttsVoice: string;
 	ttsRate: number;
 	ttsPitch: number;
@@ -12,6 +15,7 @@ const SETTINGS_KEY = 'app-settings';
 const TTS_LEGACY_KEY = 'tts-settings';
 
 const DEFAULTS: AppSettings = {
+	ttsProvider: 'webspeech',
 	ttsVoice: '',
 	ttsRate: 0.9,
 	ttsPitch: 1.0,
@@ -31,6 +35,20 @@ async function persist() {
 	// Mirror theme to localStorage for anti-flash script
 	try {
 		localStorage.setItem('theme', settings.theme);
+	} catch {
+		/* private browsing */
+	}
+	// Mirror TTS-relevant fields to `tts-settings` localStorage (used by tts.ts at call site)
+	try {
+		localStorage.setItem(
+			'tts-settings',
+			JSON.stringify({
+				provider: settings.ttsProvider,
+				voiceURI: settings.ttsVoice,
+				rate: settings.ttsRate,
+				pitch: settings.ttsPitch
+			})
+		);
 	} catch {
 		/* private browsing */
 	}

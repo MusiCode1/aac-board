@@ -9,6 +9,8 @@ export interface Tile {
 	type: 'button' | 'folder';
 	/** If true, tile is greyed out and non-interactive (but preserved in data) */
 	disabled?: boolean;
+	/** If true, tile is completely hidden in view mode (visible only in edit mode) */
+	hidden?: boolean;
 }
 
 export interface Board {
