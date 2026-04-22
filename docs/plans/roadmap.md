@@ -5,6 +5,8 @@
 שלב 1 (ליבה) הושלם: לוח AAC עם 5 לוחות, 62 פיקטוגרמות ARASAAC מאומתות, TTS, ניווט, אנימציות.
 צריך לבנות תוכנית רב-שלבית שמקדמת את הפרויקט מ-MVP סטטי לאפליקציית AAC מלאה.
 
+> **📌 היסטוריית ענפים (2026-04-22)**: ענף `claude/aac-board-core-4lixm` מוזג ל-`dev` — כל הקומיטים של שלב 3A+3B כלולים כעת. ראה [architecture.md §14](architecture.md#14-מצב-ענפים-branches) לפרטי ה-merge.
+
 ---
 
 ## שלב 2 — עריכה ושמירה מקומית
@@ -504,23 +506,29 @@ interface AppSettings {
 
 ---
 
-## שלב 6 — Grid Sets ו-Communicators
+## שלב 6 — אוספי לוחות (Sets) ו-Routing
 
-**מטרה:** מערכת שלמה של לוחות מקושרים (כמו Grid AAC).
+**מטרה:** מערכת שלמה של לוחות מקושרים תחת אוסף ("Set"), עם URL ייחודי לכל לוח.
 
-- [ ] **Grid Set** — אוסף לוחות מקושרים עם Home Board
-- [ ] **Grid Set Explorer** — דשבורד לניהול Grid Sets
-- [ ] **שכפול עמוק (deep clone)** — שכפול grid set שלם כולל כל לוחות-הבנים (מרחיב את שכפול הרדוד מ-3D)
+> **הטרמינולוגיה עודכנה**: "Grid Set / Communicator / יישום" הוחלף ל-**"אוסף לוחות" (Set)** — ראה [architecture.md §2](architecture.md#2-טרמינולוגיה). ה-URL scheme המלא (`/s/[set]/b/[board]/edit`) מוגדר ב-[architecture.md §4](architecture.md#4-מפת-urls).
+
+- [ ] **Sets** — אוסף לוחות מקושרים עם Home Board, מודל נתונים חדש (`Set` entity)
+- [ ] **URL routing** — `/s/[set-id]/b/[board-id]` + `/edit`, `/sets`, migration ללוחות קיימים
+- [ ] **דשבורד אוסף** — `/s/[set-id]` עם thumbnails 2×2 ([architecture.md §6.3](architecture.md#63-דשבורד-אוסף-sset-id))
+- [ ] **Explorer** — `/sets` לניהול כל האוספים
+- [ ] **שכפול לוח** — deep clone עם עדכון מזהים (כבר מתוכנן ב-[board-management.md](board-management.md))
+- [ ] **שכפול עמוק של אוסף שלם** — מרחיב את שכפול הלוח היחיד; משכפל אוסף + כל הלוחות שבו
 - [ ] **תבניות מובנות** — לוחות בסיס מוכנים (צרכים, רגשות, מקומות, אנשים, פעלים)
 - [ ] **ייבוא/ייצוא Grid Sets** — שיתוף בין משתמשים
 - [ ] **Online Grids** — גלריה קהילתית (דורש backend)
 
 **קבצים עיקריים:**
 
-- `src/lib/types/gridset.ts` (חדש)
-- `src/lib/stores/gridsets.svelte.ts` (חדש)
-- `src/routes/explorer/+page.svelte` (חדש)
-- `src/lib/components/GridSetExplorer.svelte` (חדש)
+- `src/lib/types/set.ts` (חדש)
+- `src/lib/stores/sets.svelte.ts` (חדש)
+- `src/routes/s/[setId]/...` (מבנה מלא ב-[architecture.md §4.1](architecture.md#41-sveltekit-routing-file-structure))
+- `src/routes/sets/+page.svelte` (חדש)
+- `src/lib/components/BoardThumbnail.svelte` (חדש)
 
 ### תוכנית מימוש לפי מסגרת הבדיקות
 
@@ -565,6 +573,8 @@ interface AppSettings {
 - [ ] **סנכרון לוחות** — upload/download boards מהשרת
 - [ ] **שיתוף** — שליחת לוחות למטפלים/מורים
 - [ ] **אנליטיקה** — מעקב שימוש (מילים נפוצות, זמן שימוש)
+- [ ] **Google Drive backup** — גיבוי אוטומטי תקופתי של כל הלוחות ל-Drive של המשתמש
+- [ ] **הגנה מאובדן נתונים** — התראה אם quota נגמר, auto-download של backup שבועי
 
 **או לחלופין** — Cloudflare D1/KV כ-backend עצמאי.
 
@@ -595,24 +605,44 @@ interface AppSettings {
 
 ---
 
+## שלב 2.5 — שימוש בסיסי (לפני Sets/Routing)
+
+**מטרה:** לסגור פערים שחוסמים שימוש אמיתי ע"י הורה/מטפל. חלק מהסעיפים נשענים על הנוכחות של board-management ו-Sets ומבוצעים לצדם.
+
+- [ ] **ניהול לוחות מלא** — ראה [board-management.md](board-management.md). יצירה/שינוי שם/שכפול/מחיקה + dropdown ב-TileEditor.
+- [ ] **אישור בפעולות הרסניות** — modal confirm על reset + מחיקת לוח + מחיקת אוסף. **לא** על מחיקת אריח.
+- [ ] **תשתית Undo** — history store עם stack של mutations, toast "בטל" על מחיקה. Hotkey מלא (`Ctrl+Z`) יכול להידחות; התשתית חייבת להיבנות מההתחלה.
+- [ ] **Loading state** — skeleton בזמן `store.init()` כדי למנוע flash של ברירת מחדל.
+- [ ] **Empty states** — לוח ללא אריחים מציג "הוסף אריח". חיפוש ARASAAC ללא תוצאות (כבר חלקית).
+- [ ] **Edit mode gating** — long-press על ✏ (+ PIN אופציונלי ב-`/settings`) כדי שילדים לא ייכנסו בטעות.
+- [ ] **OutputBar — שני כפתורי מחיקה** — ⌫ "מחק אחרון" ו-🗑 "ניקוי" כשני כפתורים נפרדים.
+- [ ] **Tile.disabled** — שדה בוליאני per-tile להסתרה/השבתה (לא קיים היום; `hiddenCount` הוא overflow גריד, לא per-tile).
+- [ ] **כותרת טאב דינמית** — `<title>` מתעדכן לשם הלוח הנוכחי. זמין כשיש routing (שלב B).
+- [ ] **Broadcast channel בין טאבים** — סנכרון IndexedDB בין טאבים פתוחים. פחות דחוף.
+
+**פרטים מלאים** ב-[architecture.md §10.5](architecture.md#105-שימוש-בסיסי--דרישות-שחייבות-להיכלל).
+
+---
+
 ## סדר עדיפויות מומלץ
 
-| שלב | תיאור                           | תלות     | סטטוס                    |
-| --- | ------------------------------- | -------- | ------------------------ |
-| 1   | ליבה — רינדור, TTS, ניווט       | —        | :white_check_mark: הושלם |
-| 2   | עריכה + IndexedDB               | —        | :white_check_mark: הושלם |
-| 3A  | חיפוש סמלים + העלאת תמונה + קול | שלב 2    | :white_check_mark: הושלם |
-| 3B  | הגדרות + PWA                    | שלב 3A   | :white_check_mark: הושלם |
-| 3C  | יצירת לוח + שיפור מצב עריכה    | שלב 2    | :arrow_right: הבא        |
-| 3D  | בחירה מרובה + שכפול + סייד-בר  | שלב 3C   | ממתין                    |
-| 3E  | כוונות תקשורתיות (סיידבר ימני) | שלב 3B   | ממתין                    |
-| 4   | נגישות + סריקה                  | —        | בינונית                  |
-| 5   | הגדרות מתקדמות + פרופיל         | שלב 3B   | בינונית                  |
-| 6   | Grid Sets                       | שלב 2, 5 | בינונית                  |
-| 7   | PWA מתקדם + אופליין             | שלב 3B   | בינונית                  |
-| 8   | Backend + אימות                 | שלב 6    | נמוכה                    |
-| 9   | AI + מתקדם                      | שלב 8    | עתידי                    |
-| 10  | i18n + Production               | שלב 8    | עתידי                    |
+| שלב | תיאור                              | תלות     | סטטוס / עדיפות           |
+| --- | ---------------------------------- | -------- | ------------------------ |
+| 1   | ליבה — רינדור, TTS, ניווט          | —        | :white_check_mark: הושלם |
+| 2   | עריכה + IndexedDB                  | —        | :white_check_mark: הושלם |
+| 2.5 | שימוש בסיסי + ניהול לוחות          | שלב 2    | קריטי — הבא              |
+| 3A  | חיפוש סמלים + העלאת תמונה + קול    | שלב 2    | :white_check_mark: הושלם |
+| 3B  | הגדרות + PWA                       | שלב 3A   | :white_check_mark: הושלם |
+| 3C  | יצירת לוח + שיפור מצב עריכה        | שלב 2.5  | :arrow_right: הבא        |
+| 3D  | בחירה מרובה + שכפול + סייד-בר     | שלב 3C   | ממתין                    |
+| 3E  | כוונות תקשורתיות (סיידבר ימני)    | שלב 3B   | ממתין                    |
+| 4   | נגישות + סריקה                     | —        | בינונית                  |
+| 5   | הגדרות מתקדמות + פרופיל            | שלב 3B   | בינונית                  |
+| 6   | אוספי לוחות (Sets) + Routing       | שלב 2.5  | גבוהה                    |
+| 7   | PWA מתקדם + אופליין                | שלב 3B   | בינונית                  |
+| 8   | Backend + אימות + Drive backup     | שלב 6    | נמוכה                    |
+| 9   | AI + מתקדם                         | שלב 8    | עתידי                    |
+| 10  | i18n + Production                  | שלב 8    | עתידי                    |
 
 ## אימות
 
