@@ -1,4 +1,9 @@
 import type { SpeakOptions, TtsProvider, TtsVoice } from './types';
+import {
+	DEFAULT_GEMINI_TTS_MODEL,
+	GEMINI_TTS_MODELS,
+	type TtsModelOption
+} from './provider-models';
 
 /**
  * Google Gemini TTS provider — uses Gemini 2.5 Pro/Flash preview TTS API.
@@ -10,7 +15,6 @@ import type { SpeakOptions, TtsProvider, TtsVoice } from './types';
  */
 
 const API_KEY_STORAGE = 'gemini-api-key';
-const GEMINI_MODEL = 'gemini-2.5-flash-preview-tts';
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 /** Prebuilt voices supported by Gemini TTS. Same list across languages (incl. Hebrew). */
@@ -48,6 +52,32 @@ export function getGeminiApiKey(): string {
 }
 
 let currentAudio: HTMLAudioElement | null = null;
+
+let modelsCache: { data: TtsModelOption[]; ts: number } | null = null;
+const MODEL_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+function normalizeModelId(name: string): string {
+	return name.startsWith('models/') ? name.slice('models/'.length) : name;
+}
+
+function isTtsModel(model: { name: string; displayName?: string }): boolean {
+	const id = normalizeModelId(model.name).toLowerCase();
+	const displayName = (model.displayName ?? '').toLowerCase();
+	return id.includes('-tts') || displayName.includes('tts');
+}
+
+function buildTtsPrompt(text: string, lang?: string): string {
+	const languageInstruction = lang ? `Language/locale: ${lang}.` : 'Use the transcript language.';
+	return [
+		'Generate spoken audio only from the transcript below.',
+		'Do not answer the transcript, do not explain it, do not translate it, and do not output text.',
+		'Speak the transcript exactly as written, naturally and clearly.',
+		languageInstruction,
+		'',
+		'Transcript:',
+		text
+	].join('\n');
+}
 
 /** Wrap raw 16-bit PCM mono data in a WAV header so <audio> can play it. */
 function pcmToWav(pcm: Uint8Array, sampleRate = 24000): Blob {
@@ -103,21 +133,48 @@ export const geminiProvider: TtsProvider = {
 		return PREBUILT_VOICES;
 	},
 
+	async getModels(): Promise<TtsModelOption[]> {
+		const key = getApiKey();
+		if (!key) return GEMINI_TTS_MODELS;
+		if (modelsCache && Date.now() - modelsCache.ts < MODEL_CACHE_TTL_MS) return modelsCache.data;
+
+		try {
+			const res = await fetch(`${GEMINI_BASE}?key=${encodeURIComponent(key)}`);
+			if (!res.ok) return GEMINI_TTS_MODELS;
+			const data = (await res.json()) as {
+				models?: Array<{ name: string; displayName?: string; description?: string }>;
+			};
+			const models = (data.models ?? [])
+				.filter(isTtsModel)
+				.map((model) => ({
+					id: normalizeModelId(model.name),
+					label: model.displayName || normalizeModelId(model.name),
+					description: model.description
+				}));
+			modelsCache = { data: models.length ? models : GEMINI_TTS_MODELS, ts: Date.now() };
+			return modelsCache.data;
+		} catch (e) {
+			console.warn('[gemini] getModels error:', e);
+			return GEMINI_TTS_MODELS;
+		}
+	},
+
 	async speak(text: string, opts: SpeakOptions): Promise<void> {
 		const key = getApiKey();
 		if (!key) throw new Error('Gemini API key not set');
 		const voiceName = opts.voiceId ?? 'Zephyr';
+		const modelId = opts.modelId ?? DEFAULT_GEMINI_TTS_MODEL;
 
 		this.stop();
 
 		try {
 			const res = await fetch(
-				`${GEMINI_BASE}/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(key)}`,
+				`${GEMINI_BASE}/${modelId}:generateContent?key=${encodeURIComponent(key)}`,
 				{
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({
-						contents: [{ parts: [{ text }] }],
+						contents: [{ parts: [{ text: buildTtsPrompt(text, opts.lang) }] }],
 						generationConfig: {
 							responseModalities: ['AUDIO'],
 							speechConfig: {

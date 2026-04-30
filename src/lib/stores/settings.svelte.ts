@@ -1,5 +1,6 @@
 import { get, set } from 'idb-keyval';
 import type { TtsProviderId } from '$lib/services/tts-providers';
+import { getDefaultModelForProvider } from '$lib/services/tts-providers/provider-models';
 
 export interface AppSettings {
 	/** Active TTS provider */
@@ -18,7 +19,7 @@ const TTS_LEGACY_KEY = 'tts-settings';
 
 const DEFAULTS: AppSettings = {
 	ttsProvider: 'webspeech',
-	ttsModel: 'gemini-3.1-flash-tts-preview',
+	ttsModel: '',
 	ttsVoice: '',
 	ttsRate: 0.9,
 	ttsPitch: 1.0,
@@ -105,6 +106,9 @@ export function settingsStore() {
 		},
 
 		update(updates: Partial<AppSettings>) {
+			if (updates.ttsProvider && updates.ttsModel === undefined) {
+				updates.ttsModel = getDefaultModelForProvider(updates.ttsProvider);
+			}
 			Object.assign(settings, updates);
 			if (updates.theme) applyTheme(updates.theme);
 			persist();

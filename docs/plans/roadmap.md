@@ -82,9 +82,12 @@
 ### שלב 3 — TTS providers מתקדמים
 
 - [x] **ElevenLabs** — חיבור ל-ElevenLabs API (קולות AI), בורר קולות עם preview
-- [x] **Google Gemini TTS** — gemini-2.5-flash-preview-tts (30 קולות prebuilt, תמיכה בעברית)
+- [x] **Google Gemini TTS** — מודלי TTS בלבד, prompt מפורש לאודיו בלבד, 10 קולות prebuilt, ותמיכה בעברית
 - [x] **Web Speech API** — ברירת מחדל (תמיד זמין)
 - [x] **תשתית Provider abstraction** — `src/lib/services/tts-providers/` עם interface אחיד
+- [x] **בחירת מודל TTS** — בורר מודל ב-`/settings` עבור Gemini ו-ElevenLabs, עם טעינה מ-endpoints רשמיים ו-fallback מקומי
+- [x] **סינון מודלי Gemini** — הצגת מודלים שה-id שלהם כולל `-tts` או שהשם שלהם כולל `TTS`, ללא מודלי טקסט רגילים
+- [x] **גלילה בדף ההגדרות** — scroll container פנימי כדי להגיע להגדרות תצוגה/נתונים בתחתית
 - [x] **חיפוש סמל אוטומטי לפי תווית** — בזמן הקלדת שם לאריח, החיפוש מתעדכן
 - [x] **Tile.hidden** — הסתרה מלאה של אריח (לא רק השבתה)
 - [ ] **Azure TTS** — עתידי

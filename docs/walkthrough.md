@@ -1,5 +1,53 @@
 # AAC Board — יומן פיתוח (Walkthrough)
 
+## 2026-04-30 16:18
+
+### תיקוני TTS מתקדמים + גלילה בדף ההגדרות
+
+תיקון בעיות שעלו בבדיקת ספקי ה-TTS בענן: Gemini החזיר שגיאת TTS כי הבקשה לא כיוונה אותו מספיק מפורשות להפיק אודיו בלבד, ו-ElevenLabs היה נעול למודל יחיד. בנוסף תוקן דף ההגדרות כך שניתן לגלול לתחתית גם בגלל `overflow: hidden` הגלובלי על `body`.
+
+#### מה בוצע?
+
+**1. Gemini TTS**
+
+- הבקשה ל-Gemini כוללת prompt מפורש: להפיק אודיו מדובר בלבד מה-transcript, בלי לענות בטקסט, בלי לתרגם ובלי להסביר.
+- המודל שנשלח ל-Gemini נלקח עכשיו מהגדרות המשתמש (`ttsModel`) במקום hard-code.
+- רשימת מודלי Gemini נטענת מ-`GET /v1beta/models` כשיש API key.
+- סינון הרשימה מציג רק מודלים שה-id שלהם כולל `-tts` או שה-display name שלהם כולל `TTS`, כדי שלא יופיעו מודלי טקסט רגילים.
+
+**2. ElevenLabs TTS**
+
+- נוספה טעינת מודלים מ-`GET /v1/models`.
+- המודל שנשלח ל-text-to-speech נלקח מהגדרות המשתמש במקום hard-code.
+- ברירת המחדל נשארה `eleven_multilingual_v2`, עם fallback מקומי למודלים נפוצים (`eleven_turbo_v2_5`, `eleven_flash_v2_5`) אם endpoint המודלים לא זמין.
+
+**3. UI הגדרות**
+
+- נוסף בורר "מודל" בדף `/settings` עבור Gemini ו-ElevenLabs.
+- הבורר נטען דינמית, שומר את הבחירה, ומאפס voice בעת החלפת מודל.
+- תוקן scroll פנימי ב-`.settings-page` (`height: 100dvh`, `overflow-y: auto`) כדי לאפשר הגעה להגדרות תצוגה/נתונים בתחתית.
+- נוסף padding תחתון עם `env(safe-area-inset-bottom)` למניעת חיתוך בתחתית המסך.
+
+**4. בדיקות**
+
+- נוספו בדיקות E2E ל-settings:
+  - Gemini model selector מוצג ושומר בחירה אחרי reload.
+  - ElevenLabs model selector כולל את `eleven_multilingual_v2` כברירת מחדל.
+  - דף ההגדרות ניתן לגלילה עד כפתור "איפוס לברירת מחדל".
+
+#### החלטות ארכיטקטורה
+
+- **מודלים דרך provider abstraction**: `TtsProvider` קיבל `getModels?()` כדי שכל provider יוכל לטעון מודלים בעצמו בלי שה-UI יכיר פרטי API ספציפיים.
+- **Fallback מקומי לרשימות מודלים**: גם בלי API key או אם endpoint נכשל, המשתמש עדיין רואה מודלים ידועים ויכול להגדיר אותם.
+- **סינון שמרני ב-Gemini**: Gemini מחזיר endpoint כללי של מודלים, לא endpoint TTS ייעודי; לכן מסננים רק מודלים שמזוהים במפורש כ-TTS.
+- **Scroll container פנימי בהגדרות**: בגלל שהאפליקציה הראשית מגדירה `html, body { overflow: hidden; }`, דף settings צריך לנהל גלילה בעצמו.
+
+#### מצב בדיקות
+
+- `bun run check` — עובר, 0 errors (נשארו warnings קיימים).
+- `bun run build` — עובר.
+- `bun run test:e2e -- tests/settings.e2e.ts` — 3/3 עוברות.
+
 ## 2026-04-30 13:29
 
 ### פריסה מחדש ל-Cloudflare Workers + השלמת תשתית TTS model

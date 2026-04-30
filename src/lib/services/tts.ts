@@ -6,7 +6,9 @@
  */
 
 import { getProvider, webSpeechProvider } from './tts-providers';
+import { getDefaultModelForProvider } from './tts-providers/provider-models';
 import type { TtsProviderId, TtsVoice } from './tts-providers';
+import type { TtsModelOption } from './tts-providers/types';
 
 export interface TtsSettings {
 	/** Active provider */
@@ -23,7 +25,7 @@ const TTS_SETTINGS_KEY = 'tts-settings';
 
 const DEFAULT_SETTINGS: TtsSettings = {
 	provider: 'webspeech',
-	modelId: 'gemini-3.1-flash-tts-preview',
+	modelId: '',
 	voiceURI: '',
 	rate: 0.9,
 	pitch: 1
@@ -41,6 +43,12 @@ export function getTtsSettings(): TtsSettings {
 		/* empty */
 	}
 	return { ...DEFAULT_SETTINGS };
+}
+
+/** Get available TTS models for a provider. */
+export async function getModelsForProvider(providerId: TtsProviderId): Promise<TtsModelOption[]> {
+	const provider = getProvider(providerId);
+	return provider.getModels?.() ?? [];
 }
 
 /** Save TTS settings to localStorage */
@@ -75,9 +83,10 @@ export async function speak(text: string, lang = 'he-IL'): Promise<void> {
 	// Try the selected provider first
 	if (provider.isAvailable()) {
 		try {
+			const modelId = settings.modelId || getDefaultModelForProvider(settings.provider);
 			await provider.speak(text, {
 				voiceId: settings.voiceURI || undefined,
-				modelId: settings.modelId || undefined,
+				modelId: modelId || undefined,
 				rate: settings.rate,
 				pitch: settings.pitch,
 				lang

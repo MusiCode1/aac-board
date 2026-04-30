@@ -13,6 +13,15 @@ export interface TtsVoice {
 	lang?: string;
 }
 
+export interface TtsModelOption {
+	/** Model identifier passed to the provider API */
+	id: string;
+	/** Human-readable model name */
+	label: string;
+	/** Optional provider-provided or app-provided description */
+	description?: string;
+}
+
 export interface TtsProvider {
 	readonly id: TtsProviderId;
 	readonly displayName: string;
@@ -20,6 +29,8 @@ export interface TtsProvider {
 	isAvailable(): boolean;
 	/** Fetch or return the list of voices, optionally filtered by language */
 	getVoices(lang?: string): Promise<TtsVoice[]>;
+	/** Fetch or return supported TTS models for this provider */
+	getModels?(): Promise<TtsModelOption[]>;
 	/** Speak the given text. Returns a promise that resolves when speech completes (or playback is queued). */
 	speak(text: string, opts: SpeakOptions): Promise<void>;
 	/** Stop any ongoing speech */

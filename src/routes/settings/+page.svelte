@@ -2,12 +2,14 @@
 	import { onMount } from 'svelte';
 	import { settingsStore } from '$lib/stores/settings.svelte';
 	import { boardStore } from '$lib/stores/board.svelte';
-	import { speak, getVoicesForProvider } from '$lib/services/tts';
+	import { speak, getModelsForProvider, getVoicesForProvider } from '$lib/services/tts';
 	import {
+		getDefaultModelForProvider,
 		setElevenLabsApiKey,
 		getElevenLabsApiKey,
 		setGeminiApiKey,
 		getGeminiApiKey,
+		type TtsModelOption,
 		type TtsProviderId,
 		type TtsVoice
 	} from '$lib/services/tts-providers';
@@ -21,14 +23,40 @@
 	let geminiKey = $state('');
 	let fileInput: HTMLInputElement | undefined;
 	let loadingVoices = $state(false);
+	let availableModels = $state<TtsModelOption[]>([]);
+	let loadingModels = $state(false);
 
 	onMount(async () => {
 		await sStore.init();
 		bStore.init();
 		elevenLabsKey = getElevenLabsApiKey();
 		geminiKey = getGeminiApiKey();
+		await refreshModels();
 		await refreshVoices();
 	});
+
+	async function refreshModels() {
+		loadingModels = true;
+		try {
+			availableModels = await getModelsForProvider(sStore.settings.ttsProvider);
+			if (availableModels.length > 0) {
+				const currentModelExists = availableModels.some(
+					(model) => model.id === sStore.settings.ttsModel
+				);
+				if (!currentModelExists) {
+					const fallbackModel = getDefaultModelForProvider(sStore.settings.ttsProvider);
+					const nextModel = availableModels.some((model) => model.id === fallbackModel)
+						? fallbackModel
+						: availableModels[0].id;
+					sStore.update({ ttsModel: nextModel });
+				}
+			}
+		} catch (e) {
+			console.warn('[settings] refreshModels failed', e);
+			availableModels = [];
+		}
+		loadingModels = false;
+	}
 
 	async function refreshVoices() {
 		loadingVoices = true;
@@ -42,22 +70,38 @@
 	}
 
 	async function handleProviderChange(provider: TtsProviderId) {
-		sStore.update({ ttsProvider: provider, ttsVoice: '' });
+		sStore.update({
+			ttsProvider: provider,
+			ttsModel: getDefaultModelForProvider(provider),
+			ttsVoice: ''
+		});
+		await refreshModels();
 		await refreshVoices();
+	}
+
+	function handleModelChange(modelId: string) {
+		sStore.update({ ttsModel: modelId, ttsVoice: '' });
+		refreshVoices();
 	}
 
 	function handleElevenLabsKeyChange(e: Event) {
 		const key = (e.target as HTMLInputElement).value.trim();
 		elevenLabsKey = key;
 		setElevenLabsApiKey(key);
-		if (sStore.settings.ttsProvider === 'elevenlabs') refreshVoices();
+		if (sStore.settings.ttsProvider === 'elevenlabs') {
+			refreshModels();
+			refreshVoices();
+		}
 	}
 
 	function handleGeminiKeyChange(e: Event) {
 		const key = (e.target as HTMLInputElement).value.trim();
 		geminiKey = key;
 		setGeminiApiKey(key);
-		if (sStore.settings.ttsProvider === 'gemini') refreshVoices();
+		if (sStore.settings.ttsProvider === 'gemini') {
+			refreshModels();
+			refreshVoices();
+		}
 	}
 
 	function previewVoice() {
@@ -183,6 +227,29 @@
 					<span class="field-hint"
 						>המפתח נשמר מקומית בדפדפן בלבד. קבל מפתח ב-aistudio.google.com/apikey</span
 					>
+				</label>
+			{/if}
+
+			{#if availableModels.length > 0}
+				<label class="field">
+					<span class="field-label">מודל</span>
+					<select
+						class="field-input"
+						value={sStore.settings.ttsModel}
+						onchange={(e) => handleModelChange((e.target as HTMLSelectElement).value)}
+						disabled={loadingModels}
+					>
+						{#each availableModels as model (model.id)}
+							<option value={model.id}>{model.label}</option>
+						{/each}
+					</select>
+					{#if loadingModels}
+						<span class="field-hint">טוען מודלים...</span>
+					{:else if availableModels.find((model) => model.id === sStore.settings.ttsModel)?.description}
+						<span class="field-hint">
+							{availableModels.find((model) => model.id === sStore.settings.ttsModel)?.description}
+						</span>
+					{/if}
 				</label>
 			{/if}
 
@@ -343,9 +410,13 @@
 
 <style>
 	.settings-page {
+		height: 100dvh;
 		min-height: 100dvh;
+		overflow-y: auto;
+		overflow-x: hidden;
 		background: var(--bg-app, #f0f4f8);
 		direction: rtl;
+		overscroll-behavior: contain;
 	}
 
 	.settings-header {
@@ -387,7 +458,7 @@
 	.settings-content {
 		max-width: 520px;
 		margin: 0 auto;
-		padding: 16px;
+		padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
 		display: flex;
 		flex-direction: column;
 		gap: 16px;
