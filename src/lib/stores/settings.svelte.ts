@@ -4,6 +4,8 @@ import type { TtsProviderId } from '$lib/services/tts-providers';
 export interface AppSettings {
 	/** Active TTS provider */
 	ttsProvider: TtsProviderId;
+	/** Optional model identifier for providers that expose multiple TTS models */
+	ttsModel: string;
 	ttsVoice: string;
 	ttsRate: number;
 	ttsPitch: number;
@@ -16,6 +18,7 @@ const TTS_LEGACY_KEY = 'tts-settings';
 
 const DEFAULTS: AppSettings = {
 	ttsProvider: 'webspeech',
+	ttsModel: 'gemini-3.1-flash-tts-preview',
 	ttsVoice: '',
 	ttsRate: 0.9,
 	ttsPitch: 1.0,
@@ -44,6 +47,7 @@ async function persist() {
 			'tts-settings',
 			JSON.stringify({
 				provider: settings.ttsProvider,
+				modelId: settings.ttsModel,
 				voiceURI: settings.ttsVoice,
 				rate: settings.ttsRate,
 				pitch: settings.ttsPitch
@@ -85,6 +89,7 @@ export function settingsStore() {
 				const legacy = localStorage.getItem(TTS_LEGACY_KEY);
 				if (legacy) {
 					const parsed = JSON.parse(legacy);
+					if (!settings.ttsModel && parsed.modelId) settings.ttsModel = parsed.modelId;
 					if (!settings.ttsVoice && parsed.voiceURI) settings.ttsVoice = parsed.voiceURI;
 					if (parsed.rate) settings.ttsRate = parsed.rate;
 					if (parsed.pitch) settings.ttsPitch = parsed.pitch;

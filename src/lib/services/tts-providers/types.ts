@@ -28,6 +28,7 @@ export interface TtsProvider {
 
 export interface SpeakOptions {
 	voiceId?: string;
+	modelId?: string;
 	rate?: number; // 0.5–2.0
 	pitch?: number; // 0.5–2.0
 	lang?: string;
