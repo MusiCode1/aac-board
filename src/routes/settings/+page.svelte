@@ -3,11 +3,15 @@
 	import { settingsStore } from '$lib/stores/settings.svelte';
 	import { boardStore } from '$lib/stores/board.svelte';
 	import { speak, getVoicesForProvider } from '$lib/services/tts';
+	import { clearTtsCache, getCacheStats } from '$lib/services/tts-cache';
 	import {
+		getDefaultModelForProvider,
+		getModelOptions,
 		setElevenLabsApiKey,
 		getElevenLabsApiKey,
 		setGeminiApiKey,
 		getGeminiApiKey,
+		type TtsModelOption,
 		type TtsProviderId,
 		type TtsVoice
 	} from '$lib/services/tts-providers';
@@ -21,13 +25,18 @@
 	let geminiKey = $state('');
 	let fileInput: HTMLInputElement | undefined;
 	let loadingVoices = $state(false);
+	let clearingCache = $state(false);
+	let cacheStats = $state({ entries: 0, totalBytes: 0 });
+	let geminiModels = $state<TtsModelOption[]>([]);
 
 	onMount(async () => {
 		await sStore.init();
 		bStore.init();
 		elevenLabsKey = getElevenLabsApiKey();
 		geminiKey = getGeminiApiKey();
+		geminiModels = getModelOptions('gemini');
 		await refreshVoices();
+		await refreshCacheStats();
 	});
 
 	async function refreshVoices() {
@@ -42,7 +51,16 @@
 	}
 
 	async function handleProviderChange(provider: TtsProviderId) {
-		sStore.update({ ttsProvider: provider, ttsVoice: '' });
+		sStore.update({
+			ttsProvider: provider,
+			ttsModel: sStore.settings.ttsModel || getDefaultModelForProvider(provider),
+			ttsVoice: ''
+		});
+		await refreshVoices();
+	}
+
+	async function handleModelChange(modelId: string) {
+		sStore.update({ ttsModel: modelId, ttsVoice: '' });
 		await refreshVoices();
 	}
 
@@ -60,8 +78,32 @@
 		if (sStore.settings.ttsProvider === 'gemini') refreshVoices();
 	}
 
-	function previewVoice() {
-		speak('שלום, זה ניסיון קול');
+	async function previewVoice() {
+		try {
+			await speak('שלום, זה ניסיון קול');
+		} finally {
+			await refreshCacheStats();
+		}
+	}
+
+	async function refreshCacheStats() {
+		cacheStats = await getCacheStats();
+	}
+
+	async function handleClearAudioCache() {
+		clearingCache = true;
+		try {
+			await clearTtsCache();
+			await refreshCacheStats();
+		} finally {
+			clearingCache = false;
+		}
+	}
+
+	function formatBytes(bytes: number): string {
+		if (bytes < 1024) return `${bytes} B`;
+		if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+		return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 	}
 
 	const providers: { id: TtsProviderId; label: string }[] = [
@@ -184,6 +226,23 @@
 						>המפתח נשמר מקומית בדפדפן בלבד. קבל מפתח ב-aistudio.google.com/apikey</span
 					>
 				</label>
+
+				<label class="field">
+					<span class="field-label">מודל Gemini</span>
+					<select
+						class="field-input"
+						value={sStore.settings.ttsModel}
+						onchange={(e) => handleModelChange((e.target as HTMLSelectElement).value)}
+					>
+						{#each geminiModels as model (model.id)}
+							<option value={model.id}>{model.label}</option>
+						{/each}
+					</select>
+					<span class="field-hint">
+						{geminiModels.find((model) => model.id === sStore.settings.ttsModel)?.description ??
+							'בחר מודל סינתזת דיבור'}
+					</span>
+				</label>
 			{/if}
 
 			<label class="field">
@@ -238,6 +297,20 @@
 				</svg>
 				נסה קול
 			</button>
+
+			<div class="cache-box">
+				<div class="cache-stat">
+					<span class="cache-label">פריטי cache</span>
+					<strong>{cacheStats.entries}</strong>
+				</div>
+				<div class="cache-stat">
+					<span class="cache-label">נפח cache</span>
+					<strong>{formatBytes(cacheStats.totalBytes)}</strong>
+				</div>
+				<button class="btn btn-action cache-clear-btn" onclick={handleClearAudioCache}>
+					{clearingCache ? 'מנקה...' : 'נקה cache אודיו'}
+				</button>
+			</div>
 		</section>
 
 		<!-- Display -->
@@ -484,6 +557,33 @@
 		background: var(--primary-light, #e3f2fd);
 		border-color: var(--primary, #1976d2);
 		color: var(--primary, #1976d2);
+	}
+
+	.cache-box {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 8px;
+		padding: 12px;
+		background: var(--bg-card-alt, #f5f5f5);
+		border-radius: 12px;
+	}
+
+	.cache-stat {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		padding: 8px 10px;
+		background: var(--bg-card, white);
+		border-radius: 10px;
+	}
+
+	.cache-label {
+		font-size: 12px;
+		color: var(--text-secondary, #757575);
+	}
+
+	.cache-clear-btn {
+		grid-column: 1 / -1;
 	}
 
 	.btn {

@@ -1,3 +1,6 @@
+import { getCachedAudio, setCachedAudio, buildCacheKey } from '$lib/services/tts-cache';
+import { playAudioBlob, stopCurrentAudio } from './audio-playback';
+import { ELEVENLABS_TTS_MODEL } from './provider-models';
 import type { SpeakOptions, TtsProvider, TtsVoice } from './types';
 
 /**
@@ -29,9 +32,6 @@ export function setElevenLabsApiKey(key: string): void {
 export function getElevenLabsApiKey(): string {
 	return getApiKey();
 }
-
-/** In-memory audio element to enable stop() */
-let currentAudio: HTMLAudioElement | null = null;
 
 /** Simple LRU cache of voice lists to avoid refetching on every open */
 let voicesCache: { data: TtsVoice[]; ts: number } | null = null;
@@ -73,9 +73,23 @@ export const elevenLabsProvider: TtsProvider = {
 		const key = getApiKey();
 		if (!key) throw new Error('ElevenLabs API key not set');
 		if (!opts.voiceId) throw new Error('ElevenLabs: voiceId required');
+		const modelId = opts.modelId ?? ELEVENLABS_TTS_MODEL;
+		const lang = opts.lang ?? 'he-IL';
+		const lookup = {
+			provider: 'elevenlabs' as const,
+			modelId,
+			voiceId: opts.voiceId,
+			lang,
+			text
+		};
 
 		// Stop any previous playback
 		this.stop();
+		const cached = await getCachedAudio(buildCacheKey(lookup));
+		if (cached) {
+			await playAudioBlob(cached, opts);
+			return;
+		}
 
 		try {
 			const res = await fetch(`${ELEVEN_BASE}/text-to-speech/${opts.voiceId}`, {
@@ -87,7 +101,7 @@ export const elevenLabsProvider: TtsProvider = {
 				},
 				body: JSON.stringify({
 					text,
-					model_id: 'eleven_multilingual_v2', // supports Hebrew
+					model_id: modelId,
 					voice_settings: {
 						stability: 0.5,
 						similarity_boost: 0.75
@@ -102,32 +116,8 @@ export const elevenLabsProvider: TtsProvider = {
 			}
 
 			const blob = await res.blob();
-			const url = URL.createObjectURL(blob);
-			const audio = new Audio(url);
-			audio.playbackRate = opts.rate ?? 1;
-			currentAudio = audio;
-
-			return new Promise<void>((resolve) => {
-				audio.onended = () => {
-					URL.revokeObjectURL(url);
-					if (currentAudio === audio) currentAudio = null;
-					resolve();
-				};
-				audio.onerror = () => {
-					URL.revokeObjectURL(url);
-					if (currentAudio === audio) currentAudio = null;
-					resolve();
-				};
-				if (opts.signal) {
-					opts.signal.addEventListener('abort', () => {
-						audio.pause();
-						URL.revokeObjectURL(url);
-						if (currentAudio === audio) currentAudio = null;
-						resolve();
-					});
-				}
-				audio.play().catch(() => resolve());
-			});
+			await setCachedAudio(lookup, blob, 'audio/mpeg');
+			await playAudioBlob(blob, opts);
 		} catch (e) {
 			console.warn('[elevenlabs] speak error:', e);
 			throw e;
@@ -135,10 +125,6 @@ export const elevenLabsProvider: TtsProvider = {
 	},
 
 	stop() {
-		if (currentAudio) {
-			currentAudio.pause();
-			currentAudio.currentTime = 0;
-			currentAudio = null;
-		}
+		stopCurrentAudio();
 	}
 };

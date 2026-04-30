@@ -6,6 +6,15 @@ import type { TtsProvider, TtsProviderId } from './types';
 export { webSpeechProvider } from './webspeech';
 export { elevenLabsProvider, setElevenLabsApiKey, getElevenLabsApiKey } from './elevenlabs';
 export { geminiProvider, setGeminiApiKey, getGeminiApiKey } from './gemini';
+export { GEMINI_TTS_VOICES } from './gemini-voices';
+export {
+	GEMINI_TTS_MODELS,
+	DEFAULT_GEMINI_TTS_MODEL,
+	ELEVENLABS_TTS_MODEL,
+	getDefaultModelForProvider,
+	getModelOptions,
+	type TtsModelOption
+} from './provider-models';
 export type { TtsProvider, TtsProviderId, TtsVoice, SpeakOptions } from './types';
 
 export const providers: Record<TtsProviderId, TtsProvider> = {

@@ -1,7 +1,11 @@
+import { buildCacheKey, getCachedAudio, setCachedAudio } from '$lib/services/tts-cache';
+import { playAudioBlob, stopCurrentAudio } from './audio-playback';
+import { GEMINI_TTS_VOICES } from './gemini-voices';
+import { DEFAULT_GEMINI_TTS_MODEL } from './provider-models';
 import type { SpeakOptions, TtsProvider, TtsVoice } from './types';
 
 /**
- * Google Gemini TTS provider — uses Gemini 2.5 Pro/Flash preview TTS API.
+ * Google Gemini TTS provider — uses Gemini Flash/Pro preview TTS models.
  *
  * Requires an API key stored in localStorage (`gemini-api-key`).
  * Docs: https://ai.google.dev/gemini-api/docs/speech-generation
@@ -10,22 +14,7 @@ import type { SpeakOptions, TtsProvider, TtsVoice } from './types';
  */
 
 const API_KEY_STORAGE = 'gemini-api-key';
-const GEMINI_MODEL = 'gemini-2.5-flash-preview-tts';
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
-
-/** Prebuilt voices supported by Gemini TTS. Same list across languages (incl. Hebrew). */
-const PREBUILT_VOICES: TtsVoice[] = [
-	{ id: 'Zephyr', name: 'Zephyr (בהיר)' },
-	{ id: 'Puck', name: 'Puck (מרקדן)' },
-	{ id: 'Charon', name: 'Charon (אינפורמטיבי)' },
-	{ id: 'Kore', name: 'Kore (נחוש)' },
-	{ id: 'Fenrir', name: 'Fenrir (נרגש)' },
-	{ id: 'Leda', name: 'Leda (צעיר)' },
-	{ id: 'Orus', name: 'Orus (יציב)' },
-	{ id: 'Aoede', name: 'Aoede (קליל)' },
-	{ id: 'Callirrhoe', name: 'Callirrhoe (רגוע)' },
-	{ id: 'Autonoe', name: 'Autonoe (בהיר)' }
-];
 
 function getApiKey(): string {
 	try {
@@ -46,8 +35,6 @@ export function setGeminiApiKey(key: string): void {
 export function getGeminiApiKey(): string {
 	return getApiKey();
 }
-
-let currentAudio: HTMLAudioElement | null = null;
 
 /** Wrap raw 16-bit PCM mono data in a WAV header so <audio> can play it. */
 function pcmToWav(pcm: Uint8Array, sampleRate = 24000): Blob {
@@ -100,19 +87,33 @@ export const geminiProvider: TtsProvider = {
 
 	async getVoices(): Promise<TtsVoice[]> {
 		if (!getApiKey()) return [];
-		return PREBUILT_VOICES;
+		return GEMINI_TTS_VOICES;
 	},
 
 	async speak(text: string, opts: SpeakOptions): Promise<void> {
 		const key = getApiKey();
 		if (!key) throw new Error('Gemini API key not set');
 		const voiceName = opts.voiceId ?? 'Zephyr';
+		const modelId = opts.modelId ?? DEFAULT_GEMINI_TTS_MODEL;
+		const lang = opts.lang ?? 'he-IL';
+		const lookup = {
+			provider: 'gemini' as const,
+			modelId,
+			voiceId: voiceName,
+			lang,
+			text
+		};
 
 		this.stop();
+		const cached = await getCachedAudio(buildCacheKey(lookup));
+		if (cached) {
+			await playAudioBlob(cached, opts);
+			return;
+		}
 
 		try {
 			const res = await fetch(
-				`${GEMINI_BASE}/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(key)}`,
+				`${GEMINI_BASE}/${modelId}:generateContent?key=${encodeURIComponent(key)}`,
 				{
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
@@ -151,32 +152,8 @@ export const geminiProvider: TtsProvider = {
 
 			const pcm = base64ToBytes(inlineData.data);
 			const wav = pcmToWav(pcm, 24000);
-			const url = URL.createObjectURL(wav);
-			const audio = new Audio(url);
-			audio.playbackRate = opts.rate ?? 1;
-			currentAudio = audio;
-
-			return new Promise<void>((resolve) => {
-				audio.onended = () => {
-					URL.revokeObjectURL(url);
-					if (currentAudio === audio) currentAudio = null;
-					resolve();
-				};
-				audio.onerror = () => {
-					URL.revokeObjectURL(url);
-					if (currentAudio === audio) currentAudio = null;
-					resolve();
-				};
-				if (opts.signal) {
-					opts.signal.addEventListener('abort', () => {
-						audio.pause();
-						URL.revokeObjectURL(url);
-						if (currentAudio === audio) currentAudio = null;
-						resolve();
-					});
-				}
-				audio.play().catch(() => resolve());
-			});
+			await setCachedAudio(lookup, wav, 'audio/wav');
+			await playAudioBlob(wav, opts);
 		} catch (e) {
 			console.warn('[gemini] speak error:', e);
 			throw e;
@@ -184,10 +161,6 @@ export const geminiProvider: TtsProvider = {
 	},
 
 	stop() {
-		if (currentAudio) {
-			currentAudio.pause();
-			currentAudio.currentTime = 0;
-			currentAudio = null;
-		}
+		stopCurrentAudio();
 	}
 };
