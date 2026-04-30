@@ -1,5 +1,33 @@
 # AAC Board — יומן פיתוח (Walkthrough)
 
+## 2026-04-30 13:29
+
+### פריסה מחדש ל-Cloudflare Workers + השלמת תשתית TTS model
+
+ה-production היה על גרסה ישנה מ-2026-03-12. נבנה ה-HEAD המקומי הנוכחי ונפרס מחדש ל-Cloudflare Workers, ובמקביל הושלמה תשתית הגדרות `modelId` עבור ספקי TTS שתומכים ביותר ממודל אחד.
+
+#### מה בוצע?
+
+**1. Deployment**
+
+- ה-Worker הפעיל: `https://aac-board.aybritman.workers.dev`
+- הפריסה הישנה הייתה version `1ccaa7a8-0a89-48fd-b296-effdefa6a4a8`
+- הפריסה החדשה נוצרה דרך `wrangler deploy` מה-workspace המקומי
+- ה-version הפעיל החדש: `91ed5b5a-b862-4af0-b8f1-121e22470569`
+- אומת שה-HTML ב-production מפנה ל-assets החדשים (`0.BDcSOwR6.css`, `start.DzfgIVJI.js`)
+
+**2. תשתית TTS model**
+
+- `SpeakOptions` קיבל `modelId?: string`
+- `TtsSettings` קיבל `modelId` עם ברירת מחדל `gemini-3.1-flash-tts-preview`
+- `settings.svelte.ts` שומר וטוען את `ttsModel` דרך `tts-settings`
+- נוסף helper `audio-playback.ts` לניגון `Blob` עם עצירה של audio קודם, `playbackRate`, ניקוי `ObjectURL`, ותמיכה ב-`AbortSignal`
+
+#### החלטות ארכיטקטורה
+
+- **`modelId` כחלק מהגדרות TTS ולא hard-code בתוך provider**: מאפשר להחליף מודל לכל provider בלי לשנות את הקריאה המרכזית ל-`speak()`.
+- **Audio playback helper משותף**: ניגון blob הוא צורך שחוזר אצל providers חיצוניים, ולכן הופרד לקובץ קטן במקום לשכפל לוגיקה בכל provider.
+
 ## 2026-04-22 17:00
 
 ### תיקוני UX: חיפוש סמל אוטומטי + Tile.hidden + תשתית TTS providers
