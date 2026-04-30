@@ -1,5 +1,116 @@
 # AAC Board — יומן פיתוח (Walkthrough)
 
+## 2026-04-22 17:50
+
+### TTS מתקדם — בחירת מודל Gemini, 30 קולות רשמיים, ו-cache לאודיו
+
+מימוש המשך לשכבת ה-TTS: Gemini עבר לרשימת 30 הקולות הרשמיים, נוספה בחירת מודל ב-UI, והוספנו cache מקומי לאודיו עבור Gemini ו-ElevenLabs כדי להאיץ ביטויים חוזרים ולצמצם קריאות API.
+
+#### מה בוצע?
+
+**1. בחירת מודל Gemini ב-settings**
+
+- `AppSettings` קיבל `ttsModel`
+- `tts.ts` מעביר `modelId` ל-provider דרך `SpeakOptions`
+- `src/lib/services/tts-providers/provider-models.ts` (חדש):
+  - `DEFAULT_GEMINI_TTS_MODEL = 'gemini-3.1-flash-tts-preview'`
+  - `GEMINI_TTS_MODELS` עם 3 מודלים נתמכים
+  - `getModelOptions()` / `getDefaultModelForProvider()`
+- `settings/+page.svelte` מציג dropdown של מודל רק כשה-provider הוא Gemini
+
+**2. 30 הקולות הרשמיים של Gemini**
+
+- `src/lib/services/tts-providers/gemini-voices.ts` (חדש) — snapshot של 30 הקולות מתוך docs הרשמיים
+- `gemini.ts` כבר לא מחזיק array קשיח פנימי של 10 קולות
+- הרשימה מבודדת בקובץ נתונים נפרד, עם source/date ברור
+- לא נמצאה נקודת קצה ציבורית מתועדת ל-`list voices`, לכן נבחר snapshot מקומי ולא scraping בזמן ריצה
+
+**3. cache מקומי לאודיו ב-IndexedDB**
+
+- `src/lib/services/tts-cache.ts` (חדש):
+  - `buildCacheKey()` — provider/model/voice/lang/text
+  - `getCachedAudio()` / `setCachedAudio()`
+  - `getCacheStats()` / `clearTtsCache()` / `pruneCache()`
+- cache תקף רק ל-cloud providers: `gemini`, `elevenlabs`
+- מגבלות v1:
+  - `50MB`
+  - `500` entries
+  - eviction לפי `lastAccessedAt`, `hitCount`, ואז `createdAt`
+
+**4. שכבת ניגון אודיו משותפת**
+
+- `src/lib/services/tts-providers/audio-playback.ts` (חדש)
+- `playAudioBlob(blob, opts)` מרכז את ההשמעה של blobs
+- `stopCurrentAudio()` משמש את Gemini ו-ElevenLabs במקום לוגיקה כפולה בכל provider
+
+**5. חיבור cache ל-Gemini ול-ElevenLabs**
+
+- `gemini.ts`:
+  - משתמש במודל שנבחר (`opts.modelId`)
+  - בודק cache לפני fetch
+  - שומר WAV blob ב-cache אחרי יצירה
+- `elevenlabs.ts`:
+  - משתמש ב-`ELEVENLABS_TTS_MODEL`
+  - בודק cache לפני fetch
+  - שומר MP3 blob ב-cache אחרי יצירה
+
+**6. UI ל-cache בדף ההגדרות**
+
+- `settings/+page.svelte` מציג:
+  - מספר פריטים ב-cache
+  - נפח משוער
+  - כפתור `נקה cache אודיו`
+- preview של קול מרענן את הסטטיסטיקות אחרי הניגון
+
+**7. בדיקות**
+
+- `tests/settings.e2e.ts` (חדש, 2 בדיקות):
+  - `Gemini provider exposes model selector and persists selected model`
+  - `audio cache controls are visible and clear action leaves empty cache empty`
+- סה"כ: **30 בדיקות E2E עוברות**
+
+#### החלטות ארכיטקטורה
+
+- **snapshot לקולות Gemini במקום fetch דינמי**: לא נמצא endpoint ציבורי מתועד ל-`list voices`, וה-Voice Library של AI Studio מאחורי login. כדי לא לבנות על scraping שביר, הרשימה נשמרה בקובץ `gemini-voices.ts` מבודד.
+- **בחירת מודל ברמת provider**: `ttsModel` נשמר ב-`AppSettings`, אבל כרגע בשימוש רק עבור Gemini. המבנה מאפשר להוסיף model selection ל-ElevenLabs בעתיד בלי לשנות את המבנה.
+- **cache ב-IndexedDB ולא localStorage**: blobs אודיו גדולים מדי ל-localStorage. `idb-keyval` מספק API קטן ויעיל גם ל-blobs.
+- **cache key בלי `rate/pitch`**: ה-rate מיושם ב-client playback, וה-pitch לא נשלח כרגע ל-cloud providers. לכן key לפי provider/model/voice/lang/text מספיק ל-v1 ומונע כפילויות מיותרות.
+- **שכבת playback משותפת**: במקום `Audio` handling כפול ב-Gemini וב-ElevenLabs, קובץ `audio-playback.ts` מרכז stop/play/cleanup.
+
+#### מעקפים ופתרונות
+
+- **Worktree ללא `node_modules`**: ה-worktree החדש לא כלל dependencies, ולכן `bun run check` נכשל. הפתרון: symlink של `node_modules` מהריפו הראשי אל ה-worktree.
+- **אין endpoint רשמי ל-voices**: נבדקו docs ו-AI Studio Voice Library. לא נמצא endpoint ציבורי/מתועד ויציב, לכן נבחר snapshot מקומי.
+
+#### מבנה קבצים
+
+קבצים חדשים:
+
+- `src/lib/services/tts-cache.ts`
+- `src/lib/services/tts-providers/provider-models.ts`
+- `src/lib/services/tts-providers/gemini-voices.ts`
+- `src/lib/services/tts-providers/audio-playback.ts`
+- `tests/settings.e2e.ts`
+
+קבצים שעודכנו:
+
+- `src/lib/services/tts.ts`
+- `src/lib/services/tts-providers/types.ts`
+- `src/lib/services/tts-providers/index.ts`
+- `src/lib/services/tts-providers/gemini.ts`
+- `src/lib/services/tts-providers/elevenlabs.ts`
+- `src/lib/stores/settings.svelte.ts`
+- `src/routes/settings/+page.svelte`
+- `docs/plans/roadmap.md`
+
+#### מצב בדיקות
+
+- `bun run check` — 0 errors, 4 warnings קיימות
+- `bun run build` — עובר
+- `bunx playwright test` — **30/30 עוברות**
+
+---
+
 ## 2026-04-22 17:00
 
 ### תיקוני UX: חיפוש סמל אוטומטי + Tile.hidden + תשתית TTS providers
