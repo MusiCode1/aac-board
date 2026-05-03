@@ -1,0 +1,13 @@
+{
+	// $schema: "./node_modules/wrangler/config-schema.json"
+	"name": "aac-proxy",
+	"compatibility_date": "2026-03-12",
+	"main": "src/index.ts",
+	"workers_dev": true,
+	"r2_buckets": [
+		{
+			"binding": "AUDIO_CACHE",
+			"bucket_name": "aac-audio-cache"
+		}
+	]
+}

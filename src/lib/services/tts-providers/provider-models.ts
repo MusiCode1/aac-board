@@ -6,37 +6,24 @@ export interface TtsModelOption {
 	description?: string;
 }
 
-export const DEFAULT_GEMINI_TTS_MODEL = 'gemini-2.5-flash-preview-tts';
-export const DEFAULT_ELEVENLABS_TTS_MODEL = 'eleven_multilingual_v2';
+export const DEFAULT_GEMINI_TTS_MODEL = 'gemini-3.1-flash-tts-preview';
+export const DEFAULT_ELEVENLABS_TTS_MODEL = 'eleven_v3';
 
+// Minimal fallback list — used only if the proxy endpoint is unreachable.
+// The proxy returns the live model list; these are just safety nets.
 export const GEMINI_TTS_MODELS: TtsModelOption[] = [
 	{
-		id: 'gemini-2.5-flash-preview-tts',
-		label: 'Gemini 2.5 Flash Preview TTS',
-		description: 'ברירת מחדל מהירה ל-TTS'
-	},
-	{
-		id: 'gemini-2.5-pro-preview-tts',
-		label: 'Gemini 2.5 Pro Preview TTS',
-		description: 'מודל איכותי יותר, לרוב איטי יותר'
+		id: 'gemini-3.1-flash-tts-preview',
+		label: 'Gemini 3.1 Flash TTS Preview',
+		description: 'ברירת מחדל'
 	}
 ];
 
 export const ELEVENLABS_TTS_MODELS: TtsModelOption[] = [
 	{
-		id: 'eleven_multilingual_v2',
-		label: 'Eleven Multilingual v2',
-		description: 'מודל רב-לשוני איכותי; ברירת המחדל הנוכחית'
-	},
-	{
-		id: 'eleven_turbo_v2_5',
-		label: 'Eleven Turbo v2.5',
-		description: 'מודל מהיר יותר לשימוש אינטראקטיבי'
-	},
-	{
-		id: 'eleven_flash_v2_5',
-		label: 'Eleven Flash v2.5',
-		description: 'מודל latency נמוך במיוחד'
+		id: 'eleven_v3',
+		label: 'Eleven v3',
+		description: 'ברירת מחדל'
 	}
 ];
 

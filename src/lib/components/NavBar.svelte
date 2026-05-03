@@ -93,6 +93,7 @@
 		{/if}
 		<h1 class="board-title">{boardName}</h1>
 	</div>
+	{#if editMode}
 	<a class="nav-btn settings-btn" href="/settings" aria-label="הגדרות" title="הגדרות">
 		<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
 			<path
@@ -100,6 +101,7 @@
 			/>
 		</svg>
 	</a>
+	{/if}
 	<button
 		class="nav-btn edit-btn"
 		class:active={editMode}

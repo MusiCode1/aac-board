@@ -39,6 +39,10 @@ function getApiKey(): string {
 	}
 }
 
+function getProxyUrl(): string {
+	return (typeof import.meta !== 'undefined' && import.meta.env?.VITE_PROXY_URL) || '';
+}
+
 export function setGeminiApiKey(key: string): void {
 	try {
 		localStorage.setItem(API_KEY_STORAGE, key);
@@ -125,19 +129,37 @@ export const geminiProvider: TtsProvider = {
 	displayName: 'Google Gemini',
 
 	isAvailable() {
-		return !!getApiKey();
+		return !!getApiKey() || !!getProxyUrl();
 	},
 
 	async getVoices(): Promise<TtsVoice[]> {
-		if (!getApiKey()) return [];
+		if (!getApiKey() && !getProxyUrl()) return [];
 		return PREBUILT_VOICES;
 	},
 
 	async getModels(): Promise<TtsModelOption[]> {
-		const key = getApiKey();
-		if (!key) return GEMINI_TTS_MODELS;
 		if (modelsCache && Date.now() - modelsCache.ts < MODEL_CACHE_TTL_MS) return modelsCache.data;
 
+		// Prefer proxy
+		const proxyUrl = getProxyUrl();
+		if (proxyUrl) {
+			try {
+				const res = await fetch(`${proxyUrl}/v1/models/gemini`);
+				if (res.ok) {
+					const data = (await res.json()) as { models: TtsModelOption[] };
+					if (data.models?.length) {
+						modelsCache = { data: data.models, ts: Date.now() };
+						return data.models;
+					}
+				}
+			} catch (e) {
+				console.warn('[gemini] getModels via proxy failed:', e);
+			}
+		}
+
+		// Fallback: direct API with local key
+		const key = getApiKey();
+		if (!key) return GEMINI_TTS_MODELS;
 		try {
 			const res = await fetch(`${GEMINI_BASE}?key=${encodeURIComponent(key)}`);
 			if (!res.ok) return GEMINI_TTS_MODELS;

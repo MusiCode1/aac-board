@@ -23,6 +23,10 @@ function getApiKey(): string {
 	}
 }
 
+function getProxyUrl(): string {
+	return (typeof import.meta !== 'undefined' && import.meta.env?.VITE_PROXY_URL) || '';
+}
+
 export function setElevenLabsApiKey(key: string): void {
 	try {
 		localStorage.setItem(API_KEY_STORAGE, key);
@@ -49,15 +53,30 @@ export const elevenLabsProvider: TtsProvider = {
 	displayName: 'ElevenLabs',
 
 	isAvailable() {
-		return !!getApiKey();
+		return !!getApiKey() || !!getProxyUrl();
 	},
 
 	async getVoices(): Promise<TtsVoice[]> {
-		const key = getApiKey();
-		if (!key) return [];
 		if (voicesCache && Date.now() - voicesCache.ts < VOICE_CACHE_TTL_MS) {
 			return voicesCache.data;
 		}
+		// Prefer proxy (server-side API key) over direct API call
+		const proxyUrl = getProxyUrl();
+		if (proxyUrl) {
+			try {
+				const res = await fetch(`${proxyUrl}/v1/voices/elevenlabs`);
+				if (res.ok) {
+					const data = (await res.json()) as { voices: TtsVoice[] };
+					voicesCache = { data: data.voices, ts: Date.now() };
+					return data.voices;
+				}
+			} catch (e) {
+				console.warn('[elevenlabs] getVoices via proxy failed:', e);
+			}
+		}
+		// Fallback: direct API with local key
+		const key = getApiKey();
+		if (!key) return [];
 		try {
 			const res = await fetch(`${ELEVEN_BASE}/voices`, {
 				headers: { 'xi-api-key': key }
@@ -77,14 +96,30 @@ export const elevenLabsProvider: TtsProvider = {
 	},
 
 	async getModels(): Promise<TtsModelOption[]> {
-		const key = getApiKey();
-		if (!key) return ELEVENLABS_TTS_MODELS;
 		if (modelsCache && Date.now() - modelsCache.ts < MODEL_CACHE_TTL_MS) return modelsCache.data;
 
+		// Prefer proxy
+		const proxyUrl = getProxyUrl();
+		if (proxyUrl) {
+			try {
+				const res = await fetch(`${proxyUrl}/v1/models/elevenlabs`);
+				if (res.ok) {
+					const data = (await res.json()) as { models: TtsModelOption[] };
+					if (data.models?.length) {
+						modelsCache = { data: data.models, ts: Date.now() };
+						return data.models;
+					}
+				}
+			} catch (e) {
+				console.warn('[elevenlabs] getModels via proxy failed:', e);
+			}
+		}
+
+		// Fallback: direct API with local key
+		const key = getApiKey();
+		if (!key) return ELEVENLABS_TTS_MODELS;
 		try {
-			const res = await fetch(`${ELEVEN_BASE}/models`, {
-				headers: { 'xi-api-key': key }
-			});
+			const res = await fetch(`${ELEVEN_BASE}/models`, { headers: { 'xi-api-key': key } });
 			if (!res.ok) return ELEVENLABS_TTS_MODELS;
 			const data = (await res.json()) as Array<{
 				model_id?: string;
@@ -93,12 +128,8 @@ export const elevenLabsProvider: TtsProvider = {
 				can_do_text_to_speech?: boolean;
 			}>;
 			const models = data
-				.filter((model) => model.model_id && model.can_do_text_to_speech !== false)
-				.map((model) => ({
-					id: model.model_id as string,
-					label: model.name || (model.model_id as string),
-					description: model.description
-				}));
+				.filter((m) => m.model_id && m.can_do_text_to_speech !== false)
+				.map((m) => ({ id: m.model_id as string, label: m.name || (m.model_id as string), description: m.description }));
 			modelsCache = { data: models.length ? models : ELEVENLABS_TTS_MODELS, ts: Date.now() };
 			return modelsCache.data;
 		} catch (e) {

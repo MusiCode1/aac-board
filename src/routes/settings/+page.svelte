@@ -5,10 +5,6 @@
 	import { speak, getModelsForProvider, getVoicesForProvider } from '$lib/services/tts';
 	import {
 		getDefaultModelForProvider,
-		setElevenLabsApiKey,
-		getElevenLabsApiKey,
-		setGeminiApiKey,
-		getGeminiApiKey,
 		type TtsModelOption,
 		type TtsProviderId,
 		type TtsVoice
@@ -19,8 +15,6 @@
 	const bStore = boardStore();
 
 	let availableVoices = $state<TtsVoice[]>([]);
-	let elevenLabsKey = $state('');
-	let geminiKey = $state('');
 	let fileInput: HTMLInputElement | undefined;
 	let loadingVoices = $state(false);
 	let availableModels = $state<TtsModelOption[]>([]);
@@ -29,8 +23,6 @@
 	onMount(async () => {
 		await sStore.init();
 		bStore.init();
-		elevenLabsKey = getElevenLabsApiKey();
-		geminiKey = getGeminiApiKey();
 		await refreshModels();
 		await refreshVoices();
 	});
@@ -62,6 +54,10 @@
 		loadingVoices = true;
 		try {
 			availableVoices = await getVoicesForProvider(sStore.settings.ttsProvider, 'he');
+			// Auto-select the first voice if none is currently selected
+			if (availableVoices.length > 0 && !sStore.settings.ttsVoice) {
+				sStore.update({ ttsVoice: availableVoices[0].id });
+			}
 		} catch (e) {
 			console.warn('[settings] refreshVoices failed', e);
 			availableVoices = [];
@@ -82,26 +78,6 @@
 	function handleModelChange(modelId: string) {
 		sStore.update({ ttsModel: modelId, ttsVoice: '' });
 		refreshVoices();
-	}
-
-	function handleElevenLabsKeyChange(e: Event) {
-		const key = (e.target as HTMLInputElement).value.trim();
-		elevenLabsKey = key;
-		setElevenLabsApiKey(key);
-		if (sStore.settings.ttsProvider === 'elevenlabs') {
-			refreshModels();
-			refreshVoices();
-		}
-	}
-
-	function handleGeminiKeyChange(e: Event) {
-		const key = (e.target as HTMLInputElement).value.trim();
-		geminiKey = key;
-		setGeminiApiKey(key);
-		if (sStore.settings.ttsProvider === 'gemini') {
-			refreshModels();
-			refreshVoices();
-		}
 	}
 
 	function previewVoice() {
@@ -198,38 +174,6 @@
 				</div>
 			</div>
 
-			{#if sStore.settings.ttsProvider === 'elevenlabs'}
-				<label class="field">
-					<span class="field-label">ElevenLabs API Key</span>
-					<input
-						type="password"
-						class="field-input"
-						value={elevenLabsKey}
-						oninput={handleElevenLabsKeyChange}
-						placeholder="sk_..."
-						autocomplete="off"
-					/>
-					<span class="field-hint">המפתח נשמר מקומית בדפדפן בלבד. קבל מפתח ב-elevenlabs.io</span>
-				</label>
-			{/if}
-
-			{#if sStore.settings.ttsProvider === 'gemini'}
-				<label class="field">
-					<span class="field-label">Gemini API Key</span>
-					<input
-						type="password"
-						class="field-input"
-						value={geminiKey}
-						oninput={handleGeminiKeyChange}
-						placeholder="AI..."
-						autocomplete="off"
-					/>
-					<span class="field-hint"
-						>המפתח נשמר מקומית בדפדפן בלבד. קבל מפתח ב-aistudio.google.com/apikey</span
-					>
-				</label>
-			{/if}
-
 			{#if availableModels.length > 0}
 				<label class="field">
 					<span class="field-label">מודל</span>
@@ -269,7 +213,7 @@
 				{#if loadingVoices}
 					<span class="field-hint">טוען קולות...</span>
 				{:else if availableVoices.length === 0 && sStore.settings.ttsProvider !== 'webspeech'}
-					<span class="field-hint">הכנס API Key למעלה כדי לטעון קולות</span>
+					<span class="field-hint">לא נמצאו קולות זמינים</span>
 				{/if}
 			</label>
 

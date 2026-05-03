@@ -1,5 +1,80 @@
 # AAC Board — יומן פיתוח (Walkthrough)
 
+## 2026-05-03 20:30
+
+### תשתית Cache + Proxy — שלב 7 (TDD)
+
+הוספת שכבת cache + proxy מלאה ל-TTS: קליינט Proxy, cache ב-IndexedDB (L1), hash דטרמיניסטי לבקשות TTS, מיגרציה שקטה להסרת API keys ישנות, וחיבור `speak()` לתשתית החדשה. בנוסף — תיקון שגיאות lint ו-TypeScript לשמירת CI ירוק.
+
+#### מה בוצע?
+
+**1. Proxy API Types (`src/lib/types/api.ts`)**
+
+- `TtsRequest` — מבנה בקשה: `text`, `provider`, `voiceId`, `modelId`, `lang?`
+- `TtsResponse` — תגובה: `hash`, `mimeType`, `cached`
+- `VoiceItem` / `VoicesResponse` — רשימת קולות מהפרוקסי
+- `ProxyError` — מבנה שגיאה סטנדרטי עם `code`: `origin_failed | invalid_request | unauthorized | not_found | internal`
+
+**2. Hash דטרמיניסטי (`src/lib/services/cache/hash.ts`)**
+
+- `ttsHash(req)` — מחשב 16 תווים hex (SHA-256 חתוך ל-8 בייטים) מ-`provider|voiceId|modelId|text.trim().NFC`
+- אותו האלגוריתם חייב להתקיים גם ב-proxy Worker (מקור אמת אחד לשני הצדדים)
+
+**3. Audio Cache — IDB L1 (`src/lib/services/cache/audio-cache.ts`)**
+
+- `getOrCreateAudio(req, deps?)` — זורם: hit → IDB מיד ← miss → POST `/v1/tts` (synthesize) → GET `/v1/tts/:hash` (blob) → שמירה ב-IDB
+- מפתח IDB: `audio:<hash>`
+- IDB store: `aac-cache / keyval` (lazy init)
+- `deps` injection מלא לבדיקות (fetch, proxyUrl, store)
+
+**4. Proxy Client (`src/lib/services/proxy-client.ts`)**
+
+- `ProxyClientError` — class עם `code: ProxyError['code']` לטיפול בשגיאות מובנה
+- `postTtsRequest(req, deps?)` — POST `/v1/tts`, מחזיר `TtsResponse`
+- `getTtsBlob(hash, mimeType, deps?)` — GET `/v1/tts/:hash`, מחזיר Blob
+- parse מבנה שגיאה מהפרוקסי, fallback ל-`internal` אם גוף לא-JSON
+
+**5. חיבור `speak()` לפרוקסי (`src/lib/services/tts.ts`)**
+
+- `PROXIED_PROVIDERS = Set(['elevenlabs', 'gemini'])` — ספקים שנשלחים דרך הפרוקסי
+- לספקים מוקסאים: `speak()` קורא ל-`getOrCreateAudio()` ואז `playAudioBlob()`
+- במקרה כשל — fallback אוטומטי ל-WebSpeech
+- `SpeakDeps` interface: `settings`, `fetchFn`, `proxyUrl`, `store` לבדיקות
+
+**6. מיגרציה שקטה (`src/lib/services/cache/migration.ts`)**
+
+- `runMigrationOnce(store?)` — מוחק `elevenlabs-api-key` ו-`gemini-api-key` מ-localStorage (API keys עוברים לפרוקסי) ורושם flag ב-IDB `cache-proxy-migrated:v1`
+- מופעל ב-`+layout.svelte` בטעינה ראשונה
+- הפעלה חוזרת: no-op (flag קיים)
+
+**7. קובץ סביבה (`env.example`)**
+
+- נוסף `.env.example` עם `VITE_PROXY_URL=http://localhost:8787`
+- `.env.local` ב-gitignore, לא מועלה ל-repo
+
+**8. תיקוני Lint / TypeScript**
+
+- תוקנו שגיאות TypeScript שמנעו CI ירוק (שגיאות type בבדיקות, ב-`proxy-client`, ב-`gemini.ts` ועוד)
+- `eslint.config.js` עודכן
+
+#### החלטות ארכיטקטורה
+
+- **IDB כ-L1 בלבד**: audio cache מנוהל על ידי `getOrCreateAudio` — לא קיים L2 בצד הלקוח. L2 (R2 Storage) קיים בצד הפרוקסי.
+- **Hash זהה בלקוח ובשרת**: `ttsHash` מחושב גם בלקוח (לפני בקשה ל-IDB) וגם בפרוקסי. נדרשת סנכרוניזציה — שינוי לאחד מחייב שינוי בשני.
+- **`proxy-client` ≠ `audio-cache`**: שני מודולים נפרדים. `proxy-client` הוא wrapper ל-HTTP calls בלבד (ללא cache). `audio-cache` הוא שכבת orchestration (IDB + proxy calls). ההפרדה מאפשרת לבדוק כל שכבה בנפרד.
+- **Fallback webspeech**: `speak()` לא קורס כשהפרוקסי נכשל — ממשיך ל-WebSpeech. חשוב לנגישות כאשר אין חיבור.
+
+#### מעקפים ופתרונות
+
+- **`audio-cache.ts` משכפל קצת מ-`proxy-client.ts`**: הטמעת ה-POST/GET ב-`audio-cache.ts` נכתבה לפני ה-`proxy-client.ts`. ה-`audio-cache` ישאר עצמאי כרגע — refactor עתידי יאחד אותם.
+
+#### מצב בדיקות
+
+- `bun run check` — 0 errors, 4 warnings
+- בדיקות יחידה: `hash.svelte.spec.ts`, `audio-cache.svelte.spec.ts`, `proxy-client.spec.ts`, `migration.svelte.spec.ts`, `tts.svelte.spec.ts` — כולן עוברות
+
+---
+
 ## 2026-05-03 15:14
 
 ### שלב 6 Phase B — URL Routing + Sets
