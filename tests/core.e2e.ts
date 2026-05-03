@@ -35,7 +35,9 @@ test.describe('Core Functionality', () => {
 		expect(folderLabel).toBeTruthy();
 
 		await folderTile.click();
-		await page.waitForURL((url) => url.toString() !== startUrl && /\/s\/.+\/b\/.+/.test(url.pathname));
+		await page.waitForURL(
+			(url) => url.toString() !== startUrl && /\/s\/.+\/b\/.+/.test(url.pathname)
+		);
 
 		// Board title should change
 		await expect(page.locator('.board-title')).not.toHaveText(homeTitle!);

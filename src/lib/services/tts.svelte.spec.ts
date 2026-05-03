@@ -138,7 +138,10 @@ describe('speak() — E1/E2/E3', () => {
 			cancel: vi.fn(),
 			getVoices: vi.fn(() => [])
 		});
-		vi.stubGlobal('SpeechSynthesisUtterance', vi.fn(() => ({ onend: null, onerror: null })));
+		vi.stubGlobal(
+			'SpeechSynthesisUtterance',
+			vi.fn(() => ({ onend: null, onerror: null }))
+		);
 
 		await speak('שלום', 'he-IL', {
 			settings: { ...GEMINI_SETTINGS, provider: 'webspeech' },

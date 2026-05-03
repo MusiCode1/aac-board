@@ -23,21 +23,18 @@
 
 	const LONG_PRESS_MS = 600;
 	let pressTimer: ReturnType<typeof setTimeout> | null = null;
-	let pressFired = false;
 	let pressProgress = $state(0);
 	let progressTimer: ReturnType<typeof setInterval> | null = null;
 
 	function startPress() {
 		// In edit mode, no long-press needed — single click exits
 		if (editMode) return;
-		pressFired = false;
 		pressProgress = 0;
 		const start = Date.now();
 		progressTimer = setInterval(() => {
 			pressProgress = Math.min(100, ((Date.now() - start) / LONG_PRESS_MS) * 100);
 		}, 30);
 		pressTimer = setTimeout(() => {
-			pressFired = true;
 			pressProgress = 100;
 			clearProgress();
 			ontoggleedit();

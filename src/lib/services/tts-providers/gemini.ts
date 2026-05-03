@@ -144,13 +144,11 @@ export const geminiProvider: TtsProvider = {
 			const data = (await res.json()) as {
 				models?: Array<{ name: string; displayName?: string; description?: string }>;
 			};
-			const models = (data.models ?? [])
-				.filter(isTtsModel)
-				.map((model) => ({
-					id: normalizeModelId(model.name),
-					label: model.displayName || normalizeModelId(model.name),
-					description: model.description
-				}));
+			const models = (data.models ?? []).filter(isTtsModel).map((model) => ({
+				id: normalizeModelId(model.name),
+				label: model.displayName || normalizeModelId(model.name),
+				description: model.description
+			}));
 			modelsCache = { data: models.length ? models : GEMINI_TTS_MODELS, ts: Date.now() };
 			return modelsCache.data;
 		} catch (e) {

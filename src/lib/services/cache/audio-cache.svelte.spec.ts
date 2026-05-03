@@ -85,7 +85,11 @@ describe('getOrCreateAudio', () => {
 		await getOrCreateAudio(BASE_REQ, { fetch: fetchMock, proxyUrl: 'http://proxy', store });
 		fetchMock.mockClear();
 
-		const result = await getOrCreateAudio(BASE_REQ, { fetch: fetchMock, proxyUrl: 'http://proxy', store });
+		const result = await getOrCreateAudio(BASE_REQ, {
+			fetch: fetchMock,
+			proxyUrl: 'http://proxy',
+			store
+		});
 
 		expect(result).toBeInstanceOf(Blob);
 		expect(fetchMock).not.toHaveBeenCalled();

@@ -46,4 +46,16 @@ describe('ttsHash', () => {
 			expect(h).toMatch(/^[0-9a-f]{16}$/);
 		}
 	});
+
+	/**
+	 * B6 — cross-process determinism vector.
+	 *
+	 * MUST match the matching test in tts-proxy-worker/test/domain/hash.spec.ts.
+	 * If you change the algorithm, you MUST update both vectors and accept that
+	 * all existing client+server cache entries are orphaned.
+	 */
+	it('B6 — known vector matches the proxy worker', async () => {
+		const h = await ttsHash(BASE_REQ);
+		expect(h).toBe('97451da3cada04a0');
+	});
 });

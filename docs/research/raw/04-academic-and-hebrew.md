@@ -8,7 +8,8 @@
 
 ---
 
-#### 1. [The Impact of AAC Intervention on Speech Production of Individuals With Developmental Disabilities: A Research Review](https://pubs.asha.org/doi/10.1044/1092-4388(2006/021))
+#### 1. [The Impact of AAC Intervention on Speech Production of Individuals With Developmental Disabilities: A Research Review](<https://pubs.asha.org/doi/10.1044/1092-4388(2006/021)>)
+
 **מחברים:** Millar, D.C., Light, J.C., & Schlosser, R.W.
 **שנה:** 2006
 **כתב עת:** Journal of Speech, Language, and Hearing Research
@@ -17,7 +18,8 @@
 
 ---
 
-#### 2. [Effects of AAC Intervention on Speech Production in Children With Autism: A Systematic Review](https://pubs.asha.org/doi/10.1044/1058-0360(2008/021))
+#### 2. [Effects of AAC Intervention on Speech Production in Children With Autism: A Systematic Review](<https://pubs.asha.org/doi/10.1044/1058-0360(2008/021)>)
+
 **מחברים:** Schlosser, R.W. & Wendt, O.
 **שנה:** 2008
 **כתב עת:** American Journal of Speech-Language Pathology
@@ -27,6 +29,7 @@
 ---
 
 #### 3. [Core Vocabulary Determination for Toddlers](https://www.researchgate.net/publication/232041093_Core_Vocabulary_Determination_for_Toddlers)
+
 **מחברים:** Banajee, M., DiCarlo, C., & Stricklin, S.
 **שנה:** 2003
 **כתב עת:** Augmentative and Alternative Communication, 19, 67-73
@@ -36,6 +39,7 @@
 ---
 
 #### 4. [Frequency of Word Usage by Hebrew Preschoolers: Implications for AAC Core Vocabulary](https://www.tandfonline.com/doi/full/10.1080/07434618.2023.2210671)
+
 **מחברים:** (חוקרים ישראליים — פרטים מלאים בכתב העת)
 **שנה:** 2023
 **כתב עת:** Augmentative and Alternative Communication, Vol 39, No 2
@@ -45,6 +49,7 @@
 ---
 
 #### 5. [Frequency of Hebrew Word Usage by Children with Intellectual and Developmental Disabilities: Implications for AAC Core Vocabulary](https://www.tandfonline.com/doi/full/10.1080/07434618.2024.2407794)
+
 **מחברים:** (חוקרים ישראליים)
 **שנה:** 2024 (פורסם ב-2025, כרך 41, גיליון 1)
 **כתב עת:** Augmentative and Alternative Communication
@@ -54,6 +59,7 @@
 ---
 
 #### 6. [A Systematic and Quality Review of AAC Interventions that Use Core Vocabulary](https://link.springer.com/article/10.1007/s40489-023-00399-x)
+
 **שנה:** 2023
 **כתב עת:** Review Journal of Autism and Developmental Disorders
 **ממצאים מרכזיים:** סקירה שיטתית שמצאה בסיס מחקרי מוגבל מאוד — רק 5 מתוך 10 מחקרים שנסקרו היו מאמרים עמיתים. הממצא מדגיש את הפער בין הפופולריות של גישת Core Vocabulary בפרקטיקה לבין חולשת הבסיס המחקרי.
@@ -62,6 +68,7 @@
 ---
 
 #### 7. [Vocabulary Selection and Implementation in Vocabulary Interventions for Speech-Generating Devices: A Scoping Review](https://pubs.asha.org/doi/10.1044/2023_PERSP-23-00034)
+
 **שנה:** 2023
 **כתב עת:** ASHA Perspectives
 **ממצאים מרכזיים:** יש לשלב מספר גישות ואסטרטגיות לבחירת אוצר מילים, ולא להסתמך על גישה אחת בלבד. Core vocabulary לבד אינו מספיק לתקשורת ספציפית.
@@ -70,6 +77,7 @@
 ---
 
 #### 8. [Norms for a Pictographic System: The ARASAAC System](https://pmc.ncbi.nlm.nih.gov/articles/PMC6305113/)
+
 **שנה:** 2018
 **כתב עת:** Frontiers in Psychology
 **ממצאים מרכזיים:** סיפקו נתונים נורמטיביים עבור 295 הגירויים הנפוצים ביותר מ-ARASAAC. נמדדו: שם מודלי, הסכמת שמות, מורכבות חזותית, היכרות מושגית, והסכמת תמונה. ב-2018, ARASAAC כלל 18,206 פיקטוגרמות בצבע.
@@ -78,6 +86,7 @@
 ---
 
 #### 9. [Iconicity and Ease of Learning of ARASAAC Pictographic Symbols (2015/2023)](https://aulaabierta.arasaac.org/en/iconocity-and-ease-of-learning-of-the-symbols-pictographic-of-arasaac)
+
 **מחברים:** Bertola López, E. (תזה, 2015); מחקר המשך 2023
 **ממצאים מרכזיים:** ARASAAC הראה את רמת האיקוניות הגבוהה ביותר ואת קלות הלמידה הגבוהה ביותר לעומת SPC ו-Bliss, בכל האוכלוסיות שנבדקו. מחקר 2023 בדק 24 ילדים עם הפרעות התפתחותיות ומצא שוב ש-ARASAAC עדיף על פני SPC ו-Bliss.
 **רלוונטיות לפרויקט:** מאשש את הבחירה ב-ARASAAC כספק סמלים ראשי.
@@ -85,19 +94,22 @@
 ---
 
 #### 10. [Designing Effective AAC Displays for Individuals with Developmental or Acquired Disabilities](https://pmc.ncbi.nlm.nih.gov/articles/PMC6436972/)
+
 **מחברים:** Light, J., Wilkinson, K., et al.
 **שנה:** 2019
 **כתב עת:** Augmentative and Alternative Communication, Vol 35, No 1
 **ממצאים מרכזיים:**
+
 - מבוגרים עם אפזיה היו מדויקים ומהירים יותר עם מערכי סמלים קטנים (4 סמלים) לעומת גדולים
 - סידור סמלים בצבירים לפי צבע פנימי מאיץ משמעותית את זמן החיפוש
 - רמזי צבע רקע לא מסייעים בתצוגות קטנות (<24 סמלים) ועלולים להסיח
 - ילדים מקדישים 61-67% מזמן הצפייה לתצוגה הראשית ו-30-33% לסרגל הניווט
-**רלוונטיות לפרויקט:** מנחה את עיצוב הלוח — גודל רשת, ארגון סמלים, שימוש בצבע, וניווט. יישום ישיר בעיצוב ה-UI.
+  **רלוונטיות לפרויקט:** מנחה את עיצוב הלוח — גודל רשת, ארגון סמלים, שימוש בצבע, וניווט. יישום ישיר בעיצוב ה-UI.
 
 ---
 
 #### 11. [A Scoping Review of Aided AAC Modeling for Individuals with Developmental Disabilities and Emergent Communication](https://link.springer.com/article/10.1007/s40474-023-00275-7)
+
 **שנה:** 2023
 **כתב עת:** Current Developmental Disorders Reports
 **ממצאים מרכזיים:** 29 מחקרים עם 237 משתתפים הראו תוצאות חיוביות מהתערבויות aided AAC modeling ברוב המוחלט של המחקרים. שימוש מוגבר ב-AAC דווח עבור כל המשתתפים.
@@ -106,6 +118,7 @@
 ---
 
 #### 12. [A Systematic Review of Augmented Input Interventions and Exploratory Analysis of Moderators](https://pmc.ncbi.nlm.nih.gov/articles/PMC10110354/)
+
 **שנה:** 2023
 **כתב עת:** PMC/NIH
 **ממצאים מרכזיים:** התערבויות שכללו augmented input (כלומר הצבעה על סמלי AAC בזמן דיבור) היו יעילות במיוחד עבור אנשים צעירים, עם כישורי שפה קולטת חזקה, או ללא אבחנות נלוות. ההמלצה: לשלב augmented input עם השהיה מצפה, הנחיית מודל, תגובה מילולית, ותגובה נעזרת.
@@ -114,6 +127,7 @@
 ---
 
 #### 13. [AAC Modeling Intervention Research Review](https://journals.sagepub.com/doi/10.1177/1540796916638822)
+
 **מחברים:** Sennott, S.C., Light, J.C., & McNaughton, D.
 **שנה:** 2016
 **כתב עת:** Research and Practice for Persons with Severe Disabilities
@@ -123,6 +137,7 @@
 ---
 
 #### 14. [Augmentative and Alternative Communication for Children with IDD: A Mega-Review](https://pmc.ncbi.nlm.nih.gov/articles/PMC8009928/)
+
 **שנה:** 2021
 **כתב עת:** Journal of Policy and Practice in Intellectual Disabilities
 **ממצאים מרכזיים:** מגה-סקירה של 84 סקירות ספרות ממאגרי מידע מ-2000 עד 2020. התערבויות AAC עם קלט נעזר (aided AAC input) נמצאו יעילות מאוד בתמיכה בהבנה וביטוי בתחומי פרגמטיקה, סמנטיקה ומורפו-תחביר.
@@ -131,6 +146,7 @@
 ---
 
 #### 15. [Effects of an AAC Intervention Package on Socio-Communicative Behaviors Between Minimally Speaking Autistic Children and Their Peers](https://pmc.ncbi.nlm.nih.gov/articles/PMC11253647/)
+
 **שנה:** 2024
 **כתב עת:** American Journal of Speech-Language Pathology
 **ממצאים מרכזיים:** הוראה שיטתית (הנחיה מהפחות למרב, השהיה, חיזוקים) סיפקה למשתתפים את התמיכה הדרושה להצלחה באינטראקציות חברתיות-תקשורתיות מתקדמות.
@@ -139,6 +155,7 @@
 ---
 
 #### 16. [The Pitfalls of Presumptions (ASHA Leader, 2018)](https://leader.pubs.asha.org/doi/10.1044/leader.FMP.23122018.10)
+
 **מחברים:** O'Neil, T. & McCarthy, J.
 **שנה:** 2018
 **כתב עת:** The ASHA Leader
@@ -148,6 +165,7 @@
 ---
 
 #### 17. [Overcoming Barriers to Literacy for Individuals Who Need or Use AAC](https://www.tandfonline.com/doi/full/10.1080/07434618.2025.2502032)
+
 **שנה:** 2025
 **כתב עת:** Augmentative and Alternative Communication
 **ממצאים מרכזיים:** אוריינות תומכת בפיתוח שפה גנרטיבית וכשירות תקשורתית, וחיונית לגישה לכלי תקשורת של המאה ה-21 (אינטרנט, מדיה חברתית). טקסט מספק גישה למערכת שפה גנרטיבית שונה מסמלים.
@@ -156,6 +174,7 @@
 ---
 
 #### 18. [A Review Article: Designing Grid Displays in AAC Systems to Enhance Accuracy and Reduce Latency in Symbol Searching](https://he01.tci-thaijo.org/index.php/bulletinAMS/article/view/273718)
+
 **שנה:** 2024 (משוער)
 **כתב עת:** Journal of Associated Medical Sciences
 **ממצאים מרכזיים:** סקירת גורמים המשפיעים על עיצוב תצוגות רשת ב-AAC: ארגון אוצר מילים, גודל סמל, ומספר סמלים על הרשת. ההתאמה צריכה להיות אינדיבידואלית ולהתחשב בחדות ראייה, כישורי תקשורת וקוגניציה, מערכת חושית, ושליטה מוטורית.
@@ -164,6 +183,7 @@
 ---
 
 #### 19. [ASHA Practice Portal: Augmentative and Alternative Communication](https://www.asha.org/practice-portal/professional-issues/augmentative-and-alternative-communication/)
+
 **ארגון:** American Speech-Language-Hearing Association (ASHA)
 **ממצאים מרכזיים:** פורטל פרקטיקה מקיף המספק מפות ראיות, סיכומי מחקר, והנחיות קליניות ב-AAC. כולל Evidence Maps שמכילים סיכומי מחקרים על נושאי AAC שונים.
 **רלוונטיות לפרויקט:** מקור סמכותי להפניה בתיעוד ובמדריכים.
@@ -171,6 +191,7 @@
 ---
 
 #### 20. [ISAAC — AAC Journal](https://isaac-online.org/english/publications/aac/)
+
 **ארגון:** International Society for Augmentative and Alternative Communication
 **ממצאים מרכזיים:** כתב עת AAC הוא כתב העת הרשמי של ISAAC, מתפרסם רבעונית ע"י Taylor & Francis. כולל מאמרי מחקר, סקירות שיטתיות, מטא-אנליזות, tutorials, ומחקרי מקרה. נכלל ב-Thomson Reuters Social Sciences Citation Index.
 **רלוונטיות לפרויקט:** מקור מחקרי ראשוני לעדכונים שוטפים.
@@ -178,6 +199,7 @@
 ---
 
 #### 21. [Personalized Early AAC Intervention to Build Language and Literacy Skills: A Case Study](https://pmc.ncbi.nlm.nih.gov/articles/PMC8375506/)
+
 **שנה:** 2021
 **כתב עת:** PMC
 **ממצאים מרכזיים:** התאמה אישית של AAC היא תהליך צוותי בו כל אחד יכול לתרום, כולל משתמש ה-AAC. המשתמש מפתח תחושת בעלות על ידי השתתפות בהתאמה, מה שמסייע לקבלה מוקדמת ולהצלחה ארוכת טווח. הורים דיווחו שהתאמת אוצר מילים (כולל התאמות תרבותיות) הגדילה מוטיבציה.
@@ -186,6 +208,7 @@
 ---
 
 #### 22. [Parent Perceptions and Experiences of AAC for Their Autistic Children: Systematic Qualitative Review](https://link.springer.com/article/10.1007/s40489-025-00515-z)
+
 **שנה:** 2025
 **כתב עת:** Review Journal of Autism and Developmental Disorders
 **ממצאים מרכזיים:** הורים ציינו שהתאמת אוצר מילים (כולל התאמות תרבותיות) עזרה לילד לומר מה שרצה. יכולת ההתאמה האישית לטעמים ולהעדפות הילד הגדילה מוטיבציה לשימוש במערכת.
@@ -194,6 +217,7 @@
 ---
 
 #### 23. [Consistent Symbol Location Affects Motor Learning: Implications for AAC Displays](https://www.assistiveware.com/blog/proloquo-4-grows-with-users)
+
 **מקור:** AssistiveWare / מחקר AJSLP
 **ממצאים מרכזיים:** מיקום עקבי של סמלים הוא קריטי ללמידה מוטורית. כאשר מילים תמיד נמצאות באותו מיקום, המשתמש בונה "תוכנית מוטורית" (motor plan) שמאפשרת תקשורת מהירה יותר עם הזמן. Proloquo מעצב אוצר מילים שלא ניתן להזזה כדי לשמר עקביות מוטורית.
 **רלוונטיות לפרויקט:** **חשוב מאוד** — כשמשתמש מחליף גודל רשת, מיקומי הסמלים צריכים להישמר ככל האפשר. יש לתכנן layout שגדל אך שומר על עקביות.
@@ -231,6 +255,7 @@
 - **עם AI מתקדם (RoBERTa):** עד 25.75 מילים/דקה
 
 השפעת גודל רשת:
+
 - **רשת קטנה (4 סמלים):** מדויקת ומהירה יותר למתחילים ולאנשים עם אפזיה
 - **רשת גדולה:** מאפשרת גישה מהירה יותר ליותר אוצר מילים למשתמשים מנוסים
 - **80% ממשתמשי AAC** משתמשים ברשת קטנה; 30% עם פחות מ-20 כפתורים
@@ -264,7 +289,8 @@
 
 ---
 
-#### 1. [תקשורת תומכת וחלופית (AAC) — כל-זכות](https://www.kolzchut.org.il/he/%D7%AA%D7%A7%D7%A9%D7%95%D7%A8%D7%AA_%D7%AA%D7%95%D7%9E%D7%9B%D7%AA_%D7%95%D7%97%D7%9C%D7%95%D7%A4%D7%99%D7%AA_(AAC))
+#### 1. [תקשורת תומכת וחלופית (AAC) — כל-זכות](<https://www.kolzchut.org.il/he/%D7%AA%D7%A7%D7%A9%D7%95%D7%A8%D7%AA_%D7%AA%D7%95%D7%9E%D7%9B%D7%AA_%D7%95%D7%97%D7%9C%D7%95%D7%A4%D7%99%D7%AA_(AAC)>)
+
 **סוג:** דף מידע על זכויות
 **ממצאים מרכזיים:** מ-2015, מכשירי AAC נכללו בסל הבריאות הישראלי. קופות החולים מממנות מכשירי תקשורת — מערכות המאפשרות למשתמשים יכולת תקשורת באמצעות הודעות מוקלטות או מוקלדות המחליפות דיבור.
 **רלוונטיות לפרויקט:** הכללת AAC בסל הבריאות מ-2015 פירושה שיש ביקוש ומימון — שוק אמיתי ומתרחב.
@@ -272,6 +298,7 @@
 ---
 
 #### 2. [מימון מכשירי תקשורת תומכת וחלופית — כל-זכות](https://www.kolzchut.org.il/he/%D7%9E%D7%99%D7%9E%D7%95%D7%9F_%D7%9E%D7%9B%D7%A9%D7%99%D7%A8%D7%99_%D7%AA%D7%A7%D7%A9%D7%95%D7%A8%D7%AA_%D7%AA%D7%95%D7%9E%D7%9B%D7%AA_%D7%95%D7%97%D7%9C%D7%95%D7%A4%D7%99%D7%AA)
+
 **סוג:** דף מידע על זכויות
 **ממצאים מרכזיים:** פירוט זכויות מימון: מי זכאי, איך מגישים בקשה, והתהליך. מימון מלא לרמה 3 של Grid ומוצרים קשורים כולל מערכות מעקב עיניים.
 **רלוונטיות לפרויקט:** חשוב להבין את מנגנוני המימון כדי שהפרויקט יהיה תואם לדרישות סל הבריאות.
@@ -279,6 +306,7 @@
 ---
 
 #### 3. [A Demographic Survey of Children and Adolescents with Complex Communication Needs in Israel](https://www.tandfonline.com/doi/abs/10.1080/07434610412331272910)
+
 **מחברים:** Weiss, P.L., Seligman-Wine, J., Lebel, T., Arzi, N. & Yalon-Chamovitz, S.
 **שנה:** 2005
 **כתב עת:** Augmentative and Alternative Communication, 21(1), 56-66
@@ -288,6 +316,7 @@
 ---
 
 #### 4. [מכשירי תקשורת תומכת וחלופית בסל הבריאות (הרצאה, ISHLA 2016)](https://program.eventact.com/Lecture/114381/2001782)
+
 **סוג:** הרצאה בכינוס השנתי של האגודה הישראלית של קלינאי תקשורת
 **ממצאים מרכזיים:** הרצאה מהכינוס השנתי ה-52 של ISHLA (האגודה הישראלית של קלינאי תקשורת) בנושא הכללת מכשירי AAC בסל הבריאות.
 **רלוונטיות לפרויקט:** מעיד על מעורבות מקצועית פעילה בתחום בישראל.
@@ -297,6 +326,7 @@
 ### פתרונות AAC קיימים בעברית
 
 #### 1. CommBoards AAC
+
 - **מפתח:** Shmoontz Apps (ישראלי)
 - **פלטפורמות:** Android, iOS, Amazon
 - **שפות:** עברית, אנגלית, רוסית, ספרדית
@@ -305,6 +335,7 @@
 - **URL:** [Google Play](https://play.google.com/store/apps/details?id=com.shmoontz.commboards)
 
 #### 2. SymboTalk — AAC Talker
+
 - **מפתח:** Elad Elram (ישראלי)
 - **פלטפורמות:** iOS, Android
 - **שפות ממשק:** עברית, אנגלית, ספרדית, מנדרינית, באסקית, גליסית
@@ -315,6 +346,7 @@
 - **URL:** [App Store](https://apps.apple.com/us/app/symbotalk-aac-talker/id1294023783)
 
 #### 3. Ola Mundo Messenger
+
 - **מפתח:** Ofir Harel (ישראלי)
 - **שנת הקמה:** 2012 (ניסוי בעברית: אוקטובר 2013)
 - **פלטפורמות:** iOS
@@ -323,6 +355,7 @@
 - **URL:** [Israel21c](https://www.israel21c.org/new-israeli-app-for-special-needs-communication/)
 
 #### 4. Cboard (קוד פתוח)
+
 - **מפתח:** cboard-org (חיבור ישראלי — מתכנת ישראלי בצוות המייסדים)
 - **פלטפורמות:** Web, Android, iOS
 - **שפות:** עברית, ערבית, ועוד 30+ שפות
@@ -332,6 +365,7 @@
 - **הערה:** **זהו הפרויקט שאנחנו בונים מחדש ב-SvelteKit!**
 
 #### 5. TouchChat HD — AAC
+
 - **מפתח:** PRC-Saltillo
 - **תמיכה בעברית:** כן — ממשק וקולות TTS בעברית
 - **פלטפורמות:** iOS
@@ -339,6 +373,7 @@
 - **URL:** [touchchatapp.com](https://touchchatapp.com/apps/touchchat-hd-aac)
 
 #### 6. Grid (Smartbox) — דרך סל הבריאות
+
 - **שימוש בישראל:** מכשירי Grid ממומנים ע"י סל הבריאות ברמה 3
 - **הערה:** הפתרון הנפוץ ביותר ב"ערוץ הרשמי" בישראל, אך יקר ודורש מכשיר ייעודי
 
@@ -347,6 +382,7 @@
 ### ארגונים בישראל
 
 #### 1. עזר מציון — המרכז הארצי לתקשורת תומכת
+
 - **תפקיד:** השאלת מכשירי AAC, הערכה והתאמה, הדרכה
 - **היקף:** ~2,000 מכשירים מושאלים בשנה
 - **מימון:** חינם (למעט ביטוח)
@@ -355,6 +391,7 @@
 - **URL:** [ami.org.il](https://www.ami.org.il/services/augmentative-communication)
 
 #### 2. בית איזי שפירא
+
 - **תפקיד:** ארגון מוביל לשיפור איכות חיים לאנשים עם מוגבלויות
 - **המרכז הטכנולוגי:** מרכז לטכנולוגיה מסייעת עם מרפאים בעיסוק, קלינאי תקשורת, ואנשי טכנולוגיה
 - **היקף:** משרת למעלה מ-500,000 אנשים בשנה
@@ -362,22 +399,26 @@
 - **URL:** [beitissie.org.il](https://beitissie.org.il/en/)
 
 #### 3. אלין בית נועם
+
 - **תפקיד:** מרכז להערכה, ניטור והכשרה בתקשורת תומכת וחלופית (AAC) וטכנולוגיית עזר
 - **שירותים:** הערכות ופתרונות לילדים ומבוגרים מכל הארץ
 - **URL:** [alin-beitnoam.org.il](https://alin-beitnoam.org.il/en/the-houses/elgas-neighborhood/evaluation-center/)
 
 #### 4. עזרים דיגיטל (Azarim)
+
 - **תפקיד:** מאגר המידע הישראלי לטכנולוגיה מסייעת — חבר ברשת EASTIN הבינלאומית
 - **הוקם:** 2006, ע"י יחידת מילבת במרכז הרפואי שיבא
 - **היקף:** 17,600+ פריטים, 430,000+ משתמשים בשנה
 - **URL:** [azarim.org.il](https://azarim.org.il/)
 
 #### 5. ISHLA — האגודה הישראלית של קלינאי תקשורת
+
 - **תפקיד:** גוף מקצועי של קלינאי תקשורת בישראל
 - **רלוונטיות:** עורכת כינוסים שנתיים עם הרצאות בנושא AAC
 - **URL:** [ishla.org.il](https://ishla.org.il/)
 
 #### 6. אוניברסיטאות בישראל
+
 - **אוניברסיטת תל אביב:** תואר שני ודוקטורט בהפרעות תקשורת
 - **אוניברסיטת חיפה:** תואר שני ודוקטורט בהפרעות תקשורת
 - **האוניברסיטה העברית (הדסה):** מחקר על AAC וצרכי תקשורת מורכבים
@@ -453,6 +494,7 @@
 ## מקורות נוספים — קישורים ישירים
 
 ### ציר 5 — אקדמי
+
 - [ASHA Practice Portal — AAC](https://www.asha.org/practice-portal/professional-issues/augmentative-and-alternative-communication/)
 - [ASHA Evidence Maps](https://apps.asha.org/EvidenceMaps/)
 - [ISAAC Publications — AAC Journal](https://isaac-online.org/english/publications/aac/)
@@ -467,7 +509,8 @@
 - [AAC Communication Rate Gap (ResearchGate)](https://www.researchgate.net/publication/376110365_Bridging_the_Communication_Rate_Gap_Enhancing_Text_Input_for_Augmentative_and_Alternative_Communication_AAC)
 
 ### ציר 7 — עברית/ישראל
-- [כל-זכות — תקשורת תומכת וחלופית](https://www.kolzchut.org.il/he/%D7%AA%D7%A7%D7%A9%D7%95%D7%A8%D7%AA_%D7%AA%D7%95%D7%9E%D7%9B%D7%AA_%D7%95%D7%97%D7%9C%D7%95%D7%A4%D7%99%D7%AA_(AAC))
+
+- [כל-זכות — תקשורת תומכת וחלופית](<https://www.kolzchut.org.il/he/%D7%AA%D7%A7%D7%A9%D7%95%D7%A8%D7%AA_%D7%AA%D7%95%D7%9E%D7%9B%D7%AA_%D7%95%D7%97%D7%9C%D7%95%D7%A4%D7%99%D7%AA_(AAC)>)
 - [כל-זכות — מימון מכשירי AAC](https://www.kolzchut.org.il/he/%D7%9E%D7%99%D7%9E%D7%95%D7%9F_%D7%9E%D7%9B%D7%A9%D7%99%D7%A8%D7%99_%D7%AA%D7%A7%D7%A9%D7%95%D7%A8%D7%AA_%D7%AA%D7%95%D7%9E%D7%9B%D7%AA_%D7%95%D7%97%D7%9C%D7%95%D7%A4%D7%99%D7%AA)
 - [עזר מציון — תקשורת תומכת](https://www.ami.org.il/services/augmentative-communication)
 - [עזרים דיגיטל — AAC](https://azarim.org.il/en/product-category/communication/augmentative-and-alternativ/)

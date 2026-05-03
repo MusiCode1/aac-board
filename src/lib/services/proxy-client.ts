@@ -55,11 +55,7 @@ export async function postTtsRequest(req: TtsRequest, deps?: FetchDeps): Promise
 /**
  * GET /v1/tts/:hash — retrieve the audio blob for a previously-synthesized asset.
  */
-export async function getTtsBlob(
-	hash: string,
-	_mimeType: string,
-	deps?: FetchDeps
-): Promise<Blob> {
+export async function getTtsBlob(hash: string, _mimeType: string, deps?: FetchDeps): Promise<Blob> {
 	const fetchFn = deps?.fetch ?? globalThis.fetch;
 	const proxyUrl = deps?.proxyUrl ?? getProxyUrl();
 

@@ -122,7 +122,10 @@ export async function speak(text: string, lang = 'he-IL', deps?: SpeakDeps): Pro
 			await playAudioBlob(blob, { rate: settings.rate, pitch: settings.pitch, lang });
 			return;
 		} catch (e) {
-			console.warn(`[tts] proxy cache for "${settings.provider}" failed — falling back to webspeech`, e);
+			console.warn(
+				`[tts] proxy cache for "${settings.provider}" failed — falling back to webspeech`,
+				e
+			);
 		}
 		// Fallback to Web Speech on proxy failure
 		if (webSpeechProvider.isAvailable()) {

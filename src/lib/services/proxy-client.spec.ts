@@ -11,9 +11,16 @@ const BASE_REQ: TtsRequest = {
 
 const PROXY = 'http://proxy';
 
+/** Helper to create a typed fetch mock so mock.calls has correct parameter types. */
+function mockFetch(response: Response) {
+	return vi.fn(
+		async (_input: RequestInfo | URL, _init?: RequestInit): Promise<Response> => response
+	);
+}
+
 describe('postTtsRequest', () => {
 	it('D1 — builds correct URL and returns TtsResponse', async () => {
-		const fetchMock = vi.fn(async () =>
+		const fetchMock = mockFetch(
 			new Response(
 				JSON.stringify({ hash: 'aabbccdd11223344', mimeType: 'audio/wav', cached: false }),
 				{ status: 200, headers: { 'Content-Type': 'application/json' } }
@@ -33,11 +40,11 @@ describe('postTtsRequest', () => {
 	});
 
 	it('D3 — HTTP 4xx throws ProxyError with correct code', async () => {
-		const fetchMock = vi.fn(async () =>
-			new Response(
-				JSON.stringify({ error: 'bad request', code: 'invalid_request' }),
-				{ status: 400, headers: { 'Content-Type': 'application/json' } }
-			)
+		const fetchMock = mockFetch(
+			new Response(JSON.stringify({ error: 'bad request', code: 'invalid_request' }), {
+				status: 400,
+				headers: { 'Content-Type': 'application/json' }
+			})
 		);
 
 		await expect(
@@ -46,9 +53,7 @@ describe('postTtsRequest', () => {
 	});
 
 	it('D3 — HTTP 5xx throws ProxyError with internal code when body not parseable', async () => {
-		const fetchMock = vi.fn(async () =>
-			new Response('internal server error', { status: 500 })
-		);
+		const fetchMock = mockFetch(new Response('internal server error', { status: 500 }));
 
 		await expect(
 			postTtsRequest(BASE_REQ, { fetch: fetchMock, proxyUrl: PROXY })
@@ -59,7 +64,7 @@ describe('postTtsRequest', () => {
 describe('getTtsBlob', () => {
 	it('D2 — returns Blob with correct Content-Type', async () => {
 		const fakeBlob = new Blob(['audio'], { type: 'audio/wav' });
-		const fetchMock = vi.fn(async () =>
+		const fetchMock = mockFetch(
 			new Response(fakeBlob, { status: 200, headers: { 'Content-Type': 'audio/wav' } })
 		);
 
@@ -74,11 +79,11 @@ describe('getTtsBlob', () => {
 	});
 
 	it('D3 — HTTP 404 throws ProxyError with not_found code', async () => {
-		const fetchMock = vi.fn(async () =>
-			new Response(
-				JSON.stringify({ error: 'not found', code: 'not_found' }),
-				{ status: 404, headers: { 'Content-Type': 'application/json' } }
-			)
+		const fetchMock = mockFetch(
+			new Response(JSON.stringify({ error: 'not found', code: 'not_found' }), {
+				status: 404,
+				headers: { 'Content-Type': 'application/json' }
+			})
 		);
 
 		await expect(

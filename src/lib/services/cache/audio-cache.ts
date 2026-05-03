@@ -1,6 +1,6 @@
 import { get, set, createStore } from 'idb-keyval';
 import { ttsHash } from './hash';
-import type { TtsRequest, TtsResponse } from '$lib/types/api';
+import type { TtsRequest } from '$lib/types/api';
 
 /** IDB store type as returned by idb-keyval's createStore */
 type UseStore = ReturnType<typeof createStore>;
@@ -71,7 +71,7 @@ export async function getOrCreateAudio(
 
 	if (!getRes.ok) {
 		const errText = await getRes.text().catch(() => '');
-		throw new Error(`Proxy GET /v1/tts/${ttsResponse.hash} failed ${getRes.status}: ${errText}`);
+		throw new Error(`Proxy GET /v1/tts/${hash} failed ${getRes.status}: ${errText}`);
 	}
 
 	const blob = await getRes.blob();

@@ -13,8 +13,13 @@
 		setId?: string;
 	}
 
-	let { onclose, initialView = 'list', onBoardCreated, onNavigateToBoard, setId = '' }: Props =
-		$props();
+	let {
+		onclose,
+		initialView = 'list',
+		onBoardCreated,
+		onNavigateToBoard,
+		setId = ''
+	}: Props = $props();
 
 	const store = boardStore();
 

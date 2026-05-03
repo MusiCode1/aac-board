@@ -10,11 +10,11 @@
 
 ### 2. אין ספריית בדיקות דומיננטית
 
-| ספרייה | מצב |
-|--------|------|
+| ספרייה                    | מצב                                                                                       |
+| ------------------------- | ----------------------------------------------------------------------------------------- |
 | `@testing-library/svelte` | הכי פופולרית, אבל תמיכה חלקית ב-Svelte 5 runes — `$effect` לא תמיד רץ, snippets לא נתמכים |
-| `vitest-browser-svelte` | מה שמוגדר בפרויקט — צעירה, דורשת דפדפן אמיתי (Playwright), מה שמאט |
-| `svelte.mount()` ידני | low-level, אין query helpers |
+| `vitest-browser-svelte`   | מה שמוגדר בפרויקט — צעירה, דורשת דפדפן אמיתי (Playwright), מה שמאט                        |
+| `svelte.mount()` ידני     | low-level, אין query helpers                                                              |
 
 לעומת React Testing Library שקיים 6+ שנים, יציב, עם מיליוני משתמשים.
 
@@ -54,33 +54,33 @@
 
 לוגיקה שאפשר לבדוק **בלי דפדפן ובלי UI**:
 
-| מה | קובץ | דוגמה |
-| --- | --- | --- |
-| services | `arasaac.spec.ts` | `pictogramUrl(6009, 300)` מחזיר URL תקין |
-| services | `storage.spec.ts` | שמור board → טען → זהה לקלט |
-| services | `tts.spec.ts` | `getTtsSettings()` מחזיר defaults כשאין שמור |
-| stores | `board.spec.ts` | `addTile()` → אריח חדש בסוף, `reorderTiles(0,2)` → swap |
-| stores | `settings.spec.ts` | `update({ theme: 'dark' })` → theme === 'dark' |
-| utils | כל פונקציה טהורה | ולידציה, המרות, חישובי grid |
+| מה       | קובץ               | דוגמה                                                   |
+| -------- | ------------------ | ------------------------------------------------------- |
+| services | `arasaac.spec.ts`  | `pictogramUrl(6009, 300)` מחזיר URL תקין                |
+| services | `storage.spec.ts`  | שמור board → טען → זהה לקלט                             |
+| services | `tts.spec.ts`      | `getTtsSettings()` מחזיר defaults כשאין שמור            |
+| stores   | `board.spec.ts`    | `addTile()` → אריח חדש בסוף, `reorderTiles(0,2)` → swap |
+| stores   | `settings.spec.ts` | `update({ theme: 'dark' })` → theme === 'dark'          |
+| utils    | כל פונקציה טהורה   | ולידציה, המרות, חישובי grid                             |
 
 ### Playwright E2E — `tests/**/*.e2e.ts`
 
 תרחישים **מנקודת המבט של המשתמש**:
 
-| מה | קובץ | דוגמה |
-| --- | --- | --- |
-| ניווט | `navigation.e2e.ts` | לחיצה על תיקייה → מעבר ללוח, חזרה → לוח קודם |
-| דיבור | `speech.e2e.ts` | לחיצה על אריח → פריט ב-output bar |
-| עריכה | `edit-mode.e2e.ts` | שינוי תווית → שמירה → ריענון → התווית נשמרה |
-| הגדרות | `settings.e2e.ts` | שינוי theme → ריענון → theme נשמר |
-| נגישות | `a11y.e2e.ts` | Tab navigation, ARIA roles, focus management |
-| PWA | `offline.e2e.ts` | טעינה → offline → ריענון → עדיין עובד |
+| מה     | קובץ                | דוגמה                                        |
+| ------ | ------------------- | -------------------------------------------- |
+| ניווט  | `navigation.e2e.ts` | לחיצה על תיקייה → מעבר ללוח, חזרה → לוח קודם |
+| דיבור  | `speech.e2e.ts`     | לחיצה על אריח → פריט ב-output bar            |
+| עריכה  | `edit-mode.e2e.ts`  | שינוי תווית → שמירה → ריענון → התווית נשמרה  |
+| הגדרות | `settings.e2e.ts`   | שינוי theme → ריענון → theme נשמר            |
+| נגישות | `a11y.e2e.ts`       | Tab navigation, ARIA roles, focus management |
+| PWA    | `offline.e2e.ts`    | טעינה → offline → ריענון → עדיין עובד        |
 
 ### מה לא נבדק ב-unit test
 
-*   קומפוננטות Svelte (Tile, Board, TileEditor) — **Playwright בלבד**
-*   אנימציות, transitions, CSS — **ויזואלי / Playwright**
-*   drag & drop — **Playwright בלבד** (כבר עובד ב-`edit-mode.e2e.ts`)
+- קומפוננטות Svelte (Tile, Board, TileEditor) — **Playwright בלבד**
+- אנימציות, transitions, CSS — **ויזואלי / Playwright**
+- drag & drop — **Playwright בלבד** (כבר עובד ב-`edit-mode.e2e.ts`)
 
 ---
 
@@ -104,12 +104,14 @@
 ### שלב 4 — switch scanning
 
 #### התנהגויות רצויות
+
 - כשהסריקה פעילה, מסגרת כחולה זזה בין האריחים
 - לחיצה על מתג (רווח) בוחרת את האריח המסומן
 - מהירות הסריקה ניתנת להגדרה
 - סריקת שורה-עמודה: קודם בין שורות, אחרי בחירה — בין עמודות בשורה
 
 #### החלטות
+
 - סריקת row-column ולא linear כי זה הסטנדרט ב-AAC
 - מהירות ברירת מחדל 1.5 שניות — מבוסס על המלצות Grid AAC
 ```
@@ -245,13 +247,13 @@ bun run test                   # unit + e2e
 
 ## סדר הכתיבה לכל שלב ב-Roadmap
 
-| שלב | Vitest קודם (TDD) | Playwright קודם (ATDD) |
-| --- | --- | --- |
-| 4 — נגישות וסריקה | `scanner.spec.ts` — לוגיקת סריקה | `scanning.e2e.ts` — מתג בוחר אריח |
-| 5 — הגדרות מתקדמות | `settings.spec.ts` — persist/migrate | `settings.e2e.ts` — שינוי שפה נשמר |
-| 6 — Grid Sets | `gridsets.spec.ts` — CRUD, ניווט | `gridsets.e2e.ts` — מעבר בין grid sets |
-| 7 — PWA אופליין | `cache.spec.ts` — cache strategy | `offline.e2e.ts` — אפליקציה עובדת offline |
-| 8 — Backend | `api.spec.ts` — auth, sync logic | `auth.e2e.ts` — login → sync → logout |
+| שלב                | Vitest קודם (TDD)                    | Playwright קודם (ATDD)                    |
+| ------------------ | ------------------------------------ | ----------------------------------------- |
+| 4 — נגישות וסריקה  | `scanner.spec.ts` — לוגיקת סריקה     | `scanning.e2e.ts` — מתג בוחר אריח         |
+| 5 — הגדרות מתקדמות | `settings.spec.ts` — persist/migrate | `settings.e2e.ts` — שינוי שפה נשמר        |
+| 6 — Grid Sets      | `gridsets.spec.ts` — CRUD, ניווט     | `gridsets.e2e.ts` — מעבר בין grid sets    |
+| 7 — PWA אופליין    | `cache.spec.ts` — cache strategy     | `offline.e2e.ts` — אפליקציה עובדת offline |
+| 8 — Backend        | `api.spec.ts` — auth, sync logic     | `auth.e2e.ts` — login → sync → logout     |
 
 ---
 
@@ -261,8 +263,8 @@ bun run test                   # unit + e2e
 
 **Vitest ל-"מה"**, **Playwright ל-"איך"**
 
-*   Vitest: "הפונקציה מחזירה X"
-*   Playwright: "המשתמש רואה X על המסך"
+- Vitest: "הפונקציה מחזירה X"
+- Playwright: "המשתמש רואה X על המסך"
 
 **בדיקה אחת = התנהגות אחת** — לא "בדיקת TileEditor" אלא "שינוי תווית נשמר".
 
@@ -270,8 +272,8 @@ bun run test                   # unit + e2e
 
 **Playwright selectors יציבים** — העדפה:
 
-*   `page.getByRole('button', { name: 'שמור' })` — הכי יציב
-*   `page.locator('[data-testid="save-btn"]')` — טוב
-*   `page.locator('.btn-save')` — שביר (CSS משתנה)
+- `page.getByRole('button', { name: 'שמור' })` — הכי יציב
+- `page.locator('[data-testid="save-btn"]')` — טוב
+- `page.locator('.btn-save')` — שביר (CSS משתנה)
 
 **כל באג = בדיקה חדשה** — לפני שמתקנים באג, כותבים בדיקה שמשחזרת אותו. כך הוא לא חוזר.
