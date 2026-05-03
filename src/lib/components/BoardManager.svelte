@@ -7,9 +7,14 @@
 		onclose: () => void;
 		initialView?: 'list' | 'new';
 		onBoardCreated?: (id: string) => void;
+		/** Called when user clicks a board row to navigate to it */
+		onNavigateToBoard?: (boardId: string) => void;
+		/** Set ID — used when creating new boards so they belong to the right set */
+		setId?: string;
 	}
 
-	let { onclose, initialView = 'list', onBoardCreated }: Props = $props();
+	let { onclose, initialView = 'list', onBoardCreated, onNavigateToBoard, setId = '' }: Props =
+		$props();
 
 	const store = boardStore();
 
@@ -57,7 +62,7 @@
 	function saveNew() {
 		const name = formName.trim();
 		if (!name) return;
-		const id = store.createBoardFromName(name, formRows, formCols);
+		const id = store.createBoardFromName(name, formRows, formCols, setId);
 		onBoardCreated?.(id);
 		backToList();
 	}
@@ -78,10 +83,15 @@
 	}
 
 	function navigateToBoard(boardId: string) {
-		if (store.currentBoard.id !== boardId) {
-			store.goHome();
-			if (boardId !== HOME_BOARD_ID) {
-				store.navigateTo(boardId);
+		if (onNavigateToBoard) {
+			onNavigateToBoard(boardId);
+		} else {
+			// Legacy fallback for non-routed usage
+			if (store.currentBoard.id !== boardId) {
+				store.goHome();
+				if (boardId !== HOME_BOARD_ID) {
+					store.navigateTo(boardId);
+				}
 			}
 		}
 		onclose();

@@ -1,11 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { enterEditMode } from './helpers';
+import { enterEditMode, gotoApp } from './helpers';
 
 test.describe('Edit Mode', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/');
-		// Wait for the board to render
-		await page.waitForSelector('.tile');
+		await gotoApp(page);
 	});
 
 	test('toggle edit mode shows toolbar and wobble', async ({ page }) => {
@@ -154,8 +152,7 @@ test.describe('Edit Mode', () => {
 		// Create a touch-enabled browser context
 		const context = await browser.newContext({ hasTouch: true });
 		const page = await context.newPage();
-		await page.goto('/');
-		await page.waitForSelector('.tile');
+		await gotoApp(page);
 
 		await enterEditMode(page);
 

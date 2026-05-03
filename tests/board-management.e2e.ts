@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { enterEditMode } from './helpers';
+import { enterEditMode, gotoApp } from './helpers';
 
 /**
  * Board Management — tests for BoardManager modal, CRUD operations,
@@ -9,8 +9,7 @@ import { enterEditMode } from './helpers';
  */
 test.describe('Board Management', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/');
-		await page.waitForSelector('.tile');
+		await gotoApp(page);
 		// Reset storage between tests
 		await page.evaluate(async () => {
 			const req = indexedDB.deleteDatabase('keyval-store');
@@ -21,7 +20,20 @@ test.describe('Board Management', () => {
 			});
 		});
 		await page.reload();
+		await page.waitForURL(/\/s\/.+\/b\/.+/);
 		await page.waitForSelector('.tile');
+	});
+
+	test('navigates to a board from BoardManager', async ({ page }) => {
+		const setId = page.url().match(/\/s\/([^/]+)\/b\/([^/]+)/)![1];
+		await enterEditMode(page);
+		await page.addStyleTag({ content: '*, *::before, *::after { animation: none !important; }' });
+
+		await page.locator('.toolbar-btn', { hasText: 'לוחות' }).click();
+		await page.locator('.bm-row', { hasText: 'אוכל' }).locator('.bm-row-main').click();
+		await page.waitForURL(new RegExp(`/s/${setId}/b/food$`));
+
+		await expect(page.locator('.board-title')).toHaveText('אוכל');
 	});
 
 	test('opens BoardManager modal from EditToolbar', async ({ page }) => {
@@ -175,8 +187,7 @@ test.describe('Board Management', () => {
  */
 test.describe('Edit Mode — New Interaction (3C)', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/');
-		await page.waitForSelector('.tile');
+		await gotoApp(page);
 	});
 
 	test('clicking tile body in edit mode still speaks (adds to output)', async ({ page }) => {
@@ -194,6 +205,7 @@ test.describe('Edit Mode — New Interaction (3C)', () => {
 	});
 
 	test('clicking folder tile body in edit mode navigates', async ({ page }) => {
+		const setId = page.url().match(/\/s\/([^/]+)\/b\/([^/]+)/)![1];
 		await enterEditMode(page);
 		await page.addStyleTag({ content: '*, *::before, *::after { animation: none !important; }' });
 
@@ -202,6 +214,7 @@ test.describe('Edit Mode — New Interaction (3C)', () => {
 		// Click the body of a folder tile
 		const folderBody = page.locator('.tile.folder .tile-icon').first();
 		await folderBody.click();
+		await page.waitForURL(new RegExp(`/s/${setId}/b/[^/]+$`));
 
 		// Should navigate (title changes)
 		await expect(page.locator('.board-title')).not.toHaveText(homeTitle!);
@@ -260,6 +273,7 @@ test.describe('Edit Mode — New Interaction (3C)', () => {
 	});
 
 	test('clicking a newly-created board tile navigates to an empty board', async ({ page }) => {
+		const setId = page.url().match(/\/s\/([^/]+)\/b\/([^/]+)/)![1];
 		await enterEditMode(page);
 		await page.addStyleTag({ content: '*, *::before, *::after { animation: none !important; }' });
 
@@ -281,6 +295,7 @@ test.describe('Edit Mode — New Interaction (3C)', () => {
 		// Click the last folder tile (the newly created one) — on its body
 		const lastFolderBody = page.locator('.tile.folder').last().locator('.tile-icon');
 		await lastFolderBody.click();
+		await page.waitForURL(new RegExp(`/s/${setId}/b/[^/]+$`));
 
 		// Should land on an empty board (no tiles, empty-state visible)
 		await expect(page.locator('.empty-state')).toBeVisible();

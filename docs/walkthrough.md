@@ -1,5 +1,73 @@
 # AAC Board — יומן פיתוח (Walkthrough)
 
+## 2026-05-03 15:14
+
+### שלב 6 Phase B — URL Routing + Sets
+
+מעבר מ-routing פנימי (in-memory navigation stack) ל-URL routing מלא עם SvelteKit. כעת לכל לוח יש URL ייחודי, הניווט עובד עם כפתורי back/forward של הדפדפן, ומבנה "אוספים" (Sets) הוטמע בתשתית.
+
+#### מה בוצע?
+
+**1. טיפוסים ותשתית**
+
+- `src/lib/types/set.ts` — ה-`BoardSet` interface: `id`, `name`, `homeBoardId`, `createdAt`, `updatedAt`
+- `src/lib/types/board.ts` — נוספו `setId`, `createdAt`, `updatedAt` לכל `Board`
+- `src/lib/utils/ids.ts` — ID generator עם `nanoid` (10 תווים, lowercase+digits)
+- `src/lib/data/boards.ts` — כל 5 לוחות ברירת המחדל קיבלו `setId: ''` כ-placeholder למיגרציה
+
+**2. Sets Store + מיגרציה**
+
+- `src/lib/stores/sets.svelte.ts` — store חדש לניהול אוספים
+- `init()` מריץ מיגרציה שקטה במשתמשים קיימים: יוצר "האוסף שלי", מצמיד את כל הלוחות הקיימים אל ה-set החדש, ושומר ב-IndexedDB
+- בדיקת מיגרציה: אם `default-set-id` כבר קיים ב-IndexedDB — מדלגים
+
+**3. IndexedDB — Set CRUD**
+
+- `src/lib/services/storage.ts` — נוספו `saveSet`, `loadSet`, `loadAllSets`, `deleteSet`, `loadDefaultSetId`, `saveDefaultSetId`
+
+**4. URL Routing**
+
+- `src/routes/+page.svelte` → redirect בלבד ל-`/s/[setId]/b/[homeBoardId]`
+- `src/routes/s/[setId]/b/[boardId]/+page.svelte` → view mode
+- `src/routes/s/[setId]/b/[boardId]/edit/+page.svelte` → edit mode
+- ניווט בין לוחות (folder tile) → `goto('/s/[setId]/b/[boardId]')` — URL מתעדכן
+- לחצן חזור → `history.back()`
+- לחצן בית → `goto('/s/[setId]/b/[homeBoardId]')`
+- toggle edit → `goto('./edit')` / `goto('..')`
+
+**5. BoardApp.svelte**
+
+- קומפוננטה חדשה שמרכזת את לוגיקת הלוח (הועברה מ-`+page.svelte` הישן)
+- מקבלת `boardId`, `setId`, `editMode` כ-props מה-URL
+- fallback: אם `setId` לא קיים (לאחר reset) → redirect ל-`/`
+- fallback: אם `boardId` לא קיים → redirect ל-home board
+
+**6. עדכוני UI**
+
+- `BoardManager` מקבל `setId` prop — לוחות חדשים נוצרים עם ה-`setId` הנכון
+- `BoardManager` מקבל `onNavigateToBoard` callback — ניווט דרך `goto()` במקום store
+- `NavBar` מציג את שם האוסף כ-breadcrumb מעל שם הלוח
+
+**7. בדיקות**
+
+- `tests/helpers.ts` — נוסף `gotoApp()` שמחכה ל-redirect ומחזיר `{ setId, boardId }`
+- `tests/routing.e2e.ts` — 5 בדיקות routing חדשות (redirect, URL update, back, edit URL, direct access)
+- כל הבדיקות הקיימות עודכנו ל-`gotoApp()` עם `waitForURL`
+- `37 passed, 0 failed`
+
+#### החלטות ארכיטקטורה
+
+- **`navigationStack` הפך מיותר**: הדפדפן מנהל את ה-history. הקוד הישן ב-`board.svelte.ts` נשאר כ-dead code לתאימות לאחור — יוסר ב-Phase C/D.
+- **מיגרציה שקטה**: המשתמש הישן לא מרגיש שום שינוי — הוא נוחת ישירות ב-`/s/[id]/b/home`.
+- **`setId === ''` כ-placeholder**: לוחות ברירת המחדל מתחילים עם `setId: ''` ומקבלים את ה-`setId` האמיתי בזמן מיגרציה, לא בזמן compile.
+- **Sequential init**: `sets.init()` חייב לרוץ לפני `store.init()` כדי שה-`setId` יהיה כתוב ב-IndexedDB לפני שהלוחות נטענים.
+
+#### מצב בדיקות
+
+- `bun run check` — עובר, 0 errors
+- `bun run build` — עובר
+- `bun run test:e2e` — 37/37 עוברות
+
 ## 2026-04-30 16:18
 
 ### תיקוני TTS מתקדמים + גלילה בדף ההגדרות

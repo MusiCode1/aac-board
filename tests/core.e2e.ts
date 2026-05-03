@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { enterEditMode } from './helpers';
+import { enterEditMode, gotoApp } from './helpers';
 
 /**
  * Core smoke tests — safety net for core functionality.
@@ -7,8 +7,7 @@ import { enterEditMode } from './helpers';
  */
 test.describe('Core Functionality', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/');
-		await page.waitForSelector('.tile');
+		await gotoApp(page);
 	});
 
 	test('tile click adds to output bar', async ({ page }) => {
@@ -25,6 +24,7 @@ test.describe('Core Functionality', () => {
 	});
 
 	test('folder tile click navigates to sub-board', async ({ page }) => {
+		const startUrl = page.url();
 		const homeTitle = await page.locator('.board-title').textContent();
 
 		// Find a folder tile
@@ -35,6 +35,7 @@ test.describe('Core Functionality', () => {
 		expect(folderLabel).toBeTruthy();
 
 		await folderTile.click();
+		await page.waitForURL((url) => url.toString() !== startUrl && /\/s\/.+\/b\/.+/.test(url.pathname));
 
 		// Board title should change
 		await expect(page.locator('.board-title')).not.toHaveText(homeTitle!);
@@ -45,21 +46,28 @@ test.describe('Core Functionality', () => {
 	});
 
 	test('back and home buttons work', async ({ page }) => {
+		const match = page.url().match(/\/s\/([^/]+)\/b\/([^/]+)/);
+		const setId = match![1];
+		const boardId = match![2];
 		const homeTitle = await page.locator('.board-title').textContent();
 
 		// Navigate into a folder
 		await page.locator('.tile.folder').first().click();
+		await page.waitForURL(new RegExp(`/s/${setId}/b/[^/]+$`));
 		await expect(page.locator('.board-title')).not.toHaveText(homeTitle!);
 
 		// Press back
 		await page.locator('.nav-btn[aria-label="חזור"]').click();
+		await page.waitForURL(new RegExp(`/s/${setId}/b/${boardId}$`));
 		await expect(page.locator('.board-title')).toHaveText(homeTitle!);
 
 		// Navigate in again, then press home
 		await page.locator('.tile.folder').first().click();
+		await page.waitForURL(new RegExp(`/s/${setId}/b/[^/]+$`));
 		await expect(page.locator('.board-title')).not.toHaveText(homeTitle!);
 
 		await page.locator('.nav-btn[aria-label="בית"]').click();
+		await page.waitForURL(new RegExp(`/s/${setId}/b/${boardId}$`));
 		await expect(page.locator('.board-title')).toHaveText(homeTitle!);
 	});
 

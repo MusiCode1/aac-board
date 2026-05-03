@@ -25,13 +25,18 @@ export function createEmptyBoard(
 	id: string,
 	name: string,
 	rows: number = 3,
-	columns: number = 4
+	columns: number = 4,
+	setId: string = ''
 ): Board {
+	const now = Date.now();
 	return {
 		id,
+		setId,
 		name,
 		tiles: [],
-		grid: { rows, columns }
+		grid: { rows, columns },
+		createdAt: now,
+		updatedAt: now
 	};
 }
 
@@ -120,6 +125,12 @@ export function boardStore() {
 				// IndexedDB not available
 			}
 			initialized = true;
+		},
+
+		/** Set the current board by ID (used by URL-driven routing) */
+		setCurrentBoard(boardId: string) {
+			const board = allBoards[boardId];
+			if (board) currentBoard = board;
 		},
 
 		/** Toggle edit mode */
@@ -243,9 +254,14 @@ export function boardStore() {
 		 * Create a new empty board from a name. Generates an ID automatically.
 		 * Returns the new board's ID.
 		 */
-		createBoardFromName(name: string, rows: number = 3, columns: number = 4): string {
+		createBoardFromName(
+			name: string,
+			rows: number = 3,
+			columns: number = 4,
+			setId: string = ''
+		): string {
 			const id = generateBoardId(name, allBoards);
-			const board = createEmptyBoard(id, name, rows, columns);
+			const board = createEmptyBoard(id, name, rows, columns, setId);
 			allBoards[id] = board;
 			persist(board);
 			return id;

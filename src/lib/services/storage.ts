@@ -1,5 +1,10 @@
 import { get, set, del, keys } from 'idb-keyval';
 import type { Board } from '$lib/types/board';
+import type { BoardSet } from '$lib/types/set';
+
+const SETS_PREFIX = 'set:';
+const SETS_INDEX_KEY = 'sets-index';
+const DEFAULT_SET_ID_KEY = 'default-set-id';
 
 const BOARDS_PREFIX = 'board:';
 const BOARDS_INDEX_KEY = 'boards-index';
@@ -85,4 +90,55 @@ async function updateIndex(id: string, action: 'add' | 'remove'): Promise<void> 
 		if (i !== -1) index.splice(i, 1);
 	}
 	await set(BOARDS_INDEX_KEY, index);
+}
+
+// ── Sets ──────────────────────────────────────────────────────────────────────
+
+/** Save a set to IndexedDB */
+export async function saveSet(boardSet: BoardSet): Promise<void> {
+	await set(SETS_PREFIX + boardSet.id, boardSet);
+	await updateSetsIndex(boardSet.id, 'add');
+}
+
+/** Load a set by ID */
+export async function loadSet(id: string): Promise<BoardSet | undefined> {
+	return get<BoardSet>(SETS_PREFIX + id);
+}
+
+/** Load all sets */
+export async function loadAllSets(): Promise<BoardSet[]> {
+	const index = (await get<string[]>(SETS_INDEX_KEY)) ?? [];
+	const sets: BoardSet[] = [];
+	for (const id of index) {
+		const s = await get<BoardSet>(SETS_PREFIX + id);
+		if (s) sets.push(s);
+	}
+	return sets;
+}
+
+/** Delete a set from IndexedDB */
+export async function deleteSet(id: string): Promise<void> {
+	await del(SETS_PREFIX + id);
+	await updateSetsIndex(id, 'remove');
+}
+
+/** Load the default set ID */
+export async function loadDefaultSetId(): Promise<string | null> {
+	return (await get<string>(DEFAULT_SET_ID_KEY)) ?? null;
+}
+
+/** Save the default set ID */
+export async function saveDefaultSetId(id: string): Promise<void> {
+	await set(DEFAULT_SET_ID_KEY, id);
+}
+
+async function updateSetsIndex(id: string, action: 'add' | 'remove'): Promise<void> {
+	const index = (await get<string[]>(SETS_INDEX_KEY)) ?? [];
+	if (action === 'add' && !index.includes(id)) {
+		index.push(id);
+	} else if (action === 'remove') {
+		const i = index.indexOf(id);
+		if (i !== -1) index.splice(i, 1);
+	}
+	await set(SETS_INDEX_KEY, index);
 }

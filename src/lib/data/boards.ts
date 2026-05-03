@@ -13,11 +13,17 @@ function pic(id: number): string {
 
 export const HOME_BOARD_ID = 'home';
 
+/** Placeholder setId — replaced during migration */
+export const DEFAULT_SET_ID_PLACEHOLDER = '';
+
 export const boards: Record<string, Board> = {
 	home: {
 		id: 'home',
+		setId: DEFAULT_SET_ID_PLACEHOLDER,
 		name: 'בית',
 		grid: { rows: 4, columns: 5 },
+		createdAt: 0,
+		updatedAt: 0,
 		tiles: [
 			// Row 1 — core words
 			{
@@ -191,6 +197,9 @@ export const boards: Record<string, Board> = {
 	},
 	food: {
 		id: 'food',
+		setId: DEFAULT_SET_ID_PLACEHOLDER,
+		createdAt: 0,
+		updatedAt: 0,
 		name: 'אוכל',
 		grid: { rows: 3, columns: 4 },
 		tiles: [
@@ -294,6 +303,9 @@ export const boards: Record<string, Board> = {
 	},
 	games: {
 		id: 'games',
+		setId: DEFAULT_SET_ID_PLACEHOLDER,
+		createdAt: 0,
+		updatedAt: 0,
 		name: 'משחקים',
 		grid: { rows: 3, columns: 4 },
 		tiles: [
@@ -397,6 +409,9 @@ export const boards: Record<string, Board> = {
 	},
 	feelings: {
 		id: 'feelings',
+		setId: DEFAULT_SET_ID_PLACEHOLDER,
+		createdAt: 0,
+		updatedAt: 0,
 		name: 'רגשות',
 		grid: { rows: 3, columns: 4 },
 		tiles: [
@@ -500,6 +515,9 @@ export const boards: Record<string, Board> = {
 	},
 	places: {
 		id: 'places',
+		setId: DEFAULT_SET_ID_PLACEHOLDER,
+		createdAt: 0,
+		updatedAt: 0,
 		name: 'מקומות',
 		grid: { rows: 3, columns: 4 },
 		tiles: [

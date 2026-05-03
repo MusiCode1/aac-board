@@ -15,12 +15,16 @@ export interface Tile {
 
 export interface Board {
 	id: string;
+	/** Which set this board belongs to */
+	setId: string;
 	name: string;
 	tiles: Tile[];
 	grid: {
 		rows: number;
 		columns: number;
 	};
+	createdAt: number;
+	updatedAt: number;
 }
 
 export interface OutputItem {

@@ -1,5 +1,13 @@
 import type { Page, Locator } from '@playwright/test';
 
+export async function gotoApp(page: Page): Promise<{ setId: string; boardId: string }> {
+	await page.goto('/');
+	await page.waitForURL(/\/s\/.+\/b\/.+/);
+	await page.waitForSelector('.tile');
+	const match = page.url().match(/\/s\/([^/]+)\/b\/([^/]+)/);
+	return { setId: match![1], boardId: match![2] };
+}
+
 /**
  * Enter edit mode with a long-press on the edit button (required by gating).
  * The button requires a pointer to be held for 600ms.
