@@ -239,6 +239,7 @@ export function boardStore() {
 			if (!board) return;
 			if (updates.name !== undefined) board.name = updates.name;
 			if (updates.grid) board.grid = { ...board.grid, ...updates.grid };
+			board.updatedAt = Date.now();
 			allBoards[boardId] = board;
 			if (currentBoard.id === boardId) currentBoard = board;
 			persist(board);
@@ -278,8 +279,11 @@ export function boardStore() {
 			const cloned = structuredClone($state.snapshot(source) as Board);
 			const displayName = newName ?? `${source.name} (עותק)`;
 			const newId = generateBoardId(displayName, allBoards);
+			const now = Date.now();
 			cloned.id = newId;
 			cloned.name = displayName;
+			cloned.createdAt = now;
+			cloned.updatedAt = now;
 			cloned.tiles = cloned.tiles.map((t) => ({
 				...t,
 				id: `tile-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
@@ -335,12 +339,13 @@ export function boardStore() {
 		},
 
 		/** Delete a board */
-		async deleteBoard(boardId: string) {
-			if (boardId === HOME_BOARD_ID) return; // Can't delete home
+		async deleteBoard(boardId: string, options?: { allowHome?: boolean }) {
+			if (boardId === HOME_BOARD_ID && !options?.allowHome) return; // Can't delete home
 			delete allBoards[boardId];
 			await deleteBoard(boardId);
 			if (currentBoard.id === boardId) {
-				this.goHome();
+				currentBoard = allBoards[HOME_BOARD_ID] ?? Object.values(allBoards)[0];
+				navigationStack = [];
 			}
 		},
 
