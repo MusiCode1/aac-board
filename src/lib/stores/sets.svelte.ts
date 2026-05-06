@@ -70,7 +70,7 @@ export function setsStore() {
 			const now = Date.now();
 			const id = generateId();
 			const homeBoardId = generateId();
-			boards.createBoard(createEmptyBoard(homeBoardId, 'בית', 4, 5, id));
+			await boards.createBoard(createEmptyBoard(homeBoardId, 'בית', 4, 5, id));
 			const newSet: BoardSet = {
 				id,
 				name,
@@ -133,7 +133,7 @@ export function setsStore() {
 
 			const now = Date.now();
 			for (const sourceBoard of sourceBoards) {
-				const cloned = structuredClone(sourceBoard) as Board;
+				const cloned = structuredClone($state.snapshot(sourceBoard) as Board);
 				cloned.id = boardIdMap.get(sourceBoard.id)!;
 				cloned.setId = nextSetId;
 				cloned.createdAt = now;
@@ -145,7 +145,7 @@ export function setsStore() {
 						? (boardIdMap.get(tile.loadBoard) ?? tile.loadBoard)
 						: tile.loadBoard
 				}));
-				boards.createBoard(cloned);
+				await boards.createBoard(cloned);
 			}
 
 			const duplicatedSet: BoardSet = {
@@ -196,6 +196,9 @@ async function runMigration() {
 		board.updatedAt = board.updatedAt || now;
 	}
 	await saveAllBoards(storedBoards);
+	// Sync the in-memory boardStore so allBoards reflects the migrated setIds
+	// without requiring a separate boards.init() call.
+	boardStore().setAllBoards(storedBoards as Record<string, Board>);
 
 	await saveSet(defaultSet);
 	await saveDefaultSetId(setId);

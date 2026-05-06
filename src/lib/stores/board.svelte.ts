@@ -246,9 +246,23 @@ export function boardStore() {
 		},
 
 		/** Create a new board */
-		createBoard(board: Board) {
+		async createBoard(board: Board) {
 			allBoards[board.id] = board;
-			persist(board);
+			await persist(board);
+		},
+
+		/**
+		 * Sync in-memory allBoards without writing to IndexedDB.
+		 * Used by migration code that already persisted via saveAllBoards()
+		 * and only needs the in-memory state to match.
+		 */
+		setAllBoards(boards: Record<string, Board>) {
+			allBoards = boards;
+			// Keep currentBoard valid
+			if (!allBoards[currentBoard?.id]) {
+				currentBoard = allBoards[HOME_BOARD_ID] ?? Object.values(allBoards)[0];
+				navigationStack = [];
+			}
 		},
 
 		/**
