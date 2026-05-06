@@ -1,5 +1,101 @@
 # AAC Board — יומן פיתוח (Walkthrough)
 
+## 2026-05-06 12:58
+
+### שלב 6 Phase C — ממשק ניהול אוספים ולוחות
+
+מימוש שכבת ה-UI שחסרה לאחר Phase B: עכשיו יש דף ייעודי לניהול אוספים (`/sets`) ודשבורד פר-אוסף (`/s/[setId]`), `BoardManager` מסונן לאוסף הנוכחי ויודע להגדיר לוח בית, וה-NavBar הפך את ה-breadcrumb של האוסף לקליקבילי. בנוסף תוקנה מיגרציה שלא כתבה את לוחות ברירת המחדל ל-IndexedDB בהתקנה נקייה — תקלה ששרדה כי המסכים הקיימים סבלו `setId=''`, אבל שברה את הסינון בממשקי הניהול החדשים.
+
+#### מה בוצע?
+
+**1. דף `/sets` — אקספלורר אוספים**
+
+- `src/routes/sets/+page.svelte` (חדש): כרטיסי אוספים עם תמונה ממוזערת, מספר לוחות, שם לוח הבית, ו-pill "ברירת מחדל".
+- מודאל יחיד עם שני מצבים (`new` / `edit`): ב-edit אפשר גם לבחור לוח בית מתוך לוחות האוסף.
+- פעולות per-card: פתח, ערוך, שכפל, הפוך לברירת מחדל, מחק. מחיקה חסומה כשנשאר אוסף יחיד.
+- אישור מחיקה במודאל נפרד עם הסבר שכל הלוחות של האוסף יימחקו יחד איתו.
+
+**2. דף `/s/[setId]` — דשבורד אוסף**
+
+- `src/routes/s/[setId]/+page.svelte` (חדש): hero עם שם האוסף, breadcrumb חזרה ל-`/sets`, וגריד של כרטיסי לוחות.
+- כל כרטיס לוח מציג BoardThumbnail + שם + רשת + מספר אריחים + pill "בית" אם רלוונטי. פעולות: פתח, ערוך.
+- כפתורי "ניהול מלא" ו-"לוח חדש" בראש העמוד, שניהם פותחים את `BoardManager` (האחרון נכנס ישר ל-view של new).
+- אחרי יצירת לוח חדש מהדשבורד — ניווט אוטומטי ל-`/s/[setId]/b/[newId]/edit`.
+
+**3. `BoardThumbnail.svelte` (חדש)**
+
+- קומפוננטה משותפת שמרנדרת רשת 2×2 מ-4 האריחים הראשונים, עם תמונה (lazy) על רקע צבע-האריח. fallback ל-empty state כשהלוח ריק.
+- בשימוש גם בכרטיסי דשבורד וגם בכרטיסי האקספלורר (לוח הבית של האוסף משמש כ-thumbnail של האוסף).
+
+**4. הרחבת `BoardManager.svelte`**
+
+- prop חדש `homeBoardId` — מחליף את ה-const הקשיח `HOME_BOARD_ID` בלוגיקה של ה-badge "בית" וב-disable של כפתור המחיקה.
+- prop קיים `setId` עכשיו גם מסנן את הרשימה ל-לוחות של האוסף הנוכחי בלבד.
+- כפתור חדש "הפוך לבית" לכל שורה (disabled על הלוח שכבר הבית). מעדכן `homeBoardId` של ה-set דרך `setsStore.updateSet()`.
+- הקריאה ל-`store.deleteBoard` באה עם `{ allowHome: true }` ב-flow של מחיקת אוסף, כדי שגם לוח-הבית של האוסף ייעלם.
+
+**5. עדכוני NavBar + BoardApp + Settings**
+
+- `NavBar` מקבל `breadcrumbHref` אופציונלי — אם הוא מסופק, ה-crumb הראשון הופך ל-`<a>` (קישור לדשבורד האוסף).
+- `BoardApp` מעביר `homeBoardId` ל-`BoardManager` ו-`breadcrumbHref={`/s/${setId}`}` ל-`NavBar`. `handleReset` עובר עכשיו דרך `setsStore.resetToDefaults()` כדי לאפס גם sets.
+- `routes/settings/+page.svelte` קיבל קלאס "אוספים" עם קישור גלוי ל-`/sets` ("ניהול אוספים ולוחות"). ה-anchor משתף את עיצוב `.btn .btn-action` (נוסף `text-decoration: none` ל-`.btn`).
+
+**6. שינויים ב-stores ובאחסון**
+
+- `services/storage.ts` — נוספה `clearAllSets()` שמנקה כל מפתחות `set:*` + `sets-index` + `default-set-id`.
+- `stores/board.svelte.ts` — `updateBoard` מעדכן `updatedAt`; `duplicateBoard` חותם `createdAt`/`updatedAt` חדשים; `deleteBoard(boardId, { allowHome: true })` מאפשר למחוק גם את לוח-הבית של אוסף שנמחק; ה-fallback אחרי deleteBoard לא קורא יותר ל-`goHome()` (שהיה תלוי ב-`HOME_BOARD_ID` הקשיח).
+- `stores/sets.svelte.ts`:
+  - `createSet(name)` יוצר באמת אוסף עם **לוח בית חדש** (`createEmptyBoard` 4×5) במקום להשאיר את `homeBoardId` תלוי ב-`HOME_BOARD_ID` שלא קיים בהקשר של האוסף החדש.
+  - `deleteSet(id)` מסיר גם את כל הלוחות של האוסף דרך `boardStore.importBoards(remaining)`, ומעדכן `defaultSetId` אם צריך.
+  - `duplicateSet(sourceId)` משכפל לעומק: `Map<oldBoardId, newBoardId>`, החלפת `loadBoard` בכל אריח עם המיפוי, tile IDs חדשים, `homeBoardId` חדש.
+  - `resetToDefaults()` מאפס sets + boards ביחד ואז קורא ל-`init()` כדי להריץ מיגרציה מחדש.
+  - **תיקון מיגרציה (קריטי)**: `runMigration()` עכשיו טוען לוחות מהאחסון או מ-`defaultBoards`, מצמיד `setId` לכולם, ו**שומר את כולם ל-IndexedDB** (`saveAllBoards`). קודם, אם IndexedDB היה ריק, רק ה-set נוצר אבל הלוחות לא נשמרו — מה ששבר את הסינון של `BoardManager` שמסתמך על `setId`.
+
+**7. בדיקות**
+
+- `tests/sets.e2e.ts` (חדש) — 3 בדיקות: רשימת אוספים בדף `/sets`, יצירת אוסף חדש + מעבר לדשבורד שלו, יצירת לוח דרך הדשבורד.
+- ריצה ממוקדת `tests/board-management.e2e.ts` + `tests/sets.e2e.ts` — 18/18 ירוק.
+
+#### החלטות ארכיטקטורה
+
+- **כל אוסף חדש מקבל לוח-בית משלו**: `createSet` יוצר `createEmptyBoard(generatedId, 'בית', 4, 5, setId)` במקום למפות הכל ל-`HOME_BOARD_ID` המוכר. בלי זה, ניווט ל-`/s/[newSetId]/b/[home]` היה נופל ל-fallback של "לא קיים → redirect לבית" ופותח את הלוח של האוסף הקודם.
+- **`BoardManager` מקבל `homeBoardId` כ-prop**: כך הקומפוננטה תקפה לכל אוסף, ולא רק לאוסף שמכיל את לוח ברירת המחדל. הקבוע `HOME_BOARD_ID` נשאר כ-fallback ב-prop default לתמיכה לאחור.
+- **שכפול אוסף עושה deep clone דו-שלבי**: קודם בונים `Map` של ID-ים חדשים ל-כל הלוחות, ואז משכפלים אריח-אריח עם `loadBoard` ממופה. זה מקיים את הסמנטיקה ש-folder tile מצביע ללוח שבאוסף החדש, לא לאוסף המקור.
+- **הדשבורד וה-`BoardManager` חיים זה לצד זה**: הדשבורד הוא המקום הרשמי לסקירת האוסף, ו-`BoardManager` נשאר ה-modal הקצר מתוך מצב עריכה. שניהם מבוססים על אותו store, כך שכל פעולה רואים מיד בכל המקומות.
+
+#### מעקפים ופתרונות
+
+- **`view = $state(initialView)` עורר אזהרת `state_referenced_locally`**: שינינו ל-`view = $state('list')` עם `$effect(() => { view = initialView })` כדי לקרוא את ה-prop בצורה ריאקטיבית ולא רק כ-snapshot ראשוני.
+- **אזהרות `a11y_no_static_element_interactions` על overlays של מודאלים**: הוסף `role="presentation"` ל-`<div class="overlay">` ב-`BoardManager` וב-`/sets` (ה-dialog עצמו פנימי ומקבל `role="dialog"` / `"alertdialog"`).
+- **באג מיגרציה שהתגלה רק אחרי הסינון לפי `setId`**: עד עכשיו `BoardManager` הציג את כל הלוחות בלי קשר ל-set, אז גם לוחות עם `setId=''` היו נראים. אחרי הסינון, ההתקנה הנקייה החזירה רשימה ריקה. הפתרון הוא שמירה אקטיבית של `defaultBoards` (עם `setId` חדש) ל-IndexedDB ב-`runMigration`.
+
+#### מצב בדיקות
+
+- `bun run check` — 0 errors, אזהרה אחת קיימת מראש ב-`TileEditor.svelte`.
+- `bun run test:e2e -- tests/board-management.e2e.ts tests/sets.e2e.ts` — 18/18 עוברות.
+- `bun run lint` — נופל על 4 קבצים שלא קשורים לשינוי הזה (`proxy/src/index.ts`, `proxy/src/providers/gemini.ts`, `src/lib/services/tts-providers/elevenlabs.ts`, `src/service-worker.ts`).
+
+#### קבצים שנוגעו
+
+חדשים:
+
+- `src/lib/components/BoardThumbnail.svelte`
+- `src/routes/sets/+page.svelte`
+- `src/routes/s/[setId]/+page.svelte`
+- `tests/sets.e2e.ts`
+
+שינויים:
+
+- `src/lib/components/BoardApp.svelte`
+- `src/lib/components/BoardManager.svelte`
+- `src/lib/components/NavBar.svelte`
+- `src/lib/services/storage.ts`
+- `src/lib/stores/board.svelte.ts`
+- `src/lib/stores/sets.svelte.ts`
+- `src/routes/settings/+page.svelte`
+
+---
+
 ## 2026-05-03 20:30
 
 ### תשתית Cache + Proxy — שלב 7 (TDD)
