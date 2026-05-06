@@ -14,9 +14,11 @@ import {
 	loadDefaultSetId,
 	saveDefaultSetId,
 	loadAllBoards,
-	saveBoard
+	saveBoard,
+	clearAllSets,
+	saveAllBoards
 } from '$lib/services/storage';
-import { HOME_BOARD_ID } from '$lib/data/boards';
+import { boards as defaultBoards, HOME_BOARD_ID } from '$lib/data/boards';
 
 let allSets = $state<BoardSet[]>([]);
 let defaultSetId = $state<string>('');
@@ -119,17 +121,15 @@ async function runMigration() {
 	};
 
 	// Assign all existing (or default) boards to the new set
-	const boards = await loadAllBoards();
-	if (boards) {
-		for (const board of Object.values(boards)) {
-			if (!board.setId) {
-				board.setId = setId;
-				board.createdAt = board.createdAt || now;
-				board.updatedAt = board.updatedAt || now;
-				await saveBoard(board);
-			}
+	const storedBoards = (await loadAllBoards()) ?? structuredClone(defaultBoards);
+	for (const board of Object.values(storedBoards)) {
+		if (!board.setId) {
+			board.setId = setId;
 		}
+		board.createdAt = board.createdAt || now;
+		board.updatedAt = board.updatedAt || now;
 	}
+	await saveAllBoards(storedBoards);
 
 	await saveSet(defaultSet);
 	await saveDefaultSetId(setId);
