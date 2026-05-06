@@ -196,7 +196,7 @@
 
 	async function handleReset() {
 		if (confirm('האם למחוק את כל הלוחות המותאמים ולחזור לברירת המחדל?')) {
-			await store.resetToDefaults();
+			await sets.resetToDefaults();
 			goto(`/s/${setId}/b/${homeBoardId}`, { replaceState: true });
 		}
 	}
@@ -274,6 +274,7 @@
 			{canGoBack}
 			{isHome}
 			breadcrumbs={currentSet ? [currentSet.name] : []}
+			breadcrumbHref={currentSet ? `/s/${setId}` : undefined}
 			{editMode}
 			onback={handleBack}
 			onhome={handleHome}
@@ -337,6 +338,7 @@
 		onBoardCreated={handleBoardCreated}
 		onNavigateToBoard={(boardId) => goto(`/s/${setId}/b/${boardId}`)}
 		{setId}
+		{homeBoardId}
 	/>
 {/if}
 

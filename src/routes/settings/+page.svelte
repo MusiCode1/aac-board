@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { settingsStore } from '$lib/stores/settings.svelte';
 	import { boardStore } from '$lib/stores/board.svelte';
+	import { setsStore } from '$lib/stores/sets.svelte';
 	import { speak, getModelsForProvider, getVoicesForProvider } from '$lib/services/tts';
 	import {
 		getDefaultModelForProvider,
@@ -13,6 +14,7 @@
 
 	const sStore = settingsStore();
 	const bStore = boardStore();
+	const setStore = setsStore();
 
 	let availableVoices = $state<TtsVoice[]>([]);
 	let fileInput: HTMLInputElement | undefined;
@@ -22,6 +24,7 @@
 
 	onMount(async () => {
 		await sStore.init();
+		await setStore.init();
 		bStore.init();
 		await refreshModels();
 		await refreshVoices();
@@ -121,7 +124,7 @@
 
 	async function handleReset() {
 		if (confirm('לאפס את כל הלוחות לברירת מחדל?')) {
-			await bStore.resetToDefaults();
+			await setStore.resetToDefaults();
 			await sStore.resetToDefaults();
 		}
 	}
@@ -309,6 +312,22 @@
 		</section>
 
 		<!-- Data -->
+		<section class="card">
+			<h2 class="card-title">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+					<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+				</svg>
+				אוספים
+			</h2>
+
+			<a class="btn btn-action settings-link-btn" href="/sets">
+				<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+					<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+				</svg>
+				ניהול אוספים ולוחות
+			</a>
+		</section>
+
 		<section class="card">
 			<h2 class="card-title">
 				<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -511,6 +530,7 @@
 		border-radius: 8px;
 		font-size: 14px;
 		font-weight: 600;
+		text-decoration: none;
 		cursor: pointer;
 		transition:
 			background 0.15s,
