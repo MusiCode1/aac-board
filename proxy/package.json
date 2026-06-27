@@ -1,0 +1,20 @@
+{
+	"name": "aac-proxy",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"dev": "wrangler dev",
+		"deploy": "wrangler deploy",
+		"typecheck": "tsc --noEmit",
+		"types": "wrangler types --env-interface CloudflareEnv src/worker-env.d.ts"
+	},
+	"dependencies": {
+		"hono": "^4.7.11"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20251210.0",
+		"typescript": "^5.9.3",
+		"wrangler": "^4.63.0"
+	}
+}

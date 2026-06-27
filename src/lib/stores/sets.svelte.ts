@@ -14,9 +14,13 @@ import {
 	loadDefaultSetId,
 	saveDefaultSetId,
 	loadAllBoards,
-	saveBoard
+	saveBoard,
+	clearAllSets,
+	saveAllBoards
 } from '$lib/services/storage';
-import { HOME_BOARD_ID } from '$lib/data/boards';
+import { boards as defaultBoards, HOME_BOARD_ID } from '$lib/data/boards';
+import { boardStore, createEmptyBoard } from '$lib/stores/board.svelte';
+import type { Board } from '$lib/types/board';
 
 let allSets = $state<BoardSet[]>([]);
 let defaultSetId = $state<string>('');
@@ -62,12 +66,15 @@ export function setsStore() {
 		},
 
 		async createSet(name: string): Promise<string> {
+			const boards = boardStore();
 			const now = Date.now();
 			const id = generateId();
+			const homeBoardId = generateId();
+			await boards.createBoard(createEmptyBoard(homeBoardId, 'בית', 4, 5, id));
 			const newSet: BoardSet = {
 				id,
 				name,
-				homeBoardId: HOME_BOARD_ID,
+				homeBoardId,
 				createdAt: now,
 				updatedAt: now
 			};
@@ -90,8 +97,13 @@ export function setsStore() {
 
 		async deleteSet(id: string) {
 			if (allSets.length <= 1) return; // last set cannot be deleted
+			const boards = boardStore();
+			const remainingBoards = Object.fromEntries(
+				Object.entries(boards.allBoards).filter(([, board]) => board.setId !== id)
+			);
 			await deleteSetFromDB(id);
 			allSets = allSets.filter((s) => s.id !== id);
+			await boards.importBoards(remainingBoards);
 			if (defaultSetId === id) {
 				defaultSetId = allSets[0]?.id ?? '';
 				await saveDefaultSetId(defaultSetId);
@@ -101,6 +113,62 @@ export function setsStore() {
 		async setDefault(id: string) {
 			defaultSetId = id;
 			await saveDefaultSetId(id);
+		},
+
+		async duplicateSet(sourceSetId: string): Promise<string | null> {
+			const sourceSet = allSets.find((set) => set.id === sourceSetId);
+			if (!sourceSet) return null;
+
+			const boards = boardStore();
+			const sourceBoards = Object.values(boards.allBoards).filter(
+				(board) => board.setId === sourceSetId
+			);
+			if (sourceBoards.length === 0) return null;
+
+			const nextSetId = generateId();
+			const boardIdMap = new Map<string, string>();
+			for (const sourceBoard of sourceBoards) {
+				boardIdMap.set(sourceBoard.id, generateId());
+			}
+
+			const now = Date.now();
+			for (const sourceBoard of sourceBoards) {
+				const cloned = structuredClone($state.snapshot(sourceBoard) as Board);
+				cloned.id = boardIdMap.get(sourceBoard.id)!;
+				cloned.setId = nextSetId;
+				cloned.createdAt = now;
+				cloned.updatedAt = now;
+				cloned.tiles = cloned.tiles.map((tile) => ({
+					...tile,
+					id: `tile-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+					loadBoard: tile.loadBoard
+						? (boardIdMap.get(tile.loadBoard) ?? tile.loadBoard)
+						: tile.loadBoard
+				}));
+				await boards.createBoard(cloned);
+			}
+
+			const duplicatedSet: BoardSet = {
+				id: nextSetId,
+				name: `${sourceSet.name} (עותק)`,
+				homeBoardId: boardIdMap.get(sourceSet.homeBoardId) ?? Array.from(boardIdMap.values())[0],
+				createdAt: now,
+				updatedAt: now
+			};
+
+			await saveSet(duplicatedSet);
+			allSets.push(duplicatedSet);
+			return nextSetId;
+		},
+
+		async resetToDefaults() {
+			const boards = boardStore();
+			await clearAllSets();
+			allSets = [];
+			defaultSetId = '';
+			initialized = false;
+			await boards.resetToDefaults();
+			await this.init();
 		}
 	};
 }
@@ -119,17 +187,18 @@ async function runMigration() {
 	};
 
 	// Assign all existing (or default) boards to the new set
-	const boards = await loadAllBoards();
-	if (boards) {
-		for (const board of Object.values(boards)) {
-			if (!board.setId) {
-				board.setId = setId;
-				board.createdAt = board.createdAt || now;
-				board.updatedAt = board.updatedAt || now;
-				await saveBoard(board);
-			}
+	const storedBoards = (await loadAllBoards()) ?? structuredClone(defaultBoards);
+	for (const board of Object.values(storedBoards)) {
+		if (!board.setId) {
+			board.setId = setId;
 		}
+		board.createdAt = board.createdAt || now;
+		board.updatedAt = board.updatedAt || now;
 	}
+	await saveAllBoards(storedBoards);
+	// Sync the in-memory boardStore so allBoards reflects the migrated setIds
+	// without requiring a separate boards.init() call.
+	boardStore().setAllBoards(storedBoards as Record<string, Board>);
 
 	await saveSet(defaultSet);
 	await saveDefaultSetId(setId);

@@ -18,11 +18,11 @@
 
 ## 2. טרמינולוגיה
 
-| עברית | English | תפקיד |
-|---|---|---|
-| **אריח** | **Tile** | יחידה בודדת — כפתור (דיבור), תיקייה (ניווט), או קישור ללוח |
-| **לוח** | **Board** | רשת של אריחים |
-| **אוסף (לוחות)** | **Set** | קבוצת לוחות מקושרים עם לוח-בית משלה |
+| עברית            | English   | תפקיד                                                      |
+| ---------------- | --------- | ---------------------------------------------------------- |
+| **אריח**         | **Tile**  | יחידה בודדת — כפתור (דיבור), תיקייה (ניווט), או קישור ללוח |
+| **לוח**          | **Board** | רשת של אריחים                                              |
+| **אוסף (לוחות)** | **Set**   | קבוצת לוחות מקושרים עם לוח-בית משלה                        |
 
 "אוסף לוחות" נבחר על פני "ערכת לוחות" (פחות טעון). ב-UI: "אוסף" כשמספיק, "אוסף לוחות" כשצריך בהירות.
 
@@ -35,44 +35,45 @@
 ```ts
 // src/lib/types/board.ts (קיים — נשאר ללא שינוי)
 interface Tile {
-  id: string;
-  label: string;
-  image: string;
-  backgroundColor: string;
-  borderColor: string;
-  loadBoard?: string;  // מזהה board (באותו אוסף)
-  type: 'button' | 'folder';
+	id: string;
+	label: string;
+	image: string;
+	backgroundColor: string;
+	borderColor: string;
+	loadBoard?: string; // מזהה board (באותו אוסף)
+	type: 'button' | 'folder';
 }
 
 // קיים — תוספת של setId
 interface Board {
-  id: string;         // random, URL-safe, ~10 chars
-  setId: string;      // חדש — שיוך לאוסף
-  name: string;
-  tiles: Tile[];
-  grid: { rows: number; columns: number };
-  createdAt: number;
-  updatedAt: number;
+	id: string; // random, URL-safe, ~10 chars
+	setId: string; // חדש — שיוך לאוסף
+	name: string;
+	tiles: Tile[];
+	grid: { rows: number; columns: number };
+	createdAt: number;
+	updatedAt: number;
 }
 
 // חדש
 interface Set {
-  id: string;           // random, URL-safe, ~10 chars
-  name: string;
-  homeBoardId: string;  // מזהה לוח באוסף הזה
-  createdAt: number;
-  updatedAt: number;
-  // boardIds אינו נשמר — נגזר דרך שאילתה על boards by setId
+	id: string; // random, URL-safe, ~10 chars
+	name: string;
+	homeBoardId: string; // מזהה לוח באוסף הזה
+	createdAt: number;
+	updatedAt: number;
+	// boardIds אינו נשמר — נגזר דרך שאילתה על boards by setId
 }
 
 // חדש — ב-app-level settings
 interface AppSettings {
-  defaultSetId: string;  // הסט שאליו מפנים מ-/
-  // ...שאר ההגדרות (tts, theme) שכבר קיימות
+	defaultSetId: string; // הסט שאליו מפנים מ-/
+	// ...שאר ההגדרות (tts, theme) שכבר קיימות
 }
 ```
 
 **כללים**:
+
 - `Board.loadBoard` מפנה רק ללוחות **באותו אוסף**. לא מאפשרים cross-set folder links — שמירה על שפיות.
 - מחיקת אוסף **מוחקת את כל הלוחות שבו**. (מימוש ישלים בדיקה + אזהרה).
 - לא ניתן למחוק את האוסף האחרון — כמו שלא ניתן למחוק את לוח הבית.
@@ -95,6 +96,7 @@ interface AppSettings {
 ```
 
 **הערות**:
+
 - `/` redirect נשען על `AppSettings.defaultSetId` ב-IndexedDB. אם חסר — נוצר בטעינה הראשונה.
 - עד שמתווסף UI ליצירת אוספים מרובים, `/sets` מציג אוסף אחד בלבד ו-`/s/[set-id]` הוא ה-URL הקבוע של הסט הבודד (ה-ID רנדומלי, נוצר פעם אחת, נשמר).
 - **אין query params למצב** — edit הוא route, לא `?edit=1`.
@@ -127,16 +129,16 @@ src/routes/
 
 ### 4.2 התנהגות ניווט
 
-| אירוע | פעולה |
-|---|---|
-| לחיצה על אריח-תיקייה | `goto('/s/[setId]/b/[loadBoard]')` — מוסיף להיסטוריית הדפדפן |
-| לחיצה על "חזור" ב-NavBar | `history.back()` — הדפדפן מנהל |
-| לחיצה על "בית" ב-NavBar | `goto('/s/[setId]/b/[homeBoardId]')` |
-| toggle edit | `goto('.../edit')` או `goto('..')` בהתאם |
-| יציאה מ-edit (שמירה/ביטול) | נשאר ב-edit או חוזר ל-view לפי הבחירה |
-| מחיקת הלוח הנוכחי | `goto('/s/[setId]/b/[homeBoardId]')` + toast |
-| ניווט ל-board ID שלא קיים | 404 Svelte page — "הלוח לא נמצא. חזור לבית" |
-| ניווט ל-set ID שלא קיים | 404 — "האוסף לא נמצא" |
+| אירוע                      | פעולה                                                        |
+| -------------------------- | ------------------------------------------------------------ |
+| לחיצה על אריח-תיקייה       | `goto('/s/[setId]/b/[loadBoard]')` — מוסיף להיסטוריית הדפדפן |
+| לחיצה על "חזור" ב-NavBar   | `history.back()` — הדפדפן מנהל                               |
+| לחיצה על "בית" ב-NavBar    | `goto('/s/[setId]/b/[homeBoardId]')`                         |
+| toggle edit                | `goto('.../edit')` או `goto('..')` בהתאם                     |
+| יציאה מ-edit (שמירה/ביטול) | נשאר ב-edit או חוזר ל-view לפי הבחירה                        |
+| מחיקת הלוח הנוכחי          | `goto('/s/[setId]/b/[homeBoardId]')` + toast                 |
+| ניווט ל-board ID שלא קיים  | 404 Svelte page — "הלוח לא נמצא. חזור לבית"                  |
+| ניווט ל-set ID שלא קיים    | 404 — "האוסף לא נמצא"                                        |
 
 ### 4.3 איבוד state בניווט
 
@@ -150,25 +152,29 @@ src/routes/
 **החלטה: רנדומלי, ASCII-only, URL-safe, קצר.**
 
 מפרט מומלץ:
+
 - **nanoid עם alphabet URL-safe** (ללא `-`/`_` לקריאות טובה יותר): `0123456789abcdefghijklmnopqrstuvwxyz`.
 - **אורך 10**: מרחב של ~3.6×10^15 → אפס סיכוי התנגשות בסקייל פרטי.
 - אותיות קטנות בלבד: מקטין בלבול בין `O`/`0`, `I`/`l`/`1`.
 
 דוגמאות:
+
 ```
 board id:  k4j2d8ptmx
 set id:    s9n1q6hlxe
 ```
 
 **חריגים**:
+
 - 5 הלוחות הקיימים שומרים את ה-IDs הסמנטיים שלהם (`home`, `food`, `games`, `feelings`, `places`) — כבר persist ב-IndexedDB אצל משתמשים קיימים, אין סיבה לשבור.
 - מבחינת fresh install: ברירות המחדל נטענות עם ה-IDs הסמנטיים שלהן; הסט הברירת-מחדל מקבל ID **רנדומלי** בטעינה הראשונה.
 
 **helper**:
+
 ```ts
 // src/lib/utils/ids.ts (חדש)
 export function generateId(): string {
-  // nanoid או custom 10-char from [a-z0-9]
+	// nanoid או custom 10-char from [a-z0-9]
 }
 ```
 
@@ -266,6 +272,7 @@ export function generateId(): string {
 **שימושו**: החלפה מהירה וניהול לוחות **בתוך האוסף הנוכחי** בלי לצאת ממצב עריכה. הדשבורד (`/s/[set]`) הוא המקום הרשמי; המודאל הוא קיצור.
 
 3 modes:
+
 - **list**: רשימת לוחות באוסף הנוכחי, פעולות inline.
 - **new**: טופס יצירת לוח (שם, גריד).
 - **edit**: שם + גריד של לוח קיים.
@@ -273,6 +280,7 @@ export function generateId(): string {
 ### 6.6 TileEditor — בורר לוח יעד
 
 החלפת ה-input החופשי ב-`<select>` עם:
+
 - options: כל הלוחות **באוסף הנוכחי**.
 - sentinel `__create__` → "+ צור לוח חדש…" → פותח BoardManager ב-new mode, מחכה ל-ID, מגדיר כ-`loadBoard`.
 - אם `loadBoard` הקיים לא נמצא ברשימה — מוצג כ-option מושבת "(חסר)".
@@ -302,6 +310,7 @@ export function generateId(): string {
 ## 8. תרחישי ניווט
 
 ### 8.1 טעינה ראשונה (fresh install)
+
 1. `/` נפתח
 2. IndexedDB ריק → טוען defaults (5 לוחות)
 3. יוצר `Set` ברירת מחדל עם `homeBoardId: 'home'` ו-ID רנדומלי
@@ -309,23 +318,27 @@ export function generateId(): string {
 5. `redirect(302, /s/[defaultSetId]/b/home)`
 
 ### 8.2 החזרת משתמש קיים
+
 1. `/` נפתח
 2. IndexedDB טעון
 3. קורא `defaultSetId` מ-AppSettings
 4. `redirect(302, /s/[defaultSetId]/b/home)` (או לוח הבית של הסט)
 
 ### 8.3 ניווט באריח-תיקייה
+
 1. קליק על tile עם `loadBoard: 'food'`
 2. `goto('/s/[currentSet]/b/food')`
 3. SvelteKit מפעיל `+page` load — מוודא שהלוח קיים באוסף
 
 ### 8.4 יצירת לוח חדש מ-EditToolbar
+
 1. קליק "לוחות" → מודאל BoardManager פתוח ב-list
 2. קליק "לוח חדש" → עובר ל-new
 3. שם + גריד + שמירה → store.createBoard → `goto('/s/[set]/b/[newId]/edit')`
 4. המודאל נסגר, הלוח החדש הוא הנוכחי במצב עריכה
 
 ### 8.5 יצירת לוח חדש מתוך TileEditor (folder flow)
+
 1. עריכת אריח → בוחרים "תיקייה" → בוחרים "+ צור לוח חדש…" ב-dropdown
 2. BoardManager פותח promise, מציג new view
 3. שם + גריד + שמירה → store.createBoard → resolve(newId)
@@ -333,6 +346,7 @@ export function generateId(): string {
 5. המשתמש לא מנווט לשום מקום — ממשיך לערוך את האריח
 
 ### 8.6 מחיקת לוח עם תלויות
+
 1. קליק "מחק" בדשבורד או ב-BoardManager
 2. הסטור סורק — מצא N תיקיות שמצביעות ללוח הזה
 3. מודאל: "N תיקיות תלויות. מה לעשות?"
@@ -345,6 +359,7 @@ export function generateId(): string {
 ## 9. Persistence (IndexedDB)
 
 **Keys**:
+
 ```
 boards-index     : string[]       (מזהי לוחות — קיים)
 board:[id]       : Board          (קיים)
@@ -354,6 +369,7 @@ app-settings     : AppSettings    (חדש או הרחבה של settings קיים
 ```
 
 **פעולות store חדשות** (ב-[src/lib/stores/sets.svelte.ts](../../src/lib/stores/sets.svelte.ts) — קובץ חדש):
+
 - `init()` — טוען sets + app-settings; אם ריק, יוצר default set + משייך כל הלוחות הקיימים אליו
 - `createSet(name) → id`
 - `updateSet(id, { name?, homeBoardId? })`
@@ -363,6 +379,7 @@ app-settings     : AppSettings    (חדש או הרחבה של settings קיים
 - `boardsInSet(setId) → Board[]` — נגזר
 
 **שינויי store קיים** (ב-[src/lib/stores/board.svelte.ts](../../src/lib/stores/board.svelte.ts)):
+
 - `createBoard` מקבל `setId`
 - שימושים ב-`HOME_BOARD_ID` מוחלפים ב-`getCurrentSet().homeBoardId`
 
@@ -377,30 +394,31 @@ app-settings     : AppSettings    (חדש או הרחבה של settings קיים
 ```ts
 // ב-init של store
 async function migrateIfNeeded() {
-  const settings = await loadAppSettings();
-  if (settings?.defaultSetId) return;  // כבר עשה migration
+	const settings = await loadAppSettings();
+	if (settings?.defaultSetId) return; // כבר עשה migration
 
-  // יצירת default set
-  const defaultSetId = generateId();
-  const homeBoardId = Object.values(existingBoards).find(b => b.id === 'home')?.id
-                    ?? Object.values(existingBoards)[0].id;
+	// יצירת default set
+	const defaultSetId = generateId();
+	const homeBoardId =
+		Object.values(existingBoards).find((b) => b.id === 'home')?.id ??
+		Object.values(existingBoards)[0].id;
 
-  const defaultSet: Set = {
-    id: defaultSetId,
-    name: 'האוסף שלי',
-    homeBoardId,
-    createdAt: Date.now(),
-    updatedAt: Date.now()
-  };
+	const defaultSet: Set = {
+		id: defaultSetId,
+		name: 'האוסף שלי',
+		homeBoardId,
+		createdAt: Date.now(),
+		updatedAt: Date.now()
+	};
 
-  // שיוך כל הלוחות הקיימים
-  for (const board of Object.values(existingBoards)) {
-    board.setId = defaultSetId;
-    await saveBoard(board);
-  }
+	// שיוך כל הלוחות הקיימים
+	for (const board of Object.values(existingBoards)) {
+		board.setId = defaultSetId;
+		await saveBoard(board);
+	}
 
-  await saveSet(defaultSet);
-  await saveAppSettings({ ...settings, defaultSetId });
+	await saveSet(defaultSet);
+	await saveAppSettings({ ...settings, defaultSetId });
 }
 ```
 
@@ -414,13 +432,13 @@ async function migrateIfNeeded() {
 
 ### 10.5.1 אישור בפעולות הרסניות
 
-| פעולה | אישור? |
-|---|---|
-| **איפוס לברירת מחדל** ב-EditToolbar | ✅ חובה — modal "האם למחוק את כל הלוחות המותאמים?" |
+| פעולה                                 | אישור?                                                                              |
+| ------------------------------------- | ----------------------------------------------------------------------------------- |
+| **איפוס לברירת מחדל** ב-EditToolbar   | ✅ חובה — modal "האם למחוק את כל הלוחות המותאמים?"                                  |
 | **מחיקת לוח** ב-BoardManager / דשבורד | ✅ חובה — כולל רשימת תיקיות תלויות (ראה [board-management.md](board-management.md)) |
-| **מחיקת אריח** ב-TileEditor | ❌ ללא אישור — מסרבל. אם המשתמש טועה, ה-Undo (10.5.2) יחזיר |
-| **מחיקת אוסף** | ✅ חובה — הרבה יותר הרסני ממחיקת לוח |
-| **ניקוי Output Bar** | ❌ ללא אישור — החזרת טקסט זולה |
+| **מחיקת אריח** ב-TileEditor           | ❌ ללא אישור — מסרבל. אם המשתמש טועה, ה-Undo (10.5.2) יחזיר                         |
+| **מחיקת אוסף**                        | ✅ חובה — הרבה יותר הרסני ממחיקת לוח                                                |
+| **ניקוי Output Bar**                  | ❌ ללא אישור — החזרת טקסט זולה                                                      |
 
 ### 10.5.2 Undo — לפחות תשתית
 
@@ -453,18 +471,19 @@ undo(): Mutation | null   // מחזיר את הפעולה כדי להציג toas
 ב-[+page.svelte:22-25](../../src/routes/+page.svelte#L22-L25) — `store.init()` async. המשתמש רואה ברירת המחדל לרגע ואז "קופץ" ללוח השמור.
 
 דרישה:
+
 - **skeleton** או spinner עד `store.initialized === true`.
 - מומלץ: ב-`+layout.svelte` או `+layout.ts` → `await store.init()` ב-SSR/load function כך שהדף הראשוני כבר נטען עם הנתונים הנכונים.
 
 ### 10.5.4 Empty states
 
-| מקום | מצב ריק | UI |
-|---|---|---|
-| לוח ללא אריחים | `tiles.length === 0` ב-edit | "לחץ '+ הוסף' כדי להתחיל" — placeholder במרכז |
-| דשבורד אוסף | 0 לוחות (לא אפשרי בפועל — תמיד יש home) | — |
-| Explorer | 0 אוספים (לא אפשרי אחרי migration) | — |
-| חיפוש ARASAAC | 0 תוצאות | "לא נמצאו סמלים עבור 'X'" (כבר מטופל באופן חלקי) |
-| Output Bar | ריק | נשאר ריק, כפתורים disabled (כבר מטופל) |
+| מקום           | מצב ריק                                 | UI                                               |
+| -------------- | --------------------------------------- | ------------------------------------------------ |
+| לוח ללא אריחים | `tiles.length === 0` ב-edit             | "לחץ '+ הוסף' כדי להתחיל" — placeholder במרכז    |
+| דשבורד אוסף    | 0 לוחות (לא אפשרי בפועל — תמיד יש home) | —                                                |
+| Explorer       | 0 אוספים (לא אפשרי אחרי migration)      | —                                                |
+| חיפוש ARASAAC  | 0 תוצאות                                | "לא נמצאו סמלים עבור 'X'" (כבר מטופל באופן חלקי) |
+| Output Bar     | ריק                                     | נשאר ריק, כפתורים disabled (כבר מטופל)           |
 
 ### 10.5.5 Edit mode לא נגיש מדי
 
@@ -483,6 +502,7 @@ undo(): Mutation | null   // מחזיר את הפעולה כדי להציג toas
 כיום יש כפתור אחד לניקוי. חסר אופציה למחוק רק את האחרון.
 
 דרישה: שני כפתורים ב-OutputBar:
+
 - ⌫ **מחק אחרון** (icon: backspace) — מסיר פריט יחיד מהסוף.
 - 🗑 **ניקוי** (icon: trash) — מרוקן את כל ה-bar.
 
@@ -502,8 +522,8 @@ undo(): Mutation | null   // מחזיר את הפעולה כדי להציג toas
 
 ```ts
 interface Tile {
-  // ...
-  disabled?: boolean;  // ברירת מחדל: false
+	// ...
+	disabled?: boolean; // ברירת מחדל: false
 }
 ```
 
@@ -514,19 +534,23 @@ interface Tile {
 הארכיטקטורה קבועה; הביצוע מדורג. המלצה:
 
 **שלב A — board-management מינימלי בלי sets** ([board-management.md](board-management.md))
+
 - תשתית CRUD + UI ניהול לוחות, בלי אוספים, בלי routing חדש
 - ROI מהיר, בלי שבירה
 
 **שלב B — URL routing**
+
 - `/s/[set-id]/b/[board-id]`, `/edit`, `/sets`, `/settings`
 - migration — יוצר default set על הלוחות הקיימים
 - נשאר סט אחד; `/sets` מציג אותו סט בודד
 
 **שלב C — דשבורד אוסף + Explorer + thumbnails**
+
 - `/s/[set-id]` מלא עם כרטיסים
 - `/sets` explorer אמיתי (כרגע עדיין סט אחד)
 
 **שלב D — ניהול אוספים מלא**
+
 - יצירה/מחיקה/שכפול של sets
 - UI להחלפת default set
 
@@ -549,6 +573,7 @@ interface Tile {
 ## 13. קבצים שיושפעו / ייווצרו
 
 **חדשים**:
+
 - [src/lib/types/set.ts](../../src/lib/types/set.ts)
 - [src/lib/stores/sets.svelte.ts](../../src/lib/stores/sets.svelte.ts)
 - [src/lib/utils/ids.ts](../../src/lib/utils/ids.ts)
@@ -563,6 +588,7 @@ interface Tile {
 - [src/routes/sets/+page.svelte](../../src/routes/sets/+page.svelte)
 
 **שינויים**:
+
 - [src/lib/types/board.ts](../../src/lib/types/board.ts) — תוספת `setId`, `createdAt`, `updatedAt`
 - [src/lib/stores/board.svelte.ts](../../src/lib/stores/board.svelte.ts) — שילוב setId, מחיקת HOME_BOARD_ID קשיח
 - [src/lib/services/storage.ts](../../src/lib/services/storage.ts) — `saveSet`, `loadSet`, `saveAppSettings`, migration
@@ -584,6 +610,7 @@ interface Tile {
 - `claude/aac-board-core-4lixm` — נשאר כ-bookmark לנקודת ה-merge.
 
 **מה כלול ב-dev עכשיו** (שעבר מ-`claude/...`):
+
 - שלב 3A — חיפוש ARASAAC, העלאת תמונה, UI להגדרות TTS.
 - שלב 3B — דף הגדרות (`/settings`) + theme + PWA ידני (manifest + service worker).
 - תיקון IndexedDB, תצוגת overflow tiles.
@@ -591,6 +618,7 @@ interface Tile {
 - תכנון שלבים 3C-3E.
 
 **מה עכשיו**:
+
 - `dev` מוכן לתחילת מימוש שלב 2.5 ([roadmap.md](roadmap.md)) — board management + שימוש בסיסי.
 - מומלץ `git push` ל-origin/dev לאחר sync של השינוי עם הקומיט שב-origin שלא אצלנו (ראה `git log origin/dev ^dev`).
 

@@ -2,13 +2,10 @@
 	import { onMount } from 'svelte';
 	import { settingsStore } from '$lib/stores/settings.svelte';
 	import { boardStore } from '$lib/stores/board.svelte';
+	import { setsStore } from '$lib/stores/sets.svelte';
 	import { speak, getModelsForProvider, getVoicesForProvider } from '$lib/services/tts';
 	import {
 		getDefaultModelForProvider,
-		setElevenLabsApiKey,
-		getElevenLabsApiKey,
-		setGeminiApiKey,
-		getGeminiApiKey,
 		type TtsModelOption,
 		type TtsProviderId,
 		type TtsVoice
@@ -17,10 +14,9 @@
 
 	const sStore = settingsStore();
 	const bStore = boardStore();
+	const setStore = setsStore();
 
 	let availableVoices = $state<TtsVoice[]>([]);
-	let elevenLabsKey = $state('');
-	let geminiKey = $state('');
 	let fileInput: HTMLInputElement | undefined;
 	let loadingVoices = $state(false);
 	let availableModels = $state<TtsModelOption[]>([]);
@@ -28,9 +24,8 @@
 
 	onMount(async () => {
 		await sStore.init();
+		await setStore.init();
 		bStore.init();
-		elevenLabsKey = getElevenLabsApiKey();
-		geminiKey = getGeminiApiKey();
 		await refreshModels();
 		await refreshVoices();
 	});
@@ -62,6 +57,10 @@
 		loadingVoices = true;
 		try {
 			availableVoices = await getVoicesForProvider(sStore.settings.ttsProvider, 'he');
+			// Auto-select the first voice if none is currently selected
+			if (availableVoices.length > 0 && !sStore.settings.ttsVoice) {
+				sStore.update({ ttsVoice: availableVoices[0].id });
+			}
 		} catch (e) {
 			console.warn('[settings] refreshVoices failed', e);
 			availableVoices = [];
@@ -82,26 +81,6 @@
 	function handleModelChange(modelId: string) {
 		sStore.update({ ttsModel: modelId, ttsVoice: '' });
 		refreshVoices();
-	}
-
-	function handleElevenLabsKeyChange(e: Event) {
-		const key = (e.target as HTMLInputElement).value.trim();
-		elevenLabsKey = key;
-		setElevenLabsApiKey(key);
-		if (sStore.settings.ttsProvider === 'elevenlabs') {
-			refreshModels();
-			refreshVoices();
-		}
-	}
-
-	function handleGeminiKeyChange(e: Event) {
-		const key = (e.target as HTMLInputElement).value.trim();
-		geminiKey = key;
-		setGeminiApiKey(key);
-		if (sStore.settings.ttsProvider === 'gemini') {
-			refreshModels();
-			refreshVoices();
-		}
 	}
 
 	function previewVoice() {
@@ -145,7 +124,7 @@
 
 	async function handleReset() {
 		if (confirm('לאפס את כל הלוחות לברירת מחדל?')) {
-			await bStore.resetToDefaults();
+			await setStore.resetToDefaults();
 			await sStore.resetToDefaults();
 		}
 	}
@@ -198,38 +177,6 @@
 				</div>
 			</div>
 
-			{#if sStore.settings.ttsProvider === 'elevenlabs'}
-				<label class="field">
-					<span class="field-label">ElevenLabs API Key</span>
-					<input
-						type="password"
-						class="field-input"
-						value={elevenLabsKey}
-						oninput={handleElevenLabsKeyChange}
-						placeholder="sk_..."
-						autocomplete="off"
-					/>
-					<span class="field-hint">המפתח נשמר מקומית בדפדפן בלבד. קבל מפתח ב-elevenlabs.io</span>
-				</label>
-			{/if}
-
-			{#if sStore.settings.ttsProvider === 'gemini'}
-				<label class="field">
-					<span class="field-label">Gemini API Key</span>
-					<input
-						type="password"
-						class="field-input"
-						value={geminiKey}
-						oninput={handleGeminiKeyChange}
-						placeholder="AI..."
-						autocomplete="off"
-					/>
-					<span class="field-hint"
-						>המפתח נשמר מקומית בדפדפן בלבד. קבל מפתח ב-aistudio.google.com/apikey</span
-					>
-				</label>
-			{/if}
-
 			{#if availableModels.length > 0}
 				<label class="field">
 					<span class="field-label">מודל</span>
@@ -269,7 +216,7 @@
 				{#if loadingVoices}
 					<span class="field-hint">טוען קולות...</span>
 				{:else if availableVoices.length === 0 && sStore.settings.ttsProvider !== 'webspeech'}
-					<span class="field-hint">הכנס API Key למעלה כדי לטעון קולות</span>
+					<span class="field-hint">לא נמצאו קולות זמינים</span>
 				{/if}
 			</label>
 
@@ -365,6 +312,22 @@
 		</section>
 
 		<!-- Data -->
+		<section class="card">
+			<h2 class="card-title">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+					<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+				</svg>
+				אוספים
+			</h2>
+
+			<a class="btn btn-action settings-link-btn" href="/sets">
+				<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+					<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+				</svg>
+				ניהול אוספים ולוחות
+			</a>
+		</section>
+
 		<section class="card">
 			<h2 class="card-title">
 				<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -567,6 +530,7 @@
 		border-radius: 8px;
 		font-size: 14px;
 		font-weight: 600;
+		text-decoration: none;
 		cursor: pointer;
 		transition:
 			background 0.15s,

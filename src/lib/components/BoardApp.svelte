@@ -196,7 +196,7 @@
 
 	async function handleReset() {
 		if (confirm('האם למחוק את כל הלוחות המותאמים ולחזור לברירת המחדל?')) {
-			await store.resetToDefaults();
+			await sets.resetToDefaults();
 			goto(`/s/${setId}/b/${homeBoardId}`, { replaceState: true });
 		}
 	}
@@ -274,7 +274,8 @@
 			{canGoBack}
 			{isHome}
 			breadcrumbs={currentSet ? [currentSet.name] : []}
-			editMode={editMode}
+			breadcrumbHref={currentSet ? `/s/${setId}` : undefined}
+			{editMode}
 			onback={handleBack}
 			onhome={handleHome}
 			ontoggleedit={handleToggleEdit}
@@ -305,7 +306,7 @@
 			ontiledelete={handleTileDeleteRequest}
 			onreorder={handleReorder}
 			direction="none"
-			editMode={editMode}
+			{editMode}
 			{showOverflow}
 		/>
 	{/if}
@@ -330,15 +331,16 @@
 	/>
 {/if}
 
-	{#if managerOpen}
-		<BoardManager
-			onclose={closeBoardManager}
-			initialView={managerInitialView}
-			onBoardCreated={handleBoardCreated}
-			onNavigateToBoard={(boardId) => goto(`/s/${setId}/b/${boardId}`)}
-			{setId}
-		/>
-	{/if}
+{#if managerOpen}
+	<BoardManager
+		onclose={closeBoardManager}
+		initialView={managerInitialView}
+		onBoardCreated={handleBoardCreated}
+		onNavigateToBoard={(boardId) => goto(`/s/${setId}/b/${boardId}`)}
+		{setId}
+		{homeBoardId}
+	/>
+{/if}
 
 <style>
 	.app-container {
@@ -396,7 +398,11 @@
 	}
 
 	@keyframes skel-shimmer {
-		0% { background-position: 200% 0; }
-		100% { background-position: -200% 0; }
+		0% {
+			background-position: 200% 0;
+		}
+		100% {
+			background-position: -200% 0;
+		}
 	}
 </style>

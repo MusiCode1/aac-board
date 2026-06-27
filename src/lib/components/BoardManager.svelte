@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { HOME_BOARD_ID } from '$lib/data/boards';
 	import { boardStore, generateBoardId } from '$lib/stores/board.svelte';
+	import { setsStore } from '$lib/stores/sets.svelte';
 	import type { Board } from '$lib/types/board';
 
 	interface Props {
@@ -11,16 +12,28 @@
 		onNavigateToBoard?: (boardId: string) => void;
 		/** Set ID — used when creating new boards so they belong to the right set */
 		setId?: string;
+		homeBoardId?: string;
 	}
 
-	let { onclose, initialView = 'list', onBoardCreated, onNavigateToBoard, setId = '' }: Props =
-		$props();
+	let {
+		onclose,
+		initialView = 'list',
+		onBoardCreated,
+		onNavigateToBoard,
+		setId = '',
+		homeBoardId = HOME_BOARD_ID
+	}: Props = $props();
 
 	const store = boardStore();
+	const sets = setsStore();
 
 	type View = 'list' | 'new' | 'edit';
-	let view = $state<View>(initialView);
+	let view = $state<View>('list');
 	let editingBoardId = $state<string | null>(null);
+
+	$effect(() => {
+		view = initialView;
+	});
 
 	// Form fields
 	let formName = $state('');
@@ -34,7 +47,9 @@
 		dependents: { boardId: string; boardName: string; tileIds: string[] }[];
 	} | null>(null);
 
-	const boards = $derived(Object.values(store.allBoards));
+	const boards = $derived(
+		Object.values(store.allBoards).filter((board) => !setId || board.setId === setId)
+	);
 	const previewId = $derived(
 		view === 'new' && formName.trim() ? generateBoardId(formName, store.allBoards) : ''
 	);
@@ -82,6 +97,11 @@
 		store.duplicateBoard(boardId);
 	}
 
+	async function makeHome(boardId: string) {
+		if (!setId || boardId === homeBoardId) return;
+		await sets.updateSet(setId, { homeBoardId: boardId });
+	}
+
 	function navigateToBoard(boardId: string) {
 		if (onNavigateToBoard) {
 			onNavigateToBoard(boardId);
@@ -98,7 +118,7 @@
 	}
 
 	function confirmDelete(board: Board) {
-		if (board.id === HOME_BOARD_ID) return;
+		if (board.id === homeBoardId) return;
 		const dependents = store.findBoardDependents(board.id);
 		pendingDelete = {
 			boardId: board.id,
@@ -145,7 +165,7 @@
 <svelte:window onkeydown={handleKeydown} />
 
 <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-<div class="overlay" onclick={handleBackdropClick}>
+<div class="overlay" role="presentation" onclick={handleBackdropClick}>
 	<div class="board-manager" role="dialog" aria-label="ניהול לוחות">
 		<header class="bm-header">
 			<h2>
@@ -179,7 +199,7 @@
 			</div>
 			<ul class="board-manager-list">
 				{#each boards as board (board.id)}
-					{@const isHome = board.id === HOME_BOARD_ID}
+					{@const isHome = board.id === homeBoardId}
 					<li class="bm-row" data-board-id={board.id}>
 						<button
 							class="bm-row-main"
@@ -197,6 +217,17 @@
 							</div>
 						</button>
 						<div class="bm-row-actions">
+							<button
+								class="icon-btn"
+								onclick={() => makeHome(board.id)}
+								disabled={isHome}
+								aria-label="הפוך לבית"
+								title={isHome ? 'לוח הבית הנוכחי' : 'הפוך ללוח הבית של האוסף'}
+							>
+								<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+									<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+								</svg>
+							</button>
 							<button
 								class="icon-btn"
 								onclick={() => openEdit(board)}
@@ -295,6 +326,7 @@
 	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
 	<div
 		class="overlay overlay-confirm"
+		role="presentation"
 		onclick={(e) => {
 			if (e.target === e.currentTarget) cancelDelete();
 		}}

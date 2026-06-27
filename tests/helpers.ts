@@ -1,4 +1,4 @@
-import type { Page, Locator } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
 export async function gotoApp(page: Page): Promise<{ setId: string; boardId: string }> {
 	await page.goto('/');

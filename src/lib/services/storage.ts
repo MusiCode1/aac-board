@@ -132,6 +132,18 @@ export async function saveDefaultSetId(id: string): Promise<void> {
 	await set(DEFAULT_SET_ID_KEY, id);
 }
 
+/** Clear all saved sets and default-set metadata. */
+export async function clearAllSets(): Promise<void> {
+	const allKeys = await keys();
+	for (const key of allKeys) {
+		if (typeof key === 'string' && key.startsWith(SETS_PREFIX)) {
+			await del(key);
+		}
+	}
+	await del(SETS_INDEX_KEY);
+	await del(DEFAULT_SET_ID_KEY);
+}
+
 async function updateSetsIndex(id: string, action: 'add' | 'remove'): Promise<void> {
 	const index = (await get<string[]>(SETS_INDEX_KEY)) ?? [];
 	if (action === 'add' && !index.includes(id)) {

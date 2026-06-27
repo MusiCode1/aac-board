@@ -1,5 +1,176 @@
 # AAC Board — יומן פיתוח (Walkthrough)
 
+## 2026-05-06 12:58
+
+### שלב 6 Phase C — ממשק ניהול אוספים ולוחות
+
+מימוש שכבת ה-UI שחסרה לאחר Phase B: עכשיו יש דף ייעודי לניהול אוספים (`/sets`) ודשבורד פר-אוסף (`/s/[setId]`), `BoardManager` מסונן לאוסף הנוכחי ויודע להגדיר לוח בית, וה-NavBar הפך את ה-breadcrumb של האוסף לקליקבילי. בנוסף תוקנה מיגרציה שלא כתבה את לוחות ברירת המחדל ל-IndexedDB בהתקנה נקייה — תקלה ששרדה כי המסכים הקיימים סבלו `setId=''`, אבל שברה את הסינון בממשקי הניהול החדשים.
+
+#### מה בוצע?
+
+**1. דף `/sets` — אקספלורר אוספים**
+
+- `src/routes/sets/+page.svelte` (חדש): כרטיסי אוספים עם תמונה ממוזערת, מספר לוחות, שם לוח הבית, ו-pill "ברירת מחדל".
+- מודאל יחיד עם שני מצבים (`new` / `edit`): ב-edit אפשר גם לבחור לוח בית מתוך לוחות האוסף.
+- פעולות per-card: פתח, ערוך, שכפל, הפוך לברירת מחדל, מחק. מחיקה חסומה כשנשאר אוסף יחיד.
+- אישור מחיקה במודאל נפרד עם הסבר שכל הלוחות של האוסף יימחקו יחד איתו.
+
+**2. דף `/s/[setId]` — דשבורד אוסף**
+
+- `src/routes/s/[setId]/+page.svelte` (חדש): hero עם שם האוסף, breadcrumb חזרה ל-`/sets`, וגריד של כרטיסי לוחות.
+- כל כרטיס לוח מציג BoardThumbnail + שם + רשת + מספר אריחים + pill "בית" אם רלוונטי. פעולות: פתח, ערוך.
+- כפתורי "ניהול מלא" ו-"לוח חדש" בראש העמוד, שניהם פותחים את `BoardManager` (האחרון נכנס ישר ל-view של new).
+- אחרי יצירת לוח חדש מהדשבורד — ניווט אוטומטי ל-`/s/[setId]/b/[newId]/edit`.
+
+**3. `BoardThumbnail.svelte` (חדש)**
+
+- קומפוננטה משותפת שמרנדרת רשת 2×2 מ-4 האריחים הראשונים, עם תמונה (lazy) על רקע צבע-האריח. fallback ל-empty state כשהלוח ריק.
+- בשימוש גם בכרטיסי דשבורד וגם בכרטיסי האקספלורר (לוח הבית של האוסף משמש כ-thumbnail של האוסף).
+
+**4. הרחבת `BoardManager.svelte`**
+
+- prop חדש `homeBoardId` — מחליף את ה-const הקשיח `HOME_BOARD_ID` בלוגיקה של ה-badge "בית" וב-disable של כפתור המחיקה.
+- prop קיים `setId` עכשיו גם מסנן את הרשימה ל-לוחות של האוסף הנוכחי בלבד.
+- כפתור חדש "הפוך לבית" לכל שורה (disabled על הלוח שכבר הבית). מעדכן `homeBoardId` של ה-set דרך `setsStore.updateSet()`.
+- הקריאה ל-`store.deleteBoard` באה עם `{ allowHome: true }` ב-flow של מחיקת אוסף, כדי שגם לוח-הבית של האוסף ייעלם.
+
+**5. עדכוני NavBar + BoardApp + Settings**
+
+- `NavBar` מקבל `breadcrumbHref` אופציונלי — אם הוא מסופק, ה-crumb הראשון הופך ל-`<a>` (קישור לדשבורד האוסף).
+- `BoardApp` מעביר `homeBoardId` ל-`BoardManager` ו-`breadcrumbHref={`/s/${setId}`}` ל-`NavBar`. `handleReset` עובר עכשיו דרך `setsStore.resetToDefaults()` כדי לאפס גם sets.
+- `routes/settings/+page.svelte` קיבל קלאס "אוספים" עם קישור גלוי ל-`/sets` ("ניהול אוספים ולוחות"). ה-anchor משתף את עיצוב `.btn .btn-action` (נוסף `text-decoration: none` ל-`.btn`).
+
+**6. שינויים ב-stores ובאחסון**
+
+- `services/storage.ts` — נוספה `clearAllSets()` שמנקה כל מפתחות `set:*` + `sets-index` + `default-set-id`.
+- `stores/board.svelte.ts` — `updateBoard` מעדכן `updatedAt`; `duplicateBoard` חותם `createdAt`/`updatedAt` חדשים; `deleteBoard(boardId, { allowHome: true })` מאפשר למחוק גם את לוח-הבית של אוסף שנמחק; ה-fallback אחרי deleteBoard לא קורא יותר ל-`goHome()` (שהיה תלוי ב-`HOME_BOARD_ID` הקשיח).
+- `stores/sets.svelte.ts`:
+  - `createSet(name)` יוצר באמת אוסף עם **לוח בית חדש** (`createEmptyBoard` 4×5) במקום להשאיר את `homeBoardId` תלוי ב-`HOME_BOARD_ID` שלא קיים בהקשר של האוסף החדש.
+  - `deleteSet(id)` מסיר גם את כל הלוחות של האוסף דרך `boardStore.importBoards(remaining)`, ומעדכן `defaultSetId` אם צריך.
+  - `duplicateSet(sourceId)` משכפל לעומק: `Map<oldBoardId, newBoardId>`, החלפת `loadBoard` בכל אריח עם המיפוי, tile IDs חדשים, `homeBoardId` חדש.
+  - `resetToDefaults()` מאפס sets + boards ביחד ואז קורא ל-`init()` כדי להריץ מיגרציה מחדש.
+  - **תיקון מיגרציה (קריטי)**: `runMigration()` עכשיו טוען לוחות מהאחסון או מ-`defaultBoards`, מצמיד `setId` לכולם, ו**שומר את כולם ל-IndexedDB** (`saveAllBoards`). קודם, אם IndexedDB היה ריק, רק ה-set נוצר אבל הלוחות לא נשמרו — מה ששבר את הסינון של `BoardManager` שמסתמך על `setId`.
+
+**7. בדיקות**
+
+- `tests/sets.e2e.ts` (חדש) — 3 בדיקות: רשימת אוספים בדף `/sets`, יצירת אוסף חדש + מעבר לדשבורד שלו, יצירת לוח דרך הדשבורד.
+- ריצה ממוקדת `tests/board-management.e2e.ts` + `tests/sets.e2e.ts` — 18/18 ירוק.
+
+#### החלטות ארכיטקטורה
+
+- **כל אוסף חדש מקבל לוח-בית משלו**: `createSet` יוצר `createEmptyBoard(generatedId, 'בית', 4, 5, setId)` במקום למפות הכל ל-`HOME_BOARD_ID` המוכר. בלי זה, ניווט ל-`/s/[newSetId]/b/[home]` היה נופל ל-fallback של "לא קיים → redirect לבית" ופותח את הלוח של האוסף הקודם.
+- **`BoardManager` מקבל `homeBoardId` כ-prop**: כך הקומפוננטה תקפה לכל אוסף, ולא רק לאוסף שמכיל את לוח ברירת המחדל. הקבוע `HOME_BOARD_ID` נשאר כ-fallback ב-prop default לתמיכה לאחור.
+- **שכפול אוסף עושה deep clone דו-שלבי**: קודם בונים `Map` של ID-ים חדשים ל-כל הלוחות, ואז משכפלים אריח-אריח עם `loadBoard` ממופה. זה מקיים את הסמנטיקה ש-folder tile מצביע ללוח שבאוסף החדש, לא לאוסף המקור.
+- **הדשבורד וה-`BoardManager` חיים זה לצד זה**: הדשבורד הוא המקום הרשמי לסקירת האוסף, ו-`BoardManager` נשאר ה-modal הקצר מתוך מצב עריכה. שניהם מבוססים על אותו store, כך שכל פעולה רואים מיד בכל המקומות.
+
+#### מעקפים ופתרונות
+
+- **`view = $state(initialView)` עורר אזהרת `state_referenced_locally`**: שינינו ל-`view = $state('list')` עם `$effect(() => { view = initialView })` כדי לקרוא את ה-prop בצורה ריאקטיבית ולא רק כ-snapshot ראשוני.
+- **אזהרות `a11y_no_static_element_interactions` על overlays של מודאלים**: הוסף `role="presentation"` ל-`<div class="overlay">` ב-`BoardManager` וב-`/sets` (ה-dialog עצמו פנימי ומקבל `role="dialog"` / `"alertdialog"`).
+- **באג מיגרציה שהתגלה רק אחרי הסינון לפי `setId`**: עד עכשיו `BoardManager` הציג את כל הלוחות בלי קשר ל-set, אז גם לוחות עם `setId=''` היו נראים. אחרי הסינון, ההתקנה הנקייה החזירה רשימה ריקה. הפתרון הוא שמירה אקטיבית של `defaultBoards` (עם `setId` חדש) ל-IndexedDB ב-`runMigration`.
+
+#### מצב בדיקות
+
+- `bun run check` — 0 errors, אזהרה אחת קיימת מראש ב-`TileEditor.svelte`.
+- `bun run test:e2e -- tests/board-management.e2e.ts tests/sets.e2e.ts` — 18/18 עוברות.
+- `bun run lint` — נופל על 4 קבצים שלא קשורים לשינוי הזה (`proxy/src/index.ts`, `proxy/src/providers/gemini.ts`, `src/lib/services/tts-providers/elevenlabs.ts`, `src/service-worker.ts`).
+
+#### קבצים שנוגעו
+
+חדשים:
+
+- `src/lib/components/BoardThumbnail.svelte`
+- `src/routes/sets/+page.svelte`
+- `src/routes/s/[setId]/+page.svelte`
+- `tests/sets.e2e.ts`
+
+שינויים:
+
+- `src/lib/components/BoardApp.svelte`
+- `src/lib/components/BoardManager.svelte`
+- `src/lib/components/NavBar.svelte`
+- `src/lib/services/storage.ts`
+- `src/lib/stores/board.svelte.ts`
+- `src/lib/stores/sets.svelte.ts`
+- `src/routes/settings/+page.svelte`
+
+---
+
+## 2026-05-03 20:30
+
+### תשתית Cache + Proxy — שלב 7 (TDD)
+
+הוספת שכבת cache + proxy מלאה ל-TTS: קליינט Proxy, cache ב-IndexedDB (L1), hash דטרמיניסטי לבקשות TTS, מיגרציה שקטה להסרת API keys ישנות, וחיבור `speak()` לתשתית החדשה. בנוסף — תיקון שגיאות lint ו-TypeScript לשמירת CI ירוק.
+
+#### מה בוצע?
+
+**1. Proxy API Types (`src/lib/types/api.ts`)**
+
+- `TtsRequest` — מבנה בקשה: `text`, `provider`, `voiceId`, `modelId`, `lang?`
+- `TtsResponse` — תגובה: `hash`, `mimeType`, `cached`
+- `VoiceItem` / `VoicesResponse` — רשימת קולות מהפרוקסי
+- `ProxyError` — מבנה שגיאה סטנדרטי עם `code`: `origin_failed | invalid_request | unauthorized | not_found | internal`
+
+**2. Hash דטרמיניסטי (`src/lib/services/cache/hash.ts`)**
+
+- `ttsHash(req)` — מחשב 16 תווים hex (SHA-256 חתוך ל-8 בייטים) מ-`provider|voiceId|modelId|text.trim().NFC`
+- אותו האלגוריתם חייב להתקיים גם ב-proxy Worker (מקור אמת אחד לשני הצדדים)
+
+**3. Audio Cache — IDB L1 (`src/lib/services/cache/audio-cache.ts`)**
+
+- `getOrCreateAudio(req, deps?)` — זורם: hit → IDB מיד ← miss → POST `/v1/tts` (synthesize) → GET `/v1/tts/:hash` (blob) → שמירה ב-IDB
+- מפתח IDB: `audio:<hash>`
+- IDB store: `aac-cache / keyval` (lazy init)
+- `deps` injection מלא לבדיקות (fetch, proxyUrl, store)
+
+**4. Proxy Client (`src/lib/services/proxy-client.ts`)**
+
+- `ProxyClientError` — class עם `code: ProxyError['code']` לטיפול בשגיאות מובנה
+- `postTtsRequest(req, deps?)` — POST `/v1/tts`, מחזיר `TtsResponse`
+- `getTtsBlob(hash, mimeType, deps?)` — GET `/v1/tts/:hash`, מחזיר Blob
+- parse מבנה שגיאה מהפרוקסי, fallback ל-`internal` אם גוף לא-JSON
+
+**5. חיבור `speak()` לפרוקסי (`src/lib/services/tts.ts`)**
+
+- `PROXIED_PROVIDERS = Set(['elevenlabs', 'gemini'])` — ספקים שנשלחים דרך הפרוקסי
+- לספקים מוקסאים: `speak()` קורא ל-`getOrCreateAudio()` ואז `playAudioBlob()`
+- במקרה כשל — fallback אוטומטי ל-WebSpeech
+- `SpeakDeps` interface: `settings`, `fetchFn`, `proxyUrl`, `store` לבדיקות
+
+**6. מיגרציה שקטה (`src/lib/services/cache/migration.ts`)**
+
+- `runMigrationOnce(store?)` — מוחק `elevenlabs-api-key` ו-`gemini-api-key` מ-localStorage (API keys עוברים לפרוקסי) ורושם flag ב-IDB `cache-proxy-migrated:v1`
+- מופעל ב-`+layout.svelte` בטעינה ראשונה
+- הפעלה חוזרת: no-op (flag קיים)
+
+**7. קובץ סביבה (`env.example`)**
+
+- נוסף `.env.example` עם `VITE_PROXY_URL=http://localhost:8787`
+- `.env.local` ב-gitignore, לא מועלה ל-repo
+
+**8. תיקוני Lint / TypeScript**
+
+- תוקנו שגיאות TypeScript שמנעו CI ירוק (שגיאות type בבדיקות, ב-`proxy-client`, ב-`gemini.ts` ועוד)
+- `eslint.config.js` עודכן
+
+#### החלטות ארכיטקטורה
+
+- **IDB כ-L1 בלבד**: audio cache מנוהל על ידי `getOrCreateAudio` — לא קיים L2 בצד הלקוח. L2 (R2 Storage) קיים בצד הפרוקסי.
+- **Hash זהה בלקוח ובשרת**: `ttsHash` מחושב גם בלקוח (לפני בקשה ל-IDB) וגם בפרוקסי. נדרשת סנכרוניזציה — שינוי לאחד מחייב שינוי בשני.
+- **`proxy-client` ≠ `audio-cache`**: שני מודולים נפרדים. `proxy-client` הוא wrapper ל-HTTP calls בלבד (ללא cache). `audio-cache` הוא שכבת orchestration (IDB + proxy calls). ההפרדה מאפשרת לבדוק כל שכבה בנפרד.
+- **Fallback webspeech**: `speak()` לא קורס כשהפרוקסי נכשל — ממשיך ל-WebSpeech. חשוב לנגישות כאשר אין חיבור.
+
+#### מעקפים ופתרונות
+
+- **`audio-cache.ts` משכפל קצת מ-`proxy-client.ts`**: הטמעת ה-POST/GET ב-`audio-cache.ts` נכתבה לפני ה-`proxy-client.ts`. ה-`audio-cache` ישאר עצמאי כרגע — refactor עתידי יאחד אותם.
+
+#### מצב בדיקות
+
+- `bun run check` — 0 errors, 4 warnings
+- בדיקות יחידה: `hash.svelte.spec.ts`, `audio-cache.svelte.spec.ts`, `proxy-client.spec.ts`, `migration.svelte.spec.ts`, `tts.svelte.spec.ts` — כולן עוברות
+
+---
+
 ## 2026-05-03 15:14
 
 ### שלב 6 Phase B — URL Routing + Sets

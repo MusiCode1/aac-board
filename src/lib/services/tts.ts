@@ -3,12 +3,20 @@
  *
  * Providers: webspeech (default), elevenlabs, gemini.
  * Settings stored in localStorage under `tts-settings`.
+ *
+ * For ElevenLabs and Gemini, audio is synthesized via the proxy and cached in
+ * IndexedDB (L1). WebSpeech continues to use the browser's built-in TTS.
  */
 
 import { getProvider, webSpeechProvider } from './tts-providers';
 import { getDefaultModelForProvider } from './tts-providers/provider-models';
+import { getOrCreateAudio } from './cache/audio-cache';
+import { playAudioBlob } from './tts-providers/audio-playback';
+import { createStore } from 'idb-keyval';
 import type { TtsProviderId, TtsVoice } from './tts-providers';
 import type { TtsModelOption } from './tts-providers/types';
+
+type IdbStore = ReturnType<typeof createStore>;
 
 export interface TtsSettings {
 	/** Active provider */
@@ -75,12 +83,58 @@ export async function getVoicesForProvider(
 	return provider.getVoices(lang);
 }
 
+/** Providers that route through the proxy+cache instead of calling APIs directly. */
+const PROXIED_PROVIDERS = new Set<TtsProviderId>(['elevenlabs', 'gemini']);
+
+/** Optional dependency overrides for `speak()` — used in tests. */
+export interface SpeakDeps {
+	/** Override the TTS settings (default: read from localStorage). */
+	settings?: TtsSettings;
+	/** Override the fetch function (default: globalThis.fetch). */
+	fetchFn?: typeof globalThis.fetch;
+	/** Override the proxy base URL (default: import.meta.env.VITE_PROXY_URL). */
+	proxyUrl?: string;
+	/** Override the IDB store used for the audio cache (default: global aac-cache). */
+	store?: IdbStore;
+}
+
 /** Speak a single text string using the active provider, falling back to Web Speech on error. */
-export async function speak(text: string, lang = 'he-IL'): Promise<void> {
-	const settings = getTtsSettings();
+export async function speak(text: string, lang = 'he-IL', deps?: SpeakDeps): Promise<void> {
+	const settings = deps?.settings ?? getTtsSettings();
 	const provider = getProvider(settings.provider);
 
-	// Try the selected provider first
+	// Proxied providers (elevenlabs, gemini) go through the audio cache
+	if (PROXIED_PROVIDERS.has(settings.provider)) {
+		const modelId = settings.modelId || getDefaultModelForProvider(settings.provider);
+		const req = {
+			text,
+			provider: settings.provider as 'elevenlabs' | 'gemini',
+			voiceId: settings.voiceURI || 'default',
+			modelId: modelId || 'default',
+			lang
+		};
+		try {
+			const blob = await getOrCreateAudio(req, {
+				fetch: deps?.fetchFn,
+				proxyUrl: deps?.proxyUrl,
+				store: deps?.store
+			});
+			await playAudioBlob(blob, { rate: settings.rate, pitch: settings.pitch, lang });
+			return;
+		} catch (e) {
+			console.warn(
+				`[tts] proxy cache for "${settings.provider}" failed — falling back to webspeech`,
+				e
+			);
+		}
+		// Fallback to Web Speech on proxy failure
+		if (webSpeechProvider.isAvailable()) {
+			await webSpeechProvider.speak(text, { rate: settings.rate, pitch: settings.pitch, lang });
+		}
+		return;
+	}
+
+	// Non-proxied provider (webspeech) — use original path
 	if (provider.isAvailable()) {
 		try {
 			const modelId = settings.modelId || getDefaultModelForProvider(settings.provider);
