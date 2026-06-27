@@ -12,12 +12,12 @@
 
 ובכל זאת, Cboard נבנה על React 17 ו-Redux, עם Material-UI 4 — ערימה טכנולוגית שמראשית 2020. הממשק לא מותאם ל-RTL, אין תמיכה בתכנון מוטורי, אין קידוד צבעים, ופונקציות בסיסיות דורשות חיבור לאינטרנט.
 
-במקביל, האקוסיסטם של AAC כולו נמצא במצב עגום. סקר OpenAAC השנתי לשנת 2025 נתן לתחום ציון כולל של **GPA 1.9 מתוך 4.0**. חינוך קיבל F (0.6). מימון — D+. הציון הגבוה ביותר, B, ניתן למשפחות — כי ההורים הם אלה שעושים את העבודה. [2]
+במקביל, האקוסיסטם של AAC כולו נמצא במצב עגום. דו"ח OpenAAC על מצב התחום בשנת 2024 (פורסם מרץ 2025) נתן לתחום ציון כולל של **GPA 1.9 מתוך 4.0**. חינוך קיבל F (0.6). מימון — D+ (1.6). הציון הגבוה ביותר, B (3.0), ניתן למשפחות — כי ההורים הם אלה שעושים את העבודה. [2]
 
 הפער בולט במיוחד בעברית. אין מוצר AAC עברי-ילידי איכותי. הפתרונות הקיימים הם תרגומים של מוצרים באנגלית, או אפליקציות מקומיות מוגבלות. ב-2023 וב-2024 פורסמו לראשונה רשימות core vocabulary בעברית — מחקרים פורצי דרך שעדיין לא יושמו באף מוצר. זה הפער שאנחנו באים לסגור.
 
 > [1] Cboard Reviews, Educational App Store; Google Play user reviews.
-> [2] OpenAAC, "State of AAC 2025," openaac.org, March 2025.
+> [2] OpenAAC, "AAC Ecosystem's Grades for the Year 2024," openaac.org/2025/03/17/aac-ecosystem-gpa.html, March 2025.
 
 ---
 
@@ -39,7 +39,7 @@
 
 עד 2023, רשימות core vocabulary היו קיימות רק באנגלית. חוקרים ישראליים שינו את זה. במחקר שפורסם ב-Augmentative and Alternative Communication, נבדק השימוש בשפה של 12 ילדים דוברי עברית בגן. התוצאה: **200 הלקסמות הנפוצות ביותר מהוות 87.15% מכלל המילים שהופקו.** רשימה מאוחדת של 337 לקסמות כיסתה עד 87% מהטוקנים. [5]
 
-ב-2024 הגיע מחקר המשך שבדק ילדים עם מוגבלות אינטלקטואלית והתפתחותית (IDD), בגילאי 3.5 עד 8.4. גם שם, 200 הלקסמות הנפוצות ביותר מהוות 85% מהלקסיקון. ממצא מעניין: ילדים עם IDD משתמשים יותר בתואר הפועל (adverbs) בהשוואה לילדים נורמטיביים שמשתמשים יותר בפעלים. [6]
+ב-2025 הגיע מחקר המשך של אותן חוקרות (Savaldi-Harussi & Uziel) שבדק ילדים עם מוגבלות אינטלקטואלית והתפתחותית (IDD), בגילאי 3.5 עד 8.4. גם שם, 200 הלקסמות הנפוצות ביותר מהוות 85% מהלקסיקון. ממצא מעניין: ילדים עם IDD משתמשים יותר בתואר הפועל (adverbs) בהשוואה לילדים נורמטיביים שמשתמשים יותר בפעלים. [6]
 
 שני המחקרים האלה הם בסיס אמפירי ייחודי — ועדיין, נכון ל-2026, **אף מוצר AAC לא יישם את הרשימות הללו.** זה כנראה הערך המוסף הגדול ביותר שפרויקט AAC Board יכול לספק: ערכת ברירת מחדל עברית מבוססת מחקר.
 
@@ -49,8 +49,8 @@
 > [2] Hartmann, "4 Things Every AAC System Needs," AssistiveWare, 2019 (updated 2025).
 > [3] Zangari, "Linguistically Robust AAC Systems," PrAACtical AAC, 2014.
 > [4] שם.
-> [5] "Frequency of Word Usage by Hebrew Preschoolers," AAC Journal, Vol 39(2), 2023.
-> [6] "Frequency of Hebrew Word Usage by Children with IDD," AAC Journal, Vol 41(1), 2024.
+> [5] Savaldi-Harussi, G. & Uziel, S. (2023). "Frequency of word usage by Hebrew preschoolers: implications for AAC core vocabulary." *Augmentative and Alternative Communication*. DOI: 10.1080/07434618.2023.2210671.
+> [6] Savaldi-Harussi, G. & Uziel, S. (2025). "Frequency of Hebrew word usage by children with intellectual and developmental disabilities: implications for AAC core vocabulary." *Augmentative and Alternative Communication*. DOI: 10.1080/07434618.2024.2407794.
 > [7] "A Systematic and Quality Review of AAC Interventions that Use Core Vocabulary," Review Journal of Autism and DD, 2023.
 
 ---
@@ -115,7 +115,7 @@ Proloquo של AssistiveWare מדגימה את היתרון: למרות שאוצ�
 
 > [1] OpenAAC, "State of AAC 2025," openaac.org, March 2025.
 > [2] "How We Designed Proloquo to Grow," AssistiveWare Blog; "Proloquo vs Proloquo2Go," AssistiveWare.
-> [3] AAC Journal; ASHA Practice Portal.
+> [3] Hill, K. (2001) — ממוצע אמפירי 10.3 wpm; Foulds (1987) "less than 15 wpm"; Alm, Iwabuchi, Arnott (2001) — "in the region of 8-10 wpm"; Cai et al. (Google), NAACL 2022 — "extremely low text-entry speed of 8-10 words per minute"; Cave (UCL, 2024) — "around 8–10 wpm, perhaps 20 wpm with word prediction". המספר 25.75 wpm עם RoBERTa: Cai et al., NAACL 2022.
 > [4] AssistiveWare, "Survey: AAC in English-Speaking Countries," 2023 (n=562).
 
 ---
@@ -210,12 +210,12 @@ Della היא משתמשת AAC שאחיה Archer פיתח עבורה את FreeSpe
 
 ### ההפתעה: רקע צבעוני מאט ילדים
 
-מחקר של Thistle ו-Wilkinson מ-2015 בדק את ההשפעה של קידוד צבעים ברקע על חיפוש סמלים. הממצא הפתיע: ילדים צעירים (42-47 חודשים) היו **1.3 שניות איטיים יותר** בזיהוי סמלים עם רקע צבעוני לעומת רקע לבן (p=.002). ילדים מבוגרים (60-66 חודשים) לא הושפעו כלל. [2]
+מחקר של Wilkinson ו-Coombs מ-2010 (PMC4599784, *Early Childhood Services*) בדק את ההשפעה של קידוד צבעים ברקע על חיפוש סמלים. הממצא הפתיע: ילדים צעירים (42-47 חודשים) היו **1.3 שניות איטיים יותר** בזיהוי סמלים עם רקע צבעוני לעומת רקע לבן (p=.002). ילדים מבוגרים (60-66 חודשים) לא הושפעו כלל. [2]
 
 המשמעות המעשית: **גבול צבעוני** (border) עשוי להיות עדיף על **רקע מלא** (background), במיוחד למשתמשים צעירים. הצבע עדיין נוכח כרמז חזותי, אבל לא משתלט על התצוגה. זה בדיוק מה ש-Cboard המקורי לא מציע — ומה ש-AAC Board יכול לעשות: שלוש שיטות יישום (רקע, גבול, סרגל כותרת), עם Modified Fitzgerald כברירת מחדל. [3]
 
 > [1] Communication Community, "Fitzgerald Key for AAC"; TVCC, "Fitzgerald Key Colour Coding"; Smartbox Hub.
-> [2] Thistle & Wilkinson, "Preliminary Exploration of the Effect of Background Color," PMC4599784, 2015.
+> [2] Wilkinson & Coombs, "Preliminary exploration of the effect of background color on the speed and accuracy of search for an aided symbol target by typically developing preschoolers," *Early Childhood Services* (San Diego), 2010. PMC4599784.
 > [3] PrAACtical AAC, "Communication Boards: Colorful Considerations."
 
 ---
@@ -288,12 +288,13 @@ O'Neil ו-McCarthy הציעו ב-2018 את המושג **"Presume Potential"** �
 | SymboTalk  | אפליקציה ישראלית | $0.99/חודש            | 60,000+ סמלים (ARASAAC+), 14 לוחות, 25 שפות |
 | Ola Mundo  | אפליקציה ישראלית | —                     | תקשורת מרחוק בסמלים, iOS בלבד               |
 | Cboard     | קוד פתוח         | חינם                  | Web, 40+ שפות, ARASAAC                      |
-| TouchChat  | מסחרי            | $299 + $149.99 לעברית | ממשק עברי מלא, iOS בלבד                     |
+| TouchChat HD AAC | מסחרי | $149.99 + In-App Purchases | אנגלית בעיקר; iPad |
+| TouchChat HD Hebrew | מסחרי (אפליקציה נפרדת) | ₪499.90 (~$135) | אנגלית+עברית באפליקציה אחת, iOS, מאת PRC-Saltillo |
 | Grid       | מסחרי            | דרך סל הבריאות        | הנפוץ ב"ערוץ הרשמי"                         |
 
 ### ארגונים פעילים
 
-**עזר מציון** הוא המרכז הארצי לתקשורת תומכת — משאיל כ-2,000 מכשירים בשנה, חינם (למעט ביטוח). **בית איזי שפירא** מפעיל מרכז טכנולוגיה מסייעת שמשרת למעלה מ-500,000 אנשים בשנה. **אלין בית נועם** מספק הערכות וניטור. **עזרים דיגיטל** (Azarim) מנהל מאגר מידע של 17,600+ פריטים. **ISHLA** — האגודה הישראלית של קלינאי תקשורת — עורכת כינוסים שנתיים עם הרצאות על AAC. [3]
+**עזר מציון** מפעיל את **המרכז הארצי לתקשורת תומכת** — מרכז ההשאלה היחיד מסוגו במזרח התיכון, שמשאיל אלפי מכשירי AAC מדי שנה. ההשאלה ללא תשלום, למעט דמי ביטוח חודשיים (כ-50 ש"ח לאייפד). **בית איזי שפירא** מפעיל מרכז טכנולוגיה מסייעת שמשרת למעלה מ-500,000 אנשים בשנה. **אלין בית נועם** מספק הערכות וניטור. **עזרים דיגיטל** (Azarim) מנהל מאגר מידע של 17,600+ פריטים. **ISHLA** — האגודה הישראלית של קלינאי תקשורת — עורכת כינוסים שנתיים עם הרצאות על AAC. [3]
 
 ### הפערים
 
